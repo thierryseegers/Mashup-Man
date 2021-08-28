@@ -29,7 +29,8 @@ game::game()
     fonts.load(resources::font::main, "assets/fonts/Sansation.ttf");
     fonts.load(resources::font::label, "assets/fonts/Sansation.ttf");
 
-    // auto& textures = utility::single::mutable_instance<resources::textures_t>();
+    auto& textures = utility::single::mutable_instance<resources::textures_t>();
+    textures.load(resources::texture::maze_tiles, "assets/images/maze-tiles.png");
     // textures.load(resources::texture::title_screen, "Media/Textures/TitleScreen.png");
 	// textures.load(resources::texture::buttons, "Media/Textures/Buttons.png");
 
@@ -54,48 +55,36 @@ game::game()
 
     // music.volume(25.f);
 
-    // The maze's pixels.
-    auto maze_px = std::make_unique<sf::Uint8[]>(window.getSize().x * window.getSize().y * sizeof(sf::Uint32));
+    // Load the maze's tile strip.
+    maze.load(textures.get(resources::texture::maze_tiles));
 
+    // The maze's pixels.
+    // Extract the maze's wall information from the map.
     std::ifstream map{"assets/maps/1.txt"};
     std::string line;
-    size_t px = 0;
-    size_t row = 0;
-    static auto const blue = sf::Color::Blue;
-
+    std::array<std::array<int, 28>, 33> maze_tile_values;
+    size_t row = 0, column = 0;
     while(std::getline(map, line))
     {
         std::for_each(line.begin(), line.end(), [&](char const c)
         {
-            if(c == '#')
+            switch(c)
             {
-                for(int j = 0; j != 24; ++j)
-                {
-                    memcpy(&maze_px[px], (sf::Uint8*)&blue.r, sizeof(sf::Uint8));
-                    memcpy(&maze_px[px + 1], (sf::Uint8*)&blue.g, sizeof(sf::Uint8));
-                    memcpy(&maze_px[px + 2], (sf::Uint8*)&blue.b, sizeof(sf::Uint8));
-                    memcpy(&maze_px[px + 3], (sf::Uint8*)&blue.a, sizeof(sf::Uint8));
-                    px += sizeof(sf::Uint32);
-                }
+                case '0':
+                case '1':
+                case '2':
+                    maze_tile_values[row][column] = c - '0';
+                    break;
+                default:
+                    maze_tile_values[row][column] = 4;
+                    break;
             }
-            else
-            {
-                px += 24 * sizeof(sf::Uint32);
-            }
+            ++column;
         });
-        
-        px = 1024 * 4 * row;
-        for(int i = 0; i != 24; ++i)
-        {
-            memcpy(&maze_px[px + i * 1024 * 4], &maze_px[px], 1024 * 4);
-        }
-        row += 24;
-        px = 1024 * 4 * row;
+        ++row;
+        column = 0;
     }
-
-    maze_tx.create(window.getSize().x, window.getSize().y);
-    maze_tx.update(maze_px.get());
-    maze_tx.copyToImage().saveToFile("1.png");
+    maze.layout(maze_tile_values);
 }
 
 void game::run()
@@ -103,7 +92,7 @@ void game::run()
     sf::Clock clock;
     sf::Time last_update = sf::Time::Zero;
 
-     while(window.isOpen())
+    while(window.isOpen())
     {
         sf::Time const elapsed_time = clock.restart();
         last_update += elapsed_time;
@@ -168,10 +157,11 @@ void game::render()
     // states.draw();
 
     window.setView(window.getDefaultView());
-    sf::Sprite maze_sp{maze_tx};
-    maze_sp.setOrigin(0, 0);
+    // sf::Sprite maze_sp{maze_tx};
+    // maze_sp.setOrigin(0, 0);
     // maze_sp.set
-    window.draw(sf::Sprite{maze_tx});
+    // window.draw(sf::Sprite{maze_tx});
+    window.draw(maze);
     window.draw(statistics_text);
     window.display();
 }

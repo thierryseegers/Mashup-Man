@@ -6,6 +6,8 @@
 // #include "sound.h"
 // #include "state/state.h"
 
+#include "tile_map.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
@@ -42,5 +44,5 @@ private:
 
     sf::Time const time_per_frame = sf::seconds(1.f / 60.f);
 
-    sf::Texture maze_tx;
+    tile_map maze;
 };

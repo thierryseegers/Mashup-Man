@@ -19,16 +19,17 @@ enum class font
     main,
 };
 
-// enum class texture
-// {
-//     buttons, 
-//     entities,
-//     explosion,
-//     finish_line,
-//     jungle,
-//     particle,
-//     title_screen,
-// };
+enum class texture
+{
+    maze_tiles
+    // buttons, 
+    // entities,
+    // explosion,
+    // finish_line,
+    // jungle,
+    // particle,
+    // title_screen,
+};
 
 // enum class shader_pass
 // {
@@ -105,11 +106,11 @@ private:
 using fonts_t = holder<font, sf::Font>;
 // using shaders_t = holder<shader_pass, sf::Shader>;
 // using sound_buffers_t = holder<sound_effect, sf::SoundBuffer>;
-// using textures_t = holder<texture, sf::Texture>;
+using textures_t = holder<texture, sf::Texture>;
 
 fonts_t const& fonts();
 // shaders_t& shaders();
 // sound_buffers_t const& sound_buffers();
-// textures_t const& textures();
+textures_t const& textures();
 
 }
