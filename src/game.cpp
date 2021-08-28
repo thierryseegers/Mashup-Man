@@ -60,21 +60,37 @@ game::game()
     std::ifstream map{"assets/maps/1.txt"};
     std::string line;
     size_t px = 0;
+    size_t row = 0;
+    static auto const blue = sf::Color::Blue;
+
     while(std::getline(map, line))
     {
         std::for_each(line.begin(), line.end(), [&](char const c)
         {
-            static auto const blue = sf::Color::Blue;
             if(c == '#')
             {
-                memcpy(&maze_px[px], (sf::Uint8*)&blue.r, sizeof(sf::Uint8));
-                memcpy(&maze_px[px + 1], (sf::Uint8*)&blue.g, sizeof(sf::Uint8));
-                memcpy(&maze_px[px + 2], (sf::Uint8*)&blue.b, sizeof(sf::Uint8));
-                memcpy(&maze_px[px + 3], (sf::Uint8*)&blue.a, sizeof(sf::Uint8));
+                for(int j = 0; j != 24; ++j)
+                {
+                    memcpy(&maze_px[px], (sf::Uint8*)&blue.r, sizeof(sf::Uint8));
+                    memcpy(&maze_px[px + 1], (sf::Uint8*)&blue.g, sizeof(sf::Uint8));
+                    memcpy(&maze_px[px + 2], (sf::Uint8*)&blue.b, sizeof(sf::Uint8));
+                    memcpy(&maze_px[px + 3], (sf::Uint8*)&blue.a, sizeof(sf::Uint8));
+                    px += sizeof(sf::Uint32);
+                }
             }
-            px += sizeof(sf::Uint32);
+            else
+            {
+                px += 24 * sizeof(sf::Uint32);
+            }
         });
-        px += (1024 - 28) * 4;
+        
+        px = 1024 * 4 * row;
+        for(int i = 0; i != 24; ++i)
+        {
+            memcpy(&maze_px[px + i * 1024 * 4], &maze_px[px], 1024 * 4);
+        }
+        row += 24;
+        px = 1024 * 4 * row;
     }
 
     maze_tx.create(window.getSize().x, window.getSize().y);
