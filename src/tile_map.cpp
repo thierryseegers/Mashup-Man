@@ -10,7 +10,7 @@ tile_map::tile_map()
 void tile_map::load(
     sf::Texture const& tile_strip_)
 {
-    tile_strip = tile_strip_;
+    texture_strip = tile_strip_;
 }
 
 void tile_map::draw(
@@ -18,6 +18,6 @@ void tile_map::draw(
     sf::RenderStates states) const
 {
     states.transform *= getTransform();
-    states.texture = &tile_strip;
+    states.texture = &texture_strip;
     target.draw(vertices, states);
 }

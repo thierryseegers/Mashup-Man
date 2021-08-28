@@ -11,6 +11,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <array>
 #include <filesystem>
 
 class game
@@ -44,5 +45,6 @@ private:
 
     sf::Time const time_per_frame = sf::seconds(1.f / 60.f);
 
-    tile_map maze;
+    std::array<std::array<char, 28>, 33> maze;
+    tile_map walls;
 };

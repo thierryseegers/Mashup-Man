@@ -55,17 +55,25 @@ game::game()
 
     // music.volume(25.f);
 
-    // Load the maze's tile strip.
-    maze.load(textures.get(resources::texture::maze_tiles));
+    // Load the walls's tile strip.
+    walls.load(textures.get(resources::texture::maze_tiles));
 
-    // The maze's pixels.
-    // Extract the maze's wall information from the map.
+
+    // Read in the maze tile information.
     std::ifstream map{"assets/maps/1.txt"};
-    std::string line;
-    std::array<std::array<int, 28>, 33> maze_tile_values;
-    size_t row = 0, column = 0;
-    while(std::getline(map, line))
+    size_t row = 0;
+    for(std::string line; std::getline(map, line);)
     {
+        std::copy(line.begin(), line.end(), maze[row++].begin());
+    }
+
+    // Read in wall tile rotation information.
+    std::array<std::array<int, 28>, 33> wall_tile_rotations;
+    std::string line;
+    for(auto& row : wall_tile_rotations)
+    {
+        size_t column = 0;
+        std::getline(map, line);
         std::for_each(line.begin(), line.end(), [&](char const c)
         {
             switch(c)
@@ -73,18 +81,41 @@ game::game()
                 case '0':
                 case '1':
                 case '2':
-                    maze_tile_values[row][column] = c - '0';
+                case '3':
+                    row[column] = c - '0';
                     break;
                 default:
-                    maze_tile_values[row][column] = 4;
+                    row[column] = 0;
                     break;
             }
             ++column;
         });
-        ++row;
         column = 0;
     }
-    maze.layout(maze_tile_values);
+
+    // Extract just the wall tile information.
+    std::array<std::array<int, 28>, 33> wall_tiles;
+    for(size_t r = 0; r != 33; ++r)
+    {
+        for(size_t c = 0; c != 28; ++c)
+        {
+            switch(maze[r][c])
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    wall_tiles[r][c] = c - '0';
+                    break;
+                default:
+                    wall_tiles[r][c] = 5;
+                    break;
+            }
+        }
+    }
+
+    walls.layout(wall_tiles, wall_tile_rotations);
 }
 
 void game::run()
@@ -157,11 +188,8 @@ void game::render()
     // states.draw();
 
     window.setView(window.getDefaultView());
-    // sf::Sprite maze_sp{maze_tx};
-    // maze_sp.setOrigin(0, 0);
-    // maze_sp.set
-    // window.draw(sf::Sprite{maze_tx});
-    window.draw(maze);
+
+    window.draw(walls);
     window.draw(statistics_text);
     window.display();
 }
