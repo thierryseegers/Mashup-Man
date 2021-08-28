@@ -14,6 +14,7 @@
 #include <SFML/System.hpp>
 
 #include <filesystem>
+#include <memory>
 #include <stdexcept>
 
 game::game()
@@ -52,6 +53,33 @@ game::game()
     // states.request_push(state::id::title);
 
     // music.volume(25.f);
+
+    // The maze's pixels.
+    auto maze_px = std::make_unique<sf::Uint8[]>(window.getSize().x * window.getSize().y * sizeof(sf::Uint32));
+
+    std::ifstream map{"assets/maps/1.txt"};
+    std::string line;
+    size_t px = 0;
+    while(std::getline(map, line))
+    {
+        std::for_each(line.begin(), line.end(), [&](char const c)
+        {
+            static auto const blue = sf::Color::Blue;
+            if(c == '#')
+            {
+                memcpy(&maze_px[px], (sf::Uint8*)&blue.r, sizeof(sf::Uint8));
+                memcpy(&maze_px[px + 1], (sf::Uint8*)&blue.g, sizeof(sf::Uint8));
+                memcpy(&maze_px[px + 2], (sf::Uint8*)&blue.b, sizeof(sf::Uint8));
+                memcpy(&maze_px[px + 3], (sf::Uint8*)&blue.a, sizeof(sf::Uint8));
+            }
+            px += sizeof(sf::Uint32);
+        });
+        px += (1024 - 28) * 4;
+    }
+
+    maze_tx.create(window.getSize().x, window.getSize().y);
+    maze_tx.update(maze_px.get());
+    maze_tx.copyToImage().saveToFile("1.png");
 }
 
 void game::run()
@@ -124,6 +152,10 @@ void game::render()
     // states.draw();
 
     window.setView(window.getDefaultView());
+    sf::Sprite maze_sp{maze_tx};
+    maze_sp.setOrigin(0, 0);
+    // maze_sp.set
+    window.draw(sf::Sprite{maze_tx});
     window.draw(statistics_text);
     window.display();
 }
