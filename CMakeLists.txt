@@ -19,10 +19,10 @@ include(
 # Request Conan to install Find*.cmake modules for the dependencies.
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 conan_cmake_run(REQUIRES
-                    # magic_enum/0.7.2
+                    magic_enum/0.7.2
                     tomlplusplus/2.3.0
                     sfml/2.5.1@bincrafters/stable
-                    # spdlog/1.8.2
+                    spdlog/1.8.2
                 BASIC_SETUP
                 BUILD
                     missing
@@ -34,9 +34,9 @@ conan_cmake_run(REQUIRES
 )
 list(APPEND CMAKE_MODULE_PATH ${CONAN_INSTALL_FOLDER})
 
-# find_package(magic_enum 0.7.2 MODULE
-#     REQUIRED
-# )
+find_package(magic_enum 0.7.2 MODULE
+    REQUIRED
+)
 
 find_package(SFML 2.5.1 MODULE
     COMPONENTS audio graphics network system window
@@ -44,25 +44,41 @@ find_package(SFML 2.5.1 MODULE
 )
 add_library(sfml::sfml ALIAS SFML::SFML)
 
-# find_package(spdlog 1.8.2 MODULE
-#     REQUIRED
-# )
+find_package(spdlog 1.8.2 MODULE
+    REQUIRED
+)
 
 find_package(tomlplusplus 2.3.0 MODULE
     REQUIRED
 )
 
 add_executable(${PROJECT_NAME}
+    src/application.cpp
+    src/application.h
+    src/command.h
     src/configuration.cpp
     src/configuration.h
-    src/game.cpp
-    src/game.h
     src/main.cpp
+    src/resources.cpp
+    src/resources.h
+    src/scene.cpp
+    src/scene.h
+    src/sound.cpp
+    src/sound.h
     src/tile_map.cpp
     src/tile_map.h
     src/tomlpp.h
     src/utility.cpp
     src/utility.h
+    src/state/game.cpp
+    src/state/game.h
+    src/state/id.h
+    src/state/stack.cpp
+    src/state/stack.h
+    src/state/state.cpp
+    src/state/state.h
+    src/world.cpp
+    src/world.h
 )
 
 target_compile_options(${PROJECT_NAME}
@@ -80,15 +96,15 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE 
-        # magic_enum::magic_enum
+        magic_enum::magic_enum
         sfml::sfml
-        # spdlog::spdlog
+        spdlog::spdlog
         tomlplusplus::tomlplusplus
 )
 
 set_property(
     TARGET ${PROJECT_NAME}
-    PROPERTY CXX_STANDARD 17
+    PROPERTY CXX_STANDARD 20
 )
 
 add_custom_target(copy-assets ALL

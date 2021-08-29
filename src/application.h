@@ -2,9 +2,8 @@
 
 // #include "music.h"
 // #include "player.h"
-// #include "resources.h"
-// #include "sound.h"
-// #include "state/state.h"
+#include "sound.h"
+#include "state/state.h"
 
 #include "tile_map.h"
 
@@ -12,12 +11,11 @@
 #include <SFML/System.hpp>
 
 #include <array>
-#include <filesystem>
 
-class game
+class application
 {
 public:
-    game();
+    application();
 
     void run();
 
@@ -34,10 +32,10 @@ private:
 
     // music::player music;
     // player_t player_1;
-    // sound::player sound;
+    sound::player sound;
     sf::RenderWindow window;
 
-    // state::stack states;
+    state::stack states;
 
     sf::Text statistics_text;
     sf::Time statistics_update_time;

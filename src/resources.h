@@ -39,16 +39,16 @@ enum class texture
 //     add,
 // };
 
-// enum class sound_effect
-// {
-//     allied_gunfire,
-//     enemy_gunfire,
-//     explosion_1,
-//     explosion_2,
-//     launch_missile,
-//     collect_pickup,
-//     button
-// };
+enum class sound_effect
+{
+    // allied_gunfire,
+    // enemy_gunfire,
+    // explosion_1,
+    // explosion_2,
+    // launch_missile,
+    // collect_pickup,
+    // button
+};
 
 template<typename Type, class Resource>
 class holder
@@ -105,12 +105,12 @@ private:
 
 using fonts_t = holder<font, sf::Font>;
 // using shaders_t = holder<shader_pass, sf::Shader>;
-// using sound_buffers_t = holder<sound_effect, sf::SoundBuffer>;
+using sound_buffers_t = holder<sound_effect, sf::SoundBuffer>;
 using textures_t = holder<texture, sf::Texture>;
 
 fonts_t const& fonts();
 // shaders_t& shaders();
-// sound_buffers_t const& sound_buffers();
+sound_buffers_t const& sound_buffers();
 textures_t const& textures();
 
 }

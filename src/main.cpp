@@ -1,5 +1,5 @@
+#include "application.h"
 #include "configuration.h"
-#include "game.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -12,7 +12,7 @@ int main(int, char**)
 
         std::cout << configuration::values();
         
-        game{}.run();
+        application{}.run();
     }
     catch(std::exception const& e)
     {
