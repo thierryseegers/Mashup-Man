@@ -4,8 +4,8 @@
 #include "configuration.h"
 // #include "effects/bloom.h"
 // #include "effects/post_effect.h"
-// #include "entity/aircraft.h"
-// #include "entity/entity.h"
+#include "entity/brother.h"
+#include "entity/entity.h"
 // #include "entity/missile.h"
 // #include "entity/projectile.h"
 // #include "entity/pickup.h"
@@ -140,6 +140,24 @@ void world_t::build_scene()
     }
 
     m->layout(wall_tiles, wall_tile_rotations);
+
+
+    // Create brother(s).
+    size_t r = 0, c = 0;
+    bool found = false;
+    for(; !found && r != level::height; ++r)
+    {
+        for(c = 0; !found && c != level::width; ++c)
+        {
+            if(level_info[r][c] == 'x')
+            {
+                found = true;
+            }
+        }
+    }
+
+    auto *mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>();
+    mario->setPosition(c * 20.f, r * 20.f);
 
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);

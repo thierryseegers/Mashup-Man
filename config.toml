@@ -3,15 +3,18 @@
 texture = "brothers"
 
 [brothers.mario]
-texture_rect = [43, 9, 58, 24]
+texture_rect = [43, 9, 15, 15]
 
 [enemies]
 
 texture = "enemies"
 
 [enemies.goomba]
-texture_rect = [1, 28, 16, 43]
+texture_rect = [1, 28, 15, 15]
 
 [items]
 
 texture = "items"
+
+[items.mushroom]
+texture_rect = [0, 0, 15, 15]
