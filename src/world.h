@@ -22,7 +22,7 @@ namespace layer
 enum class id
 {
     maze,
-    inanimates,
+    items,
     characters
 };
 
@@ -30,7 +30,7 @@ class maze :
     public scene::node
 {};
 
-class inanimates :
+class items :
     public scene::node
 {};
 

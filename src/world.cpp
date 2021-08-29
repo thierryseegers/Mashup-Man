@@ -6,9 +6,10 @@
 // #include "effects/post_effect.h"
 #include "entity/brother.h"
 #include "entity/entity.h"
+#include "entity/enemy.h"
 // #include "entity/missile.h"
 // #include "entity/projectile.h"
-// #include "entity/pickup.h"
+#include "entity/pickup.h"
 // #include "particle.h"
 #include "maze.h"
 #include "resources.h"
@@ -23,6 +24,7 @@
 #include <array>
 #include <cmath>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 world_t::world_t(
@@ -79,7 +81,7 @@ void world_t::build_scene()
 
     // Create layers.
     layers[magic_enum::enum_integer(layer::id::maze)] = graph.attach<layer::maze>();
-    layers[magic_enum::enum_integer(layer::id::inanimates)] = graph.attach<layer::inanimates>();
+    layers[magic_enum::enum_integer(layer::id::items)] = graph.attach<layer::items>();
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
 
     auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
@@ -158,6 +160,33 @@ void world_t::build_scene()
 
     auto *mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>();
     mario->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
+
+    found = false;
+    for(; !found && r != level::height; ++r)
+    {
+        for(c = 0; !found && c != level::width; ++c)
+        {
+            if(level_info[r][c] == 'g')
+            {
+                found = true;
+            }
+        }
+    }
+
+    layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>()->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
+
+    found = false;
+    for(; !found && r != level::height; ++r)
+    {
+        for(c = 0; !found && c != level::width; ++c)
+        {
+            if(level_info[r][c] == 'm')
+            {
+                found = true;
+            }
+        }
+    }
+    layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>()->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
 
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);
