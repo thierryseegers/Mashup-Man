@@ -1,0 +1,17 @@
+[brothers]
+
+texture = "brothers"
+
+[brothers.mario]
+texture_rect = [43, 9, 58, 24]
+
+[enemies]
+
+texture = "enemies"
+
+[enemies.goomba]
+texture_rect = [1, 28, 16, 43]
+
+[items]
+
+texture = "items"

@@ -21,7 +21,10 @@ enum class font
 
 enum class texture
 {
-    maze_tiles
+    brothers,
+    enemies,
+    items,
+    walls,
     // buttons, 
     // entities,
     // explosion,

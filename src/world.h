@@ -4,6 +4,7 @@
 // #include "effects/bloom.h"
 // #include "entity/enemy.h"
 // #include "entity/leader.h"
+#include "level.h"
 #include "resources.h"
 #include "scene.h"
 #include "sound.h"
@@ -84,12 +85,12 @@ private:
     // sf::Vector2f const player_spawn_point;
     // float scroll_speed;
     
-    // entity::leader_t* player;
+    // entity::brother* player;
     // std::vector<entity::enemy*> enemies;
 
     // struct spawn
     // {
-    //     std::function<std::unique_ptr<entity::aircraft_t> ()> const what;
+    //     std::function<std::unique_ptr<entity::character> ()> const what;
     //     sf::Vector2f const where;
 
     //     bool operator<(spawn const& other) const
@@ -99,4 +100,6 @@ private:
     // };
 
     // std::multiset<spawn> enemy_spawns;
+
+    level::info level_info;
 };

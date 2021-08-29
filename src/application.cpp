@@ -30,7 +30,10 @@ application::application()
     fonts.load(resources::font::label, "assets/fonts/Sansation.ttf");
 
     auto& textures = utility::single::mutable_instance<resources::textures_t>();
-    textures.load(resources::texture::maze_tiles, "assets/images/maze-tiles.png");
+    textures.load(resources::texture::brothers, "assets/images/NES - Super Mario Bros - Mario & Luigi.png");
+    textures.load(resources::texture::enemies, "assets/images/NES - Super Mario Bros - Enemies & Bosses.png");
+    textures.load(resources::texture::items, "assets/images/NES - Super Mario Bros - Items Objects and NPCs.png");
+    textures.load(resources::texture::walls, "assets/images/walls.png");
     // textures.load(resources::texture::title_screen, "Media/Textures/TitleScreen.png");
 	// textures.load(resources::texture::buttons, "Media/Textures/Buttons.png");
 
@@ -72,10 +75,10 @@ void application::run()
             update(time_per_frame);
 
             // Check inside this loop, because stack might be empty before update() call
-            // if(states.empty())
-            // {
-            //     window.close();
-            // }
+            if(states.empty())
+            {
+                window.close();
+            }
         }
 
         update_statistics(elapsed_time);

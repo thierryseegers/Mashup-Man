@@ -8,7 +8,7 @@
 maze::maze()
 {
     // Load the walls's tile strip.
-    walls.load(utility::single::instance<resources::textures_t>().get(resources::texture::maze_tiles));
+    walls.load(utility::single::instance<resources::textures_t>().get(resources::texture::walls));
 
     // Read in the maze tile information.
     std::ifstream file{"assets/levels/1.txt"};

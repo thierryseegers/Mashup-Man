@@ -83,6 +83,16 @@ void world_t::build_scene()
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
 
     layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
+
+    // Read in the maze tile information.
+    std::ifstream file{"assets/levels/1.txt"};
+    std::string line;
+    for(auto& row : level_info)
+    {
+        std::getline(file, line);
+        std::copy(line.begin(), line.end(), row.begin());
+    }
+
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);
     // background_texture.setRepeated(true);
@@ -191,26 +201,26 @@ std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const&
 // {
 //     for(auto const& collision : graph.collisions())
 //     {
-//         if(auto [aircraft, projectile] = match<entity::hostile<entity::aircraft_t>, entity::friendly<entity::projectile>>(collision); aircraft && projectile)
+//         if(auto [aircraft, projectile] = match<entity::hostile<entity::character>, entity::friendly<entity::projectile>>(collision); aircraft && projectile)
 //         {
 //             spdlog::info("Friendly shot a hostile!");
 //             aircraft->damage(projectile->damage);
 //             projectile->remove = true;
 //         }
-//         else if(auto [aircraft, projectile] = match<entity::friendly<entity::aircraft_t>, entity::hostile<entity::projectile>>(collision); aircraft && projectile)
+//         else if(auto [aircraft, projectile] = match<entity::friendly<entity::character>, entity::hostile<entity::projectile>>(collision); aircraft && projectile)
 //         {
 //             spdlog::info("Friendly got shot!");
 //             aircraft->damage(projectile->damage);
 //             projectile->remove = true;
 //         }
-//         else if(auto [leader, pickup] = match<entity::leader_t, entity::pickup::pickup>(collision); leader && pickup)
+//         else if(auto [leader, pickup] = match<entity::brother, entity::pickup::pickup>(collision); leader && pickup)
 //         {
 //             spdlog::info("Leader got pickup!");
 //             pickup->apply(*leader);
 //             pickup->remove = true;
 //             leader->play_local_sound(commands_, resources::sound_effect::collect_pickup);
 //         }
-//         else if(auto [leader, enemy] = match<entity::leader_t, entity::enemy>(collision); leader && enemy)
+//         else if(auto [leader, enemy] = match<entity::brother, entity::enemy>(collision); leader && enemy)
 //         {
 //             spdlog::info("Leader crashed into enemy!");
 //             auto const leader_health = leader->health();

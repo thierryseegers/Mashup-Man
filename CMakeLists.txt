@@ -58,6 +58,18 @@ add_executable(${PROJECT_NAME}
     src/command.h
     src/configuration.cpp
     src/configuration.h
+    src/entity/animation.h
+    src/entity/brother.cpp
+    src/entity/brother.h
+    src/entity/character.cpp
+    src/entity/character.h
+    src/entity/enemy.cpp
+    src/entity/enemy.h
+    src/entity/entity.h
+    src/entity/pickup.cpp
+    src/entity/pickup.h
+    src/level.cpp
+    src/level.h
     src/main.cpp
     src/maze.cpp
     src/maze.h
