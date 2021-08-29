@@ -5,12 +5,8 @@
 #include "sound.h"
 #include "state/state.h"
 
-#include "tile_map.h"
-
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-
-#include <array>
 
 class application
 {

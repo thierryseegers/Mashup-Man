@@ -82,7 +82,7 @@ void world_t::build_scene()
     layers[magic_enum::enum_integer(layer::id::inanimates)] = graph.attach<layer::inanimates>();
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
 
-    layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
+    auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
 
     // Read in the maze tile information.
     std::ifstream file{"assets/levels/1.txt"};
@@ -92,6 +92,54 @@ void world_t::build_scene()
         std::getline(file, line);
         std::copy(line.begin(), line.end(), row.begin());
     }
+
+    // Read in wall tile rotation information.
+    std::array<std::array<int, level::width>, level::height> wall_tile_rotations;
+    for(auto& row : wall_tile_rotations)
+    {
+        size_t column = 0;
+        std::getline(file, line);
+        std::for_each(line.begin(), line.end(), [&](char const c)
+        {
+            switch(c)
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                    row[column] = c - '0';
+                    break;
+                default:
+                    row[column] = 0;
+                    break;
+            }
+            ++column;
+        });
+        column = 0;
+    }
+
+    // Extract just the wall tile information.
+    std::array<std::array<int, level::width>, level::height> wall_tiles;
+    for(size_t r = 0; r != level::height; ++r)
+    {
+        for(size_t c = 0; c != level::width; ++c)
+        {
+            switch(level_info[r][c])
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                    wall_tiles[r][c] = level_info[r][c] - '0';
+                    break;
+                default:
+                    wall_tiles[r][c] = 4;
+                    break;
+            }
+        }
+    }
+
+    m->layout(wall_tiles, wall_tile_rotations);
 
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);

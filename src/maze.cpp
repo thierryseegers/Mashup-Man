@@ -1,76 +1,83 @@
 #include "maze.h"
 
+#include "level.h"
 #include "resources.h"
 #include "utility.h"
 
-#include <fstream>
-
 maze::maze()
+    : texture_strip{utility::single::instance<resources::textures_t>().get(resources::texture::walls)}
 {
-    // Load the walls's tile strip.
-    walls.load(utility::single::instance<resources::textures_t>().get(resources::texture::walls));
+    vertices.setPrimitiveType(sf::Quads);
 
-    // Read in the maze tile information.
-    std::ifstream file{"assets/levels/1.txt"};
-    std::string line;
-    for(auto& row : level)
-    {
-        std::getline(file, line);
-        std::copy(line.begin(), line.end(), row.begin());
-    }
+    // Resize the vertex array to fit the level size.
+    vertices.resize(level::width * level::height * 4);
+}
 
-    // Read in wall tile rotation information.
-    std::array<std::array<int, 28>, 33> wall_tile_rotations;
-    for(auto& row : wall_tile_rotations)
+void maze::layout(
+    std::array<std::array<int, level::width>, level::height> const& texture_offsets,
+    std::array<std::array<int, level::width>, level::height> const& texture_rotations)
+{
+    unsigned int const tile_size = texture_strip.getSize().y;
+
+    // Populate the vertex array, with one quad per tile.
+    for (unsigned int r = 0; r < level::height; ++r)
     {
-        size_t column = 0;
-        std::getline(file, line);
-        std::for_each(line.begin(), line.end(), [&](char const c)
+        for (unsigned int c = 0; c < level::width; ++c)
         {
-            switch(c)
-            {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                    row[column] = c - '0';
-                    break;
-                default:
-                    row[column] = 0;
-                    break;
-            }
-            ++column;
-        });
-        column = 0;
-    }
+            // Get the current tile offset.
+            int const offset = texture_offsets[r][c];
 
-    // Extract just the wall tile information.
-    std::array<std::array<int, 28>, 33> wall_tiles;
-    for(size_t r = 0; r != 33; ++r)
-    {
-        for(size_t c = 0; c != 28; ++c)
-        {
-            switch(level[r][c])
+            // Find its position in the texture_strip texture.
+            int const tu = offset;
+            int const tv = 0;
+
+            // Get a pointer to the current tile's quad.
+            sf::Vertex* const quad = &vertices[(c + r * level::width) * 4];
+
+            // Define its four corners.
+            quad[0].position = sf::Vector2f(c * tile_size, r * tile_size);
+            quad[1].position = sf::Vector2f((c + 1) * tile_size, r * tile_size);
+            quad[2].position = sf::Vector2f((c + 1) * tile_size, (r + 1) * tile_size);
+            quad[3].position = sf::Vector2f(c * tile_size, (r + 1) * tile_size);
+
+            // Define its texture coordinates.
+            switch(texture_rotations[r][c])
             {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                    wall_tiles[r][c] = level[r][c] - '0';
-                    break;
                 default:
-                    wall_tiles[r][c] = 4;
+                case 0: // No rotation.
+                    quad[0].texCoords = sf::Vector2f(tu * tile_size, tv * tile_size);
+                    quad[1].texCoords = sf::Vector2f((tu + 1) * tile_size, tv * tile_size);
+                    quad[2].texCoords = sf::Vector2f((tu + 1) * tile_size, (tv + 1) * tile_size);
+                    quad[3].texCoords = sf::Vector2f(tu * tile_size, (tv + 1) * tile_size);
+                    break;
+                case 1: // 90 degrees clockwise rotation.
+                    quad[0].texCoords = sf::Vector2f(tu * tile_size, (tv + 1) * tile_size);
+                    quad[1].texCoords = sf::Vector2f(tu * tile_size, tv * tile_size);
+                    quad[2].texCoords = sf::Vector2f((tu + 1) * tile_size, tv * tile_size);
+                    quad[3].texCoords = sf::Vector2f((tu + 1) * tile_size, (tv + 1) * tile_size);
+                    break;
+                case 2: // 180 degrees clockwise rotation.
+                    quad[0].texCoords = sf::Vector2f((tu + 1) * tile_size, (tv + 1) * tile_size);
+                    quad[1].texCoords = sf::Vector2f(tu * tile_size, (tv + 1) * tile_size);
+                    quad[2].texCoords = sf::Vector2f(tu * tile_size, tv * tile_size);
+                    quad[3].texCoords = sf::Vector2f((tu + 1) * tile_size, tv * tile_size);
+                    break;
+                case 3: // 270 degrees clockwise rotation.
+                    quad[0].texCoords = sf::Vector2f((tu + 1) * tile_size, tv * tile_size);
+                    quad[1].texCoords = sf::Vector2f((tu + 1) * tile_size, (tv + 1) * tile_size);
+                    quad[2].texCoords = sf::Vector2f(tu * tile_size, (tv + 1) * tile_size);
+                    quad[3].texCoords = sf::Vector2f(tu * tile_size, tv * tile_size);
                     break;
             }
         }
     }
-
-    walls.layout(wall_tiles, wall_tile_rotations);
 }
 
 void maze::draw_self(
     sf::RenderTarget& target,
     sf::RenderStates states) const
 {
-    target.draw(walls, states);
+    states.transform *= getTransform();
+    states.texture = &texture_strip;
+    target.draw(vertices, states);
 }

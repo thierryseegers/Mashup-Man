@@ -13,10 +13,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-#include <filesystem>
-#include <memory>
-#include <stdexcept>
-
 application::application()
     : window{sf::VideoMode(1024, 768), "SuperPacBros", sf::Style::Close}
     , states{{/*music, player_1,*/ sound, window}}

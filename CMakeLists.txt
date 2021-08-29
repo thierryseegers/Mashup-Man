@@ -79,8 +79,6 @@ add_executable(${PROJECT_NAME}
     src/scene.h
     src/sound.cpp
     src/sound.h
-    src/tile_map.cpp
-    src/tile_map.h
     src/tomlpp.h
     src/utility.cpp
     src/utility.h
