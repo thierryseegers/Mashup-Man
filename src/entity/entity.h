@@ -3,6 +3,7 @@
 #include "command.h"
 #include "scene.h"
 #include "resources.h"
+#include "utility.h"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -32,7 +33,10 @@ public:
         resources::texture const& texture,
         sf::IntRect const texture_rect)
         : Sprite{texture, texture_rect}
-    {}
+    {
+        utility::center_origin(Sprite::sprite);
+        Sprite::sprite.setScale(1.5f, 1.5f);
+    }
 
     entity(
         resources::texture const& texture,
@@ -41,7 +45,11 @@ public:
         sf::Time const duration,
         bool const repeat)
         : Sprite(texture, frame_size, n_frames, duration, repeat)
-    {}
+    {
+        utility::center_origin(Sprite::sprite);
+        Sprite::sprite.setScale(1.5f, 1.5f);
+
+    }
 
     virtual ~entity() = default;
 

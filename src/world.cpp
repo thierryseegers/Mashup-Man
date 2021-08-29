@@ -157,7 +157,7 @@ void world_t::build_scene()
     }
 
     auto *mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>();
-    mario->setPosition(c * 20.f, r * 20.f);
+    mario->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
 
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);
