@@ -10,6 +10,7 @@
 // #include "entity/projectile.h"
 // #include "entity/pickup.h"
 // #include "particle.h"
+#include "maze.h"
 #include "resources.h"
 #include "scene.h"
 #include "utility.h"
@@ -81,6 +82,7 @@ void world_t::build_scene()
     layers[magic_enum::enum_integer(layer::id::inanimates)] = graph.attach<layer::inanimates>();
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
 
+    layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);
     // background_texture.setRepeated(true);

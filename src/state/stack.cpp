@@ -36,7 +36,7 @@ void stack::handle_event(
     for(auto i = states.rbegin(); i != states.rend() && (*i)->handle_event(event); ++i)
     {}
 
-       apply_pending_requests();
+    apply_pending_requests();
 }
 
 void stack::request_push(

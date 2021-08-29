@@ -54,68 +54,6 @@ application::application()
     states.request_push(state::id::game);
 
     // music.volume(25.f);
-
-    // Load the walls's tile strip.
-    walls.load(textures.get(resources::texture::maze_tiles));
-
-
-    // Read in the maze tile information.
-    std::ifstream map{"assets/maps/1.txt"};
-    size_t row = 0;
-    for(std::string line; std::getline(map, line);)
-    {
-        std::copy(line.begin(), line.end(), maze[row++].begin());
-    }
-
-    // Read in wall tile rotation information.
-    std::array<std::array<int, 28>, 33> wall_tile_rotations;
-    std::string line;
-    for(auto& row : wall_tile_rotations)
-    {
-        size_t column = 0;
-        std::getline(map, line);
-        std::for_each(line.begin(), line.end(), [&](char const c)
-        {
-            switch(c)
-            {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                    row[column] = c - '0';
-                    break;
-                default:
-                    row[column] = 0;
-                    break;
-            }
-            ++column;
-        });
-        column = 0;
-    }
-
-    // Extract just the wall tile information.
-    std::array<std::array<int, 28>, 33> wall_tiles;
-    for(size_t r = 0; r != 33; ++r)
-    {
-        for(size_t c = 0; c != 28; ++c)
-        {
-            switch(maze[r][c])
-            {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                    wall_tiles[r][c] = c - '0';
-                    break;
-                default:
-                    wall_tiles[r][c] = 5;
-                    break;
-            }
-        }
-    }
-
-    walls.layout(wall_tiles, wall_tile_rotations);
 }
 
 void application::run()
@@ -150,7 +88,7 @@ void application::process_input()
     sf::Event event;
     while(window.pollEvent(event))
     {
-        // states.handle_event(event);
+        states.handle_event(event);
 
         if(event.type == sf::Event::Closed)
         {
@@ -177,19 +115,18 @@ void application::update_statistics(
 }
 
 void application::update(
-    sf::Time const& /*dt*/)
+    sf::Time const& dt)
 {
-    // states.update(dt);
+    states.update(dt);
 }
 
 void application::render()
 {
     window.clear();
-    // states.draw();
+    states.draw();
 
     window.setView(window.getDefaultView());
 
-    window.draw(walls);
     window.draw(statistics_text);
     window.display();
 }

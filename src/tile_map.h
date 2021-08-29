@@ -27,28 +27,28 @@ public:
         unsigned int const tile_size = texture_strip.getSize().y;
 
         // Populate the vertex array, with one quad per tile.
-        for (unsigned int i = 0; i < Width; ++i)
+        for (unsigned int r = 0; r < Height; ++r)
         {
-            for (unsigned int j = 0; j < Height; ++j)
+            for (unsigned int c = 0; c < Width; ++c)
             {
                 // Get the current tile offset.
-                int const offset = texture_offsets[j][i];
+                int const offset = texture_offsets[r][c];
 
                 // Find its position in the texture_strip texture.
                 int const tu = offset;
                 int const tv = 0;
 
                 // Get a pointer to the current tile's quad.
-                sf::Vertex* const quad = &vertices[(i + j * Width) * 4];
+                sf::Vertex* const quad = &vertices[(c + r * Width) * 4];
 
                 // Define its four corners.
-                quad[0].position = sf::Vector2f(i * tile_size, j * tile_size);
-                quad[1].position = sf::Vector2f((i + 1) * tile_size, j * tile_size);
-                quad[2].position = sf::Vector2f((i + 1) * tile_size, (j + 1) * tile_size);
-                quad[3].position = sf::Vector2f(i * tile_size, (j + 1) * tile_size);
+                quad[0].position = sf::Vector2f(c * tile_size, r * tile_size);
+                quad[1].position = sf::Vector2f((c + 1) * tile_size, r * tile_size);
+                quad[2].position = sf::Vector2f((c + 1) * tile_size, (r + 1) * tile_size);
+                quad[3].position = sf::Vector2f(c * tile_size, (r + 1) * tile_size);
 
                 // Define its texture coordinates.
-                switch(texture_rotations[j][i])
+                switch(texture_rotations[r][c])
                 {
                     default:
                     case 0: // No rotation.

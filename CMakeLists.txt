@@ -59,6 +59,8 @@ add_executable(${PROJECT_NAME}
     src/configuration.cpp
     src/configuration.h
     src/main.cpp
+    src/maze.cpp
+    src/maze.h
     src/resources.cpp
     src/resources.h
     src/scene.cpp

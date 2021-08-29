@@ -42,7 +42,4 @@ private:
     std::size_t statistics_num_frames;
 
     sf::Time const time_per_frame = sf::seconds(1.f / 60.f);
-
-    std::array<std::array<char, 28>, 33> maze;
-    tile_map walls;
 };
