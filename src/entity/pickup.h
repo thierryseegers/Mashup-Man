@@ -29,14 +29,14 @@ public:
         brother& b) const override;
 };
 
-// class missile_refill : public pickup
-// {
-// public:
-//     missile_refill();
+class flower : public pickup
+{
+public:
+    flower();
 
-//     virtual void apply(
-//         brother& leader) const override;
-// };
+    virtual void apply(
+        brother& b) const override;
+};
 
 // class increase_spread : public pickup
 // {

@@ -61,33 +61,16 @@ commands_t& world_t::commands()
 //     return !bounds.contains(player->getPosition());
 // }
 
-// void world_t::load_textures()
-// {
-//     auto& textures = utility::single::mutable_instance<resources::textures_t>();
 
-//     textures.load(resources::texture::buttons, "Media/Textures/Buttons.png");
-//     textures.load(resources::texture::entities, "Media/Textures/Entities.png");
-//     textures.load(resources::texture::explosion, "Media/Textures/Explosion.png");
-//     textures.load(resources::texture::finish_line, "Media/Textures/FinishLine.png");
-//     textures.load(resources::texture::jungle, "Media/Textures/Jungle.png");
-//     textures.load(resources::texture::particle, "Media/Textures/Particle.png");
-//     textures.load(resources::texture::title_screen, "Media/Textures/TitleScreen.png");
-// }
-
-void world_t::build_scene()
+std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read_level(
+    std::filesystem::path const& path)
 {
-    // Create a sound player.
-    graph.attach<scene::sound_t>(sound);
-
-    // Create layers.
-    layers[magic_enum::enum_integer(layer::id::maze)] = graph.attach<layer::maze>();
-    layers[magic_enum::enum_integer(layer::id::items)] = graph.attach<layer::items>();
-    layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
-
-    auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
+    level::info level_info;
+    level::wall_texture_offsets wall_texture_offsets;
+    level::wall_rotations wall_rotations;
 
     // Read in the maze tile information.
-    std::ifstream file{"assets/levels/1.txt"};
+    std::ifstream file{path.c_str()};
     std::string line;
     for(auto& row : level_info)
     {
@@ -96,8 +79,7 @@ void world_t::build_scene()
     }
 
     // Read in wall tile rotation information.
-    std::array<std::array<int, level::width>, level::height> wall_tile_rotations;
-    for(auto& row : wall_tile_rotations)
+    for(auto& row : wall_rotations)
     {
         size_t column = 0;
         std::getline(file, line);
@@ -121,7 +103,6 @@ void world_t::build_scene()
     }
 
     // Extract just the wall tile information.
-    std::array<std::array<int, level::width>, level::height> wall_tiles;
     for(size_t r = 0; r != level::height; ++r)
     {
         for(size_t c = 0; c != level::width; ++c)
@@ -132,61 +113,72 @@ void world_t::build_scene()
                 case '1':
                 case '2':
                 case '3':
-                    wall_tiles[r][c] = level_info[r][c] - '0';
+                    wall_texture_offsets[r][c] = level_info[r][c] - '0';
                     break;
                 default:
-                    wall_tiles[r][c] = 4;
+                    wall_texture_offsets[r][c] = 4;
                     break;
             }
         }
     }
 
-    m->layout(wall_tiles, wall_tile_rotations);
+    return {level_info, wall_texture_offsets, wall_rotations};
+}
 
+void world_t::build_scene()
+{
+    // Read information of the first level.
+    level::wall_texture_offsets wall_texture_offsets;
+    level::wall_rotations wall_rotations;
+    std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
 
-    // Create brother(s).
-    size_t r = 0, c = 0;
-    bool found = false;
-    for(; !found && r != level::height; ++r)
+    // Create a sound player.
+    graph.attach<scene::sound_t>(sound);
+
+    // Create layers.
+    layers[magic_enum::enum_integer(layer::id::maze)] = graph.attach<layer::maze>();
+    layers[magic_enum::enum_integer(layer::id::items)] = graph.attach<layer::items>();
+    layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
+
+    auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
+    m->layout(wall_texture_offsets, wall_rotations);
+
+    // Create entities as the level dictates.
+    for(size_t r = 0; r != level::height; ++r)
     {
-        for(c = 0; !found && c != level::width; ++c)
+        for(size_t c = 0; c != level::width; ++c)
         {
-            if(level_info[r][c] == 'x')
+            scene::node *n = nullptr;
+            switch(level_info[r][c])
             {
-                found = true;
+                case 'f':
+                    {
+                        n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
+                    }
+                    break;
+                case 'g':
+                    {
+                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
+                    }
+                    break;
+                case 'm':
+                    {
+                        n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
+                    }
+                    break;
+                case 'x':
+                    {
+                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>();
+                    }
+                    break;
+            }
+
+            if(n)
+            {
+                n->setPosition(c * 20.f + 10.f, r * 20.f + 10.f);
             }
         }
     }
-
-    auto *mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>();
-    mario->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
-
-    found = false;
-    for(; !found && r != level::height; ++r)
-    {
-        for(c = 0; !found && c != level::width; ++c)
-        {
-            if(level_info[r][c] == 'g')
-            {
-                found = true;
-            }
-        }
-    }
-
-    layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>()->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
-
-    found = false;
-    for(; !found && r != level::height; ++r)
-    {
-        for(c = 0; !found && c != level::width; ++c)
-        {
-            if(level_info[r][c] == 'm')
-            {
-                found = true;
-            }
-        }
-    }
-    layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>()->setPosition((c - 1) * 20.f + 10.f, (r - 1) * 20.f + 10.f);
 
     // // Create background sprite on background layer.
     // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);

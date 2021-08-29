@@ -32,16 +32,16 @@ void mushroom::apply(
     // leader.repair(25);
 }
 
-// missile_refill::missile_refill()
-//     : pickup{*magic_enum::enum_cast<resources::texture>(*configuration::values()["pickup"]["texture"].value<std::string>()),
-//              utility::to_intrect(*configuration::values()["pickup"]["missile_refill"]["texture_rect"].as_array())}
-// {}
+flower::flower()
+    : pickup{*magic_enum::enum_cast<resources::texture>(*configuration::values()["items"]["texture"].value<std::string>()),
+             utility::to_intrect(*configuration::values()["items"]["flower"]["texture_rect"].as_array())}
+{}
 
-// void missile_refill::apply(
-//     brother& leader) const
-// {
-//     leader.collect_missile(3);
-// }
+void flower::apply(
+    brother& /*b*/) const
+{
+    // leader.collect_missile(3);
+}
 
 // increase_spread::increase_spread()
 //     : pickup{*magic_enum::enum_cast<resources::texture>(*configuration::values()["pickup"]["texture"].value<std::string>()),

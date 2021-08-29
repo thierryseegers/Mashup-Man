@@ -12,8 +12,8 @@ public:
     maze();
 
     void layout(
-        std::array<std::array<int, level::width>, level::height> const& texture_offsets,
-        std::array<std::array<int, level::width>, level::height> const& texture_rotations = {});
+        level::wall_texture_offsets const& offsets,
+        level::wall_rotations const& rotations = {});
 
     virtual void draw_self(
         sf::RenderTarget& target,

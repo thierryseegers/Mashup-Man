@@ -14,8 +14,8 @@ maze::maze()
 }
 
 void maze::layout(
-    std::array<std::array<int, level::width>, level::height> const& texture_offsets,
-    std::array<std::array<int, level::width>, level::height> const& texture_rotations)
+    level::wall_texture_offsets const& offsets,
+    level::wall_rotations const& rotations)
 {
     unsigned int const tile_size = texture_strip.getSize().y;
 
@@ -25,7 +25,7 @@ void maze::layout(
         for (unsigned int c = 0; c < level::width; ++c)
         {
             // Get the current tile offset.
-            int const offset = texture_offsets[r][c];
+            int const offset = offsets[r][c];
 
             // Find its position in the texture_strip texture.
             int const tu = offset;
@@ -41,7 +41,7 @@ void maze::layout(
             quad[3].position = sf::Vector2f(c * tile_size, (r + 1) * tile_size);
 
             // Define its texture coordinates.
-            switch(texture_rotations[r][c])
+            switch(rotations[r][c])
             {
                 default:
                 case 0: // No rotation.
