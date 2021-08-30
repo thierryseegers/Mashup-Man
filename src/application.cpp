@@ -15,7 +15,7 @@
 
 application::application()
     : window{sf::VideoMode(1024, 768), "SuperPacBros", sf::Style::Close}
-    , states{{/*music, player_1,*/ sound, window}}
+    , states{{/*music, */player_1, sound, window}}
     , statistics_num_frames{0}
 {
     window.setKeyRepeatEnabled(false);

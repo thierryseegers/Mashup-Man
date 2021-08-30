@@ -62,7 +62,7 @@ private:
     void build_scene();
     
     // void remove_unviewables();
-    // void handle_collisions();
+    void handle_collisions();
     // void guide_missiles();
     // void spawn_enemies();
 

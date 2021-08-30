@@ -24,7 +24,7 @@ public:
     // void repair(
     //     int const amount);
 
-    // void fire();
+    void fire();
 
     // void launch_missile();
 

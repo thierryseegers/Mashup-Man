@@ -215,11 +215,6 @@ float distance(
     return utility::length(lhs.world_position() - rhs.world_position());
 }
 
-// sprite_t::sprite_t(
-//     resources::texture const& texture)
-//     : sprite{resources::textures().get(texture)}
-// {}
-
 sprite_t::sprite_t(
     resources::texture const& texture,
     sf::IntRect const& texture_rect)

@@ -1,7 +1,7 @@
 #pragma once
 
 // #include "music.h"
-// #include "player.h"
+#include "player.h"
 #include "resources.h"
 #include "sound.h"
 #include "state/id.h"
@@ -26,7 +26,7 @@ public:
     struct context_t
     {
         // music::player& music;
-        // player_t& player;
+        player_t& player;
         sound::player& sound;
         sf::RenderWindow& window;
     } context;

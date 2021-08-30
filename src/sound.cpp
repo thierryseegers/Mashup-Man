@@ -20,8 +20,8 @@ float const min_distance_3d = std::sqrt(min_distance_2d * min_distance_2d + list
 player::player()
 {
     auto& sound_buffers = utility::single::mutable_instance<resources::sound_buffers_t>();
-    (void)sound_buffers;
 
+    sound_buffers.load(resources::sound_effect::collect_coin, "assets/sounds/Super Mario Bros 1 and 2(JP)/Coin.wav");
     // sound_buffers.load(resources::sound_effect::allied_gunfire, "Media/Sound/AlliedGunfire.wav");
     // sound_buffers.load(resources::sound_effect::enemy_gunfire, "Media/Sound/EnemyGunfire.wav");
     // sound_buffers.load(resources::sound_effect::explosion_1, "Media/Sound/Explosion1.wav");

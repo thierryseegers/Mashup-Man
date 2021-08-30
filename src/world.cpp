@@ -294,38 +294,39 @@ std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const&
     return {nullptr, nullptr};
 }
 
-// void world_t::handle_collisions()
-// {
-//     for(auto const& collision : graph.collisions())
-//     {
-//         if(auto [aircraft, projectile] = match<entity::hostile<entity::character>, entity::friendly<entity::projectile>>(collision); aircraft && projectile)
-//         {
-//             spdlog::info("Friendly shot a hostile!");
-//             aircraft->damage(projectile->damage);
-//             projectile->remove = true;
-//         }
-//         else if(auto [aircraft, projectile] = match<entity::friendly<entity::character>, entity::hostile<entity::projectile>>(collision); aircraft && projectile)
-//         {
-//             spdlog::info("Friendly got shot!");
-//             aircraft->damage(projectile->damage);
-//             projectile->remove = true;
-//         }
-//         else if(auto [leader, pickup] = match<entity::brother, entity::pickup::pickup>(collision); leader && pickup)
-//         {
-//             spdlog::info("Leader got pickup!");
-//             pickup->apply(*leader);
-//             pickup->remove = true;
-//             leader->play_local_sound(commands_, resources::sound_effect::collect_pickup);
-//         }
-//         else if(auto [leader, enemy] = match<entity::brother, entity::enemy>(collision); leader && enemy)
-//         {
-//             spdlog::info("Leader crashed into enemy!");
-//             auto const leader_health = leader->health();
-//             leader->damage(enemy->health());
-//             enemy->damage(leader_health);
-//         }
-//     }
-// }
+void world_t::handle_collisions()
+{
+    for(auto const& collision : graph.collisions())
+    {
+        // if(auto [aircraft, projectile] = match<entity::hostile<entity::character>, entity::friendly<entity::projectile>>(collision); aircraft && projectile)
+        // {
+        //     spdlog::info("Friendly shot a hostile!");
+        //     aircraft->damage(projectile->damage);
+        //     projectile->remove = true;
+        // }
+        // else if(auto [aircraft, projectile] = match<entity::friendly<entity::character>, entity::hostile<entity::projectile>>(collision); aircraft && projectile)
+        // {
+        //     spdlog::info("Friendly got shot!");
+        //     aircraft->damage(projectile->damage);
+        //     projectile->remove = true;
+        // }
+        // else 
+        if(auto [bro, coin] = match<entity::brother, entity::pickup::coin>(collision); bro && coin)
+        {
+            spdlog::info("Brother got some dough at [{}, {}]!", coin->getPosition().x, coin->getPosition().y);
+            coin->apply(*bro);
+            coin->remove = true;
+            bro->play_local_sound(commands_, resources::sound_effect::collect_coin);
+        }
+        // else if(auto [leader, enemy] = match<entity::brother, entity::enemy>(collision); leader && enemy)
+        // {
+        //     spdlog::info("Leader crashed into enemy!");
+        //     auto const leader_health = leader->health();
+        //     leader->damage(enemy->health());
+        //     enemy->damage(leader_health);
+        // }
+    }
+}
 
 // void world_t::guide_missiles()
 // {
@@ -410,8 +411,8 @@ void world_t::update(
     // // Deal with collision.
     // handle_collisions();
 
-    // // Remove all destroyed entities, spawn new enemies if need be.
-    // graph.sweep_removed();
+    // Remove all destroyed entities, spawn new enemies if need be.
+    graph.sweep_removed();
     // spawn_enemies();
 
     // Remove played sounds and reposition player in sound space.

@@ -66,7 +66,7 @@ public:
     {
         commands.push(make_command<scene::sound_t>([=](scene::sound_t& s, sf::Time const&)
         {
-            s.play(se, Sprite::node_t::world_position());
+            s.play(se, Sprite::node::world_position());
         }));
     }
 

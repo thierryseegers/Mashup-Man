@@ -1,7 +1,7 @@
 #pragma once
 
 // #include "music.h"
-// #include "player.h"
+#include "player.h"
 #include "sound.h"
 #include "state/state.h"
 
@@ -27,7 +27,7 @@ private:
     void render();
 
     // music::player music;
-    // player_t player_1;
+    player_t player_1;
     sound::player sound;
     sf::RenderWindow window;
 

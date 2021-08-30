@@ -37,7 +37,7 @@ bool game::update(
     //     states.request_push(id::game_over);
     // }
 
-    // states.context.player.handle_realtime_input(world.commands());
+    states.context.player.handle_realtime_input(world.commands());
 
     return true;
 }

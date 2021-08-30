@@ -35,12 +35,14 @@ brother::brother(
     // // , missile_guidance{false}
     // , missile_guidance{true}
     // , launching_missile{false}
-{}
+{
+    // velocity.x = 40;
+}
 
-// void brother::fire()
-// {
-//     firing = true;
-// }
+void brother::fire()
+{
+    // firing = true;
+}
 
 // void brother::launch_missile()
 // {

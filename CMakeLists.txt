@@ -53,8 +53,11 @@ find_package(tomlplusplus 2.3.0 MODULE
 )
 
 add_executable(${PROJECT_NAME}
+    src/action.h
     src/application.cpp
     src/application.h
+    src/bindings.cpp
+    src/bindings.h
     src/command.h
     src/configuration.cpp
     src/configuration.h
@@ -73,6 +76,8 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/maze.cpp
     src/maze.h
+    src/player.cpp
+    src/player.h
     src/resources.cpp
     src/resources.h
     src/scene.cpp
