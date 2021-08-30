@@ -6,6 +6,10 @@ texture = "brothers"
 texture_rect = [43, 9, 16, 16]
 scale = 1.2
 
+[brothers.luigi]
+texture_rect = [43, 74, 16, 16]
+scale = 1.2
+
 [enemies]
 
 texture = "enemies"

@@ -8,13 +8,16 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <string>
+
 namespace entity
 {
 
 class brother : public friendly<character>
 {
 public:
-    brother();
+    brother(
+        std::string const& name);
 
     virtual ~brother() = default;
 

@@ -173,7 +173,12 @@ void world_t::build_scene()
                     break;
                 case 'x':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>();
+                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("mario");
+                    }
+                    break;
+                case 'y':
+                    {
+                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("luigi");
                     }
                     break;
             }
