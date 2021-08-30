@@ -40,15 +40,15 @@ public:
 
     entity(
         resources::texture const& texture,
+        sf::IntRect const& texture_rect,
         sf::Vector2i const frame_size,
         std::size_t const n_frames,
         sf::Time const duration,
         bool const repeat)
-        : Sprite(texture, frame_size, n_frames, duration, repeat)
+        : Sprite(texture, texture_rect, frame_size, n_frames, duration, repeat)
     {
         utility::center_origin(Sprite::sprite);
         Sprite::sprite.setScale(1.5f, 1.5f);
-
     }
 
     virtual ~entity() = default;

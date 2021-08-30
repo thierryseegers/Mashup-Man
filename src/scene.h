@@ -134,12 +134,12 @@ class sprite_t :
     public node
 {
 public:
-    explicit sprite_t(
-        resources::texture const& texture);
+    // explicit sprite_t(
+    //     resources::texture const& texture);
 
     sprite_t(
         resources::texture const& texture,
-        sf::IntRect const& rect);
+        sf::IntRect const& texture_rect);
 
     virtual ~sprite_t() = default;
 
@@ -158,8 +158,9 @@ class animated_sprite_t :
 public:
     animated_sprite_t(
         resources::texture const& texture,
+        sf::IntRect const& bounds,
         sf::Vector2i const frame_size,
-        std::size_t const n_frames,
+        std::size_t const n_frames, // Could this not be computed from 'bounds' and 'frame_size'?
         sf::Time const duration,
         bool const repeat);
 
@@ -170,6 +171,7 @@ protected:
         sf::Time const& dt,
         commands_t& commands) override;
 
+    sf::IntRect const bounds;
     sf::Vector2i const frame_size;
 
     std::size_t const n_frames;

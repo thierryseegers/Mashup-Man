@@ -16,6 +16,13 @@ texture_rect = [1, 28, 16, 16]
 
 texture = "items"
 
+[items.coin]
+texture_rect = [0, 96, 64, 16]
+frame_size = [16, 16]
+n_frames = 4
+duration = 1.0
+repeat = true
+
 [items.mushroom]
 texture_rect = [0, 0, 16, 16]
 

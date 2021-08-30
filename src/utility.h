@@ -57,6 +57,9 @@ sf::Vector2f unit(
 sf::IntRect to_intrect(
     toml::array const& values);
 
+sf::Vector2i to_vector2i(
+    toml::array const& values);
+
 sf::Color to_color(
     toml::array const& values);
 

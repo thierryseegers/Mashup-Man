@@ -180,6 +180,12 @@ sf::IntRect to_intrect(
     return {*values[0].value<int>(), *values[1].value<int>(), *values[2].value<int>(), *values[3].value<int>()};
 }
 
+sf::Vector2i to_vector2i(
+    toml::array const& values)
+{
+    return {*values[0].value<int>(), *values[1].value<int>()};
+}
+
 sf::Color to_color(
     toml::array const& values)
 {

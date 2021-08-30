@@ -215,15 +215,15 @@ float distance(
     return utility::length(lhs.world_position() - rhs.world_position());
 }
 
-sprite_t::sprite_t(
-    resources::texture const& texture)
-    : sprite{resources::textures().get(texture)}
-{}
+// sprite_t::sprite_t(
+//     resources::texture const& texture)
+//     : sprite{resources::textures().get(texture)}
+// {}
 
 sprite_t::sprite_t(
     resources::texture const& texture,
-    sf::IntRect const& rect)
-    : sprite{resources::textures().get(texture), rect}
+    sf::IntRect const& texture_rect)
+    : sprite{resources::textures().get(texture), texture_rect}
 {}
 
 void sprite_t::draw_self(
@@ -235,11 +235,13 @@ void sprite_t::draw_self(
 
 animated_sprite_t::animated_sprite_t(
     resources::texture const& texture,
+    sf::IntRect const& bounds,
     sf::Vector2i const frame_size,
     std::size_t const n_frames,
     sf::Time const duration,
     bool const repeat)
-    : sprite_t{texture}
+    : sprite_t{texture, sf::IntRect{bounds.left, bounds.top, frame_size.x, frame_size.y}}
+    , bounds{bounds}
     , frame_size{frame_size}
     , n_frames{n_frames}
     , current_frame{0}
@@ -255,22 +257,21 @@ void animated_sprite_t::update_self(
     auto const time_per_frame{duration / static_cast<float>(n_frames)};
     elapsed += dt;
 
-    auto const texture_bounds{sprite.getTexture()->getSize()};
     auto texture_rect{sprite.getTextureRect()};
 
     if(current_frame == 0)
     {
-        texture_rect = sf::IntRect{0, 0, frame_size.x, frame_size.y};
+        texture_rect = sf::IntRect{bounds.left, bounds.top, frame_size.x, frame_size.y};
     }
 
     while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat))
     {
         // Move texture rect to next rect.
-        texture_rect.left += texture_rect.width;
-        if(texture_rect.left + texture_rect.width > (int)texture_bounds.x)
+        texture_rect.left += frame_size.x;
+        if(texture_rect.left + texture_rect.width > bounds.width)
         {
             texture_rect.left = 0;
-            texture_rect.top += texture_rect.height;
+            texture_rect.top += frame_size.y;
         }
 
         elapsed -= time_per_frame;
@@ -280,7 +281,7 @@ void animated_sprite_t::update_self(
             current_frame = (current_frame + 1) % n_frames;
             if(current_frame == 0)
             {
-                texture_rect = {0, 0, frame_size.x, frame_size.y};
+                texture_rect = {bounds.left, bounds.top, frame_size.x, frame_size.y};
             }
         }
         else

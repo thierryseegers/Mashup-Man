@@ -151,6 +151,11 @@ void world_t::build_scene()
             scene::node *n = nullptr;
             switch(level_info[r][c])
             {
+                case '.':
+                    {
+                        n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
+                    }
+                    break;
                 case 'f':
                     {
                         n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();

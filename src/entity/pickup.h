@@ -9,18 +9,40 @@
 namespace entity::pickup
 {
 
-class pickup : public entity<>
+template<typename Sprite = scene::sprite_t>
+class pickup : public entity<Sprite>
 {
 public:
     pickup(
         resources::texture const& texture,
-        sf::IntRect const& texture_rect);
+        sf::IntRect const& texture_rect)
+        : entity<Sprite>{texture, texture_rect}
+    {}
+
+    pickup(
+        resources::texture const& texture,
+        sf::IntRect const& texture_rect,
+        sf::Vector2i const frame_size,
+        std::size_t const n_frames,
+        sf::Time const duration,
+        bool const repeat)
+        : entity<Sprite>{texture, texture_rect, frame_size, n_frames, duration, repeat}
+    {}
 
     virtual void apply(
         brother& b) const = 0;
 };
 
-class mushroom : public pickup
+class coin : public pickup<scene::animated_sprite_t>
+{
+public:
+    coin();
+
+    virtual void apply(
+        brother& b) const override;
+};
+
+class mushroom : public pickup<>
 {
 public:
     mushroom();
@@ -29,7 +51,7 @@ public:
         brother& b) const override;
 };
 
-class flower : public pickup
+class flower : public pickup<>
 {
 public:
     flower();

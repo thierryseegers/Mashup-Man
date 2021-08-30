@@ -13,12 +13,19 @@
 namespace entity::pickup
 {
 
-pickup::pickup(
-    resources::texture const& texture,
-    sf::IntRect const& texture_rect)
-    : entity{texture, texture_rect}
+coin::coin()
+    : pickup{*magic_enum::enum_cast<resources::texture>(*configuration::values()["items"]["texture"].value<std::string>()),
+             utility::to_intrect(*configuration::values()["items"]["coin"]["texture_rect"].as_array()),
+             utility::to_vector2i(*configuration::values()["items"]["coin"]["frame_size"].as_array()),
+             *configuration::values()["items"]["coin"]["n_frames"].value<std::size_t>(),
+             sf::seconds(*configuration::values()["items"]["coin"]["duration"].value<float>()),
+             *configuration::values()["items"]["coin"]["repeat"].value<bool>()}
+{}
+
+void coin::apply(
+    brother& /*b*/) const
 {
-    // utility::center_origin(sprite);
+    // leader.repair(25);
 }
 
 mushroom::mushroom()
