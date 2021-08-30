@@ -60,6 +60,9 @@ sf::IntRect to_intrect(
 sf::Vector2i to_vector2i(
     toml::array const& values);
 
+sf::Vector2f to_vector2f(
+    toml::array const& values);
+
 sf::Color to_color(
     toml::array const& values);
 

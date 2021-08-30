@@ -186,6 +186,12 @@ sf::Vector2i to_vector2i(
     return {*values[0].value<int>(), *values[1].value<int>()};
 }
 
+sf::Vector2f to_vector2f(
+    toml::array const& values)
+{
+    return {*values[0].value<float>(), *values[1].value<float>()};
+}
+
 sf::Color to_color(
     toml::array const& values)
 {

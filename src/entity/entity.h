@@ -31,11 +31,12 @@ class entity : public Sprite
 public:
     explicit entity(
         resources::texture const& texture,
-        sf::IntRect const texture_rect)
+        sf::IntRect const& texture_rect,
+        float const& scale = 1.f)
         : Sprite{texture, texture_rect}
     {
         utility::center_origin(Sprite::sprite);
-        Sprite::sprite.setScale(1.5f, 1.5f);
+        Sprite::sprite.setScale(scale, scale);
     }
 
     entity(
@@ -44,11 +45,12 @@ public:
         sf::Vector2i const frame_size,
         std::size_t const n_frames,
         sf::Time const duration,
-        bool const repeat)
+        bool const repeat,
+        float const& scale = 1.f)
         : Sprite(texture, texture_rect, frame_size, n_frames, duration, repeat)
     {
         utility::center_origin(Sprite::sprite);
-        Sprite::sprite.setScale(1.5f, 1.5f);
+        Sprite::sprite.setScale(scale, scale);
     }
 
     virtual ~entity() = default;

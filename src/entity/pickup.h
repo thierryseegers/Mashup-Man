@@ -15,8 +15,9 @@ class pickup : public entity<Sprite>
 public:
     pickup(
         resources::texture const& texture,
-        sf::IntRect const& texture_rect)
-        : entity<Sprite>{texture, texture_rect}
+        sf::IntRect const& texture_rect,
+        float const& scale = 1.f)
+        : entity<Sprite>{texture, texture_rect, scale}
     {}
 
     pickup(
@@ -25,8 +26,9 @@ public:
         sf::Vector2i const frame_size,
         std::size_t const n_frames,
         sf::Time const duration,
-        bool const repeat)
-        : entity<Sprite>{texture, texture_rect, frame_size, n_frames, duration, repeat}
+        bool const repeat,
+        float const& scale = 1.f)
+        : entity<Sprite>{texture, texture_rect, frame_size, n_frames, duration, repeat, scale}
     {}
 
     virtual void apply(
@@ -51,7 +53,7 @@ public:
         brother& b) const override;
 };
 
-class flower : public pickup<>
+class flower : public pickup<scene::animated_sprite_t>
 {
 public:
     flower();

@@ -13,8 +13,9 @@ namespace entity
 
 character::character(
     resources::texture const& texture,
-    sf::IntRect const& texture_rect)
-    : entity{texture, texture_rect}
+    sf::IntRect const& texture_rect,
+    float const& scale)
+    : entity{texture, texture_rect, scale}
 {}
 
 void character::update_self(

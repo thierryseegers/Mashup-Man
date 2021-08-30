@@ -43,8 +43,9 @@ enemy::enemy(
     // float const attack_rate,
     // flight::pattern const& pattern,
     resources::texture const& texture,
-    sf::IntRect const& texture_rect)
-    : hostile<character>{texture, texture_rect}
+    sf::IntRect const& texture_rect,
+    float const& scale)
+    : hostile<character>{texture, texture_rect, scale}
     // , speed{speed}
     // , pattern{pattern}
     // , current{this->pattern, this->pattern.begin()}
@@ -134,7 +135,8 @@ void enemy::update_self(
 
 goomba::goomba()
     : enemy{*magic_enum::enum_cast<resources::texture>(*configuration::values()["enemies"]["texture"].value<std::string_view>()),
-            utility::to_intrect(*configuration::values()["enemies"]["goomba"]["texture_rect"].as_array())}
+            utility::to_intrect(*configuration::values()["enemies"]["goomba"]["texture_rect"].as_array()),
+             configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f)}
 {}
 
 // void avenger::attack(

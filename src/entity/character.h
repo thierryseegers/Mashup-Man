@@ -18,7 +18,8 @@ class character : public entity<>
 public:
     explicit character(
         resources::texture const& texture,
-        sf::IntRect const& texture_rect);
+        sf::IntRect const& texture_rect,
+        float const& scale = 1.f);
 
     virtual ~character() = default;
 

@@ -23,7 +23,8 @@ namespace entity
 
 brother::brother()
     : friendly<character>{*magic_enum::enum_cast<resources::texture>(*configuration::values()["brothers"]["texture"].value<std::string>()),
-                          utility::to_intrect(*configuration::values()["brothers"]["mario"]["texture_rect"].as_array())}
+                          utility::to_intrect(*configuration::values()["brothers"]["mario"]["texture_rect"].as_array()),
+                          configuration::values()["brothers"]["mario"]["scale"].value_or<float>(1.f)}
     , default_texture_rect{sprite.getTextureRect()}
     // , bullet_spread{1}
     // , fire_rate{1}
