@@ -102,4 +102,7 @@ private:
     // std::multiset<spawn> enemy_spawns;
 
     level::info level_info;
+    level::grid<entity::entity*> immovables;
+    std::vector<entity::entity*> characters;
+
 };

@@ -24,6 +24,7 @@
 #include <array>
 #include <cmath>
 #include <memory>
+#include <numeric>
 #include <tuple>
 #include <vector>
 
@@ -148,44 +149,48 @@ void world_t::build_scene()
     {
         for(size_t c = 0; c != level::width; ++c)
         {
-            scene::node *n = nullptr;
+            entity::entity *e = nullptr;
             switch(level_info[r][c])
             {
                 case '.':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
+                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
+                        immovables[r][c] = e;
                     }
                     break;
                 case 'f':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
+                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
+                        immovables[r][c] = e;
                     }
                     break;
                 case 'g':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
+                        e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
                     }
                     break;
                 case 'm':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
+                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
+                        immovables[r][c] = e;
                     }
                     break;
                 case 'x':
                     {
-                        n = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("mario");
+                        e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("mario");
+                        characters.push_back(e);
                     }
                     break;
                 case 'y':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("luigi");
+                        e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("luigi");
                     }
                     break;
             }
 
-            if(n)
+            if(e)
             {
-                n->setPosition(c * 20.f + 10.f, r * 20.f + 10.f);
+                e->setPosition(c * 20.f + 10.f, r * 20.f + 10.f);
             }
         }
     }
@@ -218,7 +223,18 @@ std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const&
 
 void world_t::handle_collisions()
 {
-    for(auto const& collision : graph.collisions())
+    std::set<std::pair<entity::entity*, entity::entity*>> collisions;
+
+    for(auto* const character : characters)
+    {
+        size_t const r = character->getPosition().y / 20, c = character->getPosition().x / 20;
+        if(auto* const immovable = immovables[r][c]; immovable && character->collides(immovable))
+        {
+            collisions.insert(std::minmax(&(*character), &(*immovable)));
+        }
+    }
+
+    for(auto const& collision : collisions)
     {
         // if(auto [aircraft, projectile] = match<entity::hostile<entity::character>, entity::friendly<entity::projectile>>(collision); aircraft && projectile)
         // {
@@ -237,8 +253,10 @@ void world_t::handle_collisions()
         {
             spdlog::info("Brother got some dough at [{}, {}]!", coin->getPosition().x, coin->getPosition().y);
             coin->apply(*bro);
-            coin->remove = true;
             bro->play_local_sound(commands_, resources::sound_effect::collect_coin);
+
+            immovables[coin->getPosition().y / 20][coin->getPosition().x / 20] = nullptr;
+            coin->remove = true;
         }
         // else if(auto [leader, enemy] = match<entity::brother, entity::enemy>(collision); leader && enemy)
         // {
@@ -339,8 +357,8 @@ void world_t::update(
 
     // player->setPosition(position);
 
-    // // Deal with collision.
-    // handle_collisions();
+    // Deal with collision.
+    handle_collisions();
 
     // Remove all destroyed entities, spawn new enemies if need be.
     graph.sweep_removed();

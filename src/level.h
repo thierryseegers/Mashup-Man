@@ -8,9 +8,12 @@ namespace level
 constexpr size_t height = 33;
 constexpr size_t width = 28;
 
-using info = std::array<std::array<char, width>, height>;
+template<typename T>
+using grid = std::array<std::array<T, width>, height>;
 
-using wall_texture_offsets = std::array<std::array<int, width>, height>;
-using wall_rotations = std::array<std::array<int, width>, height>;
+using info = grid<char>;
+
+using wall_texture_offsets = grid<int>;
+using wall_rotations = grid<int>;
 
 }
