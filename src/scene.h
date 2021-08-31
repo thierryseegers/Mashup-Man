@@ -94,6 +94,8 @@ public:
 
     std::set<std::pair<node*, node*>> collisions();
 
+    [[nodiscard]] bool collides(node const* other) const;
+
     sf::Transform world_transform() const;
 
     sf::Vector2f world_position() const;
@@ -111,8 +113,6 @@ protected:
         sf::RenderTarget& target,
         sf::RenderStates states) const;
 
-    [[nodiscard]] bool collides(node const* other) const;
-
     virtual sf::FloatRect collision_bounds() const;
 
     std::vector<std::unique_ptr<node>> children;
@@ -129,59 +129,6 @@ float distance(
 
 template<size_t Count>
 using layers = std::array<scene::node*, Count>;
-
-class sprite_t :
-    public node
-{
-public:
-    // explicit sprite_t(
-    //     resources::texture const& texture);
-
-    sprite_t(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect);
-
-    virtual ~sprite_t() = default;
-
-protected:
-    sf::Sprite sprite;
-
-private:
-    virtual void draw_self(
-        sf::RenderTarget& target,
-        sf::RenderStates states) const override;
-};
-
-class animated_sprite_t :
-    public sprite_t
-{
-public:
-    animated_sprite_t(
-        resources::texture const& texture,
-        sf::IntRect const& bounds,
-        sf::Vector2i const frame_size,
-        std::size_t const n_frames, // Could this not be computed from 'bounds' and 'frame_size'?
-        sf::Time const duration,
-        bool const repeat);
-
-    virtual ~animated_sprite_t() = default;
-
-protected:
-    virtual void update_self(
-        sf::Time const& dt,
-        commands_t& commands) override;
-
-    sf::IntRect const bounds;
-    sf::Vector2i const frame_size;
-
-    std::size_t const n_frames;
-    std::size_t current_frame;
-
-    sf::Time const duration;
-    sf::Time elapsed;
-
-    bool const repeat;
-};
 
 class sound_t :
     public node

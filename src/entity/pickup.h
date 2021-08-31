@@ -3,39 +3,27 @@
 #include "entity/entity.h"
 #include "entity/brother.h"
 #include "resources.h"
+#include "sprite.h"
 
 #include <SFML/Graphics/Rect.hpp>
+
+#include <memory>
 
 namespace entity::pickup
 {
 
-template<typename Sprite = scene::sprite_t>
-class pickup : public entity<Sprite>
+class pickup :
+    public entity
 {
 public:
-    pickup(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect,
-        float const& scale = 1.f)
-        : entity<Sprite>{texture, texture_rect, scale}
-    {}
-
-    pickup(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect,
-        sf::Vector2i const frame_size,
-        std::size_t const n_frames,
-        sf::Time const duration,
-        bool const repeat,
-        float const& scale = 1.f)
-        : entity<Sprite>{texture, texture_rect, frame_size, n_frames, duration, repeat, scale}
-    {}
+    using entity::entity;
 
     virtual void apply(
         brother& b) const = 0;
 };
 
-class coin : public pickup<scene::animated_sprite_t>
+class coin :
+    public pickup
 {
 public:
     coin();
@@ -44,7 +32,8 @@ public:
         brother& b) const override;
 };
 
-class mushroom : public pickup<>
+class mushroom : 
+    public pickup
 {
 public:
     mushroom();
@@ -53,7 +42,8 @@ public:
         brother& b) const override;
 };
 
-class flower : public pickup<scene::animated_sprite_t>
+class flower : 
+    public pickup
 {
 public:
     flower();

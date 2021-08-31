@@ -2,11 +2,13 @@
 
 #include "command.h"
 #include "scene.h"
-#include "resources.h"
+#include "sprite.h"
 #include "utility.h"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
+
+#include <memory>
 
 namespace entity
 {
@@ -25,39 +27,20 @@ public:
     using T::T;
 };
 
-template<typename Sprite = scene::sprite_t>
-class entity : public Sprite
+class entity
+    : public scene::node
 {
 public:
-    explicit entity(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect,
-        float const& scale = 1.f)
-        : Sprite{texture, texture_rect}
-    {
-        utility::center_origin(Sprite::sprite);
-        Sprite::sprite.setScale(scale, scale);
-    }
-
     entity(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect,
-        sf::Vector2i const frame_size,
-        std::size_t const n_frames,
-        sf::Time const duration,
-        bool const repeat,
-        float const& scale = 1.f)
-        : Sprite(texture, texture_rect, frame_size, n_frames, duration, repeat)
-    {
-        utility::center_origin(Sprite::sprite);
-        Sprite::sprite.setScale(scale, scale);
-    }
+        std::unique_ptr<sprite_t> sprite)
+        : sprite{std::move(sprite)}
+    {}
 
     virtual ~entity() = default;
 
     virtual sf::FloatRect collision_bounds() const override
     {
-        return Sprite::world_transform().transformRect(Sprite::sprite.getGlobalBounds());
+        return world_transform().transformRect(sprite->getGlobalBounds());
     }
 
     void play_local_sound(
@@ -66,7 +49,7 @@ public:
     {
         commands.push(make_command<scene::sound_t>([=](scene::sound_t& s, sf::Time const&)
         {
-            s.play(se, Sprite::node::world_position());
+            s.play(se, world_position());
         }));
     }
 
@@ -79,8 +62,17 @@ protected:
     {
         sf::Transformable::move(velocity * dt.asSeconds());
 
-        Sprite::update_self(dt, commands);
+        sprite->update(dt, commands);
     }
+
+    virtual void draw_self(
+        sf::RenderTarget& target,
+        sf::RenderStates states) const override
+    {
+        sprite->draw(target, states);
+    }
+
+    std::unique_ptr<sprite_t> sprite;
 };
 
 }

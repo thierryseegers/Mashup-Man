@@ -37,21 +37,21 @@ namespace entity
 //     return pattern;
 // }
 
-enemy::enemy(
-    // int const starting_life,
-    // int const speed,
-    // float const attack_rate,
-    // flight::pattern const& pattern,
-    resources::texture const& texture,
-    sf::IntRect const& texture_rect,
-    float const& scale)
-    : hostile<character>{texture, texture_rect, scale}
-    // , speed{speed}
-    // , pattern{pattern}
-    // , current{this->pattern, this->pattern.begin()}
-    // , travelled{0}
-    // , attack_rate{attack_rate}
-{}
+// enemy::enemy(
+//     // int const starting_life,
+//     // int const speed,
+//     // float const attack_rate,
+//     // flight::pattern const& pattern,
+//     resources::texture const& texture,
+//     sf::IntRect const& texture_rect,
+//     float const& scale)
+//     : hostile<character>{texture, texture_rect, scale}
+//     // , speed{speed}
+//     // , pattern{pattern}
+//     // , current{this->pattern, this->pattern.begin()}
+//     // , travelled{0}
+//     // , attack_rate{attack_rate}
+// {}
 
 void enemy::update_self(
         sf::Time const& dt,
@@ -134,9 +134,10 @@ void enemy::update_self(
 }
 
 goomba::goomba()
-    : enemy{*magic_enum::enum_cast<resources::texture>(*configuration::values()["enemies"]["texture"].value<std::string_view>()),
-            utility::to_intrect(*configuration::values()["enemies"]["goomba"]["texture_rect"].as_array()),
-             configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f)}
+    : enemy{std::make_unique<sprite_t>(
+                *magic_enum::enum_cast<resources::texture>(*configuration::values()["enemies"]["texture"].value<std::string_view>()),
+                utility::to_intrect(*configuration::values()["enemies"]["goomba"]["texture_rect"].as_array()),
+                configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f))}
 {}
 
 // void avenger::attack(

@@ -84,6 +84,8 @@ add_executable(${PROJECT_NAME}
     src/scene.h
     src/sound.cpp
     src/sound.h
+    src/sprite.cpp
+    src/sprite.h
     src/tomlpp.h
     src/utility.cpp
     src/utility.h

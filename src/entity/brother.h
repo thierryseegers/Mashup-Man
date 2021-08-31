@@ -46,7 +46,7 @@ private:
     // void shoot_missile(
     //     scene::projectiles& layer) const;
 
-    sf::IntRect const default_texture_rect; // Texture rectangle for leader flying straight.
+    // sf::IntRect const default_texture_rect; // Texture rectangle for leader flying straight.
 
     // int bullet_spread;
     // int fire_rate;

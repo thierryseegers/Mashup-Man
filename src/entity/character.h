@@ -13,13 +13,11 @@
 namespace entity
 {
 
-class character : public entity<>
+class character : public entity
 {
 public:
-    explicit character(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect,
-        float const& scale = 1.f);
+    character(
+        std::unique_ptr<sprite_t> sprite);
 
     virtual ~character() = default;
 

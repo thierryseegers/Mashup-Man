@@ -1,0 +1,91 @@
+#include "sprite.h"
+
+#include "command.h"
+#include "resources.h"
+#include "utility.h"
+
+#include <SFML/Graphics.hpp>
+#include <SFML/System/Time.hpp>
+
+sprite_t::sprite_t(
+    resources::texture const& texture,
+    sf::IntRect const& texture_rect,
+    float const scale)
+    : sprite{resources::textures().get(texture), texture_rect}
+{
+    utility::center_origin(sprite);
+    sprite.setScale(scale, scale);
+}
+
+sf::FloatRect sprite_t::getGlobalBounds() const
+{
+    return sprite.getGlobalBounds();
+}
+
+void sprite_t::draw(
+    sf::RenderTarget& target,
+    sf::RenderStates states) const 
+{
+    target.draw(sprite, states);
+}
+
+animated_sprite_t::animated_sprite_t(
+    resources::texture const& texture,
+    sf::IntRect const& bounds,
+    sf::Vector2i const frame_size,
+    std::size_t const n_frames,
+    sf::Time const duration,
+    bool const repeat,
+    float const scale)
+    : sprite_t{texture, sf::IntRect{bounds.left, bounds.top, frame_size.x, frame_size.y}, scale}
+    , bounds{bounds}
+    , frame_size{frame_size}
+    , n_frames{n_frames}
+    , current_frame{0}
+    , duration{duration}
+    , elapsed{sf::Time::Zero}
+    , repeat{repeat}
+{}
+
+void animated_sprite_t::update(
+    sf::Time const& dt,
+    commands_t&)
+{
+    auto const time_per_frame{duration / static_cast<float>(n_frames)};
+    elapsed += dt;
+
+    auto texture_rect{sprite.getTextureRect()};
+
+    if(current_frame == 0)
+    {
+        texture_rect = sf::IntRect{bounds.left, bounds.top, frame_size.x, frame_size.y};
+    }
+
+    while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat))
+    {
+        // Move texture rect to next rect.
+        texture_rect.left += frame_size.x;
+        if(texture_rect.left + texture_rect.width > bounds.width)
+        {
+            texture_rect.left = 0;
+            texture_rect.top += frame_size.y;
+        }
+
+        elapsed -= time_per_frame;
+
+        if(repeat)
+        {
+            current_frame = (current_frame + 1) % n_frames;
+            if(current_frame == 0)
+            {
+                texture_rect = {bounds.left, bounds.top, frame_size.x, frame_size.y};
+            }
+        }
+        else
+        {
+            ++current_frame;
+        }
+    }
+
+    sprite.setTextureRect(texture_rect);
+}

@@ -12,10 +12,8 @@ namespace entity
 {
 
 character::character(
-    resources::texture const& texture,
-    sf::IntRect const& texture_rect,
-    float const& scale)
-    : entity{texture, texture_rect, scale}
+    std::unique_ptr<sprite_t> sprite)
+    : entity{std::move(sprite)}
 {}
 
 void character::update_self(

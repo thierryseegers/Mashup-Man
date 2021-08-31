@@ -6,11 +6,13 @@
 // #include "entity/flight.h"
 #include "resources.h"
 #include "scene.h"
+#include "sprite.h"
 #include "utility.h"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace entity
@@ -19,14 +21,15 @@ namespace entity
 class enemy : public hostile<character>
 {
 public:
-    enemy(
-        // int const starting_life,
-        // int const speed,
-        // float const attack_rate,
-        // flight::pattern const& pattern,
-        resources::texture const& texture,
-        sf::IntRect const& text_rect,
-        float const& scale = 1.f);
+    using hostile<character>::hostile;
+    // enemy(
+    //     // int const starting_life,
+    //     // int const speed,
+    //     // float const attack_rate,
+    //     // flight::pattern const& pattern,
+    //     resources::texture const& texture,
+    //     sf::IntRect const& text_rect,
+    //     float const& scale = 1.f);
 
     virtual ~enemy() = default;
 
