@@ -23,10 +23,10 @@ toml::table read()
     {
         static constexpr std::string_view default_bindings = R"(
             [keyboard]
-            go_up = 73
-            go_down = 74
-            go_left = 71
-            go_right = 72
+            head_up = 73
+            head_down = 74
+            head_left = 71
+            head_right = 72
             fire = 57
 
             [joystick]

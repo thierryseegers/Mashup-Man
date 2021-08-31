@@ -43,10 +43,10 @@ bool game::update(
 }
 
 bool game::handle_event(
-    sf::Event const& /*event*/)
+    sf::Event const& event)
 {
     // Game input handling.
-    // states.context.player.handle_event(event, world.commands());
+    states.context.player.handle_event(event, world.commands());
 
     // // Escape key or Start button pressed, trigger the pause screen.
     // if(event.type == sf::Event::KeyReleased &&

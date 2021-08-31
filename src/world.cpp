@@ -292,14 +292,10 @@ void world_t::handle_collisions()
 void world_t::update(
     sf::Time const dt)
 {
-    // // Scroll the view.
-    // view.move(0.f, scroll_speed * dt.asSeconds());
 
     // // Guide guided missiles.
     // guide_missiles();
 
-    // // Reset player velocity.
-    // player->velocity = {0.f, 0.f};
 
     // Dispatch commands.
     while(!commands_.empty())
@@ -308,27 +304,31 @@ void world_t::update(
         commands_.pop();
     }
 
-    // // Adjust player velocity if it is flying diagonally.
-    // auto const velocity = player->velocity;
-    // if(velocity.x != 0.f && velocity.y != 0.f)
-    // {
-    //     player->velocity /= std::sqrt(2.f);
-    // }
-    // player->velocity += {0.f, scroll_speed};
-
-    // Check if mario is about to hit a wall.
+    // Control Mario's direction given his desired direction (heading), current direction (velocity) and any walls.
     auto const position = mario->getPosition();
-    // size_t const x = (position.x - 10) / 20, y = (position.y - 10) / 20;
-    size_t const x = (position.x + 10) / 20, y = position.y / 20;
-
-    // spdlog::info("mario is at [{}, {}]", x, y);
-    if((mario->velocity.x > 0 && utility::any_of(level_info[y][(position.x + 11) / 20], '0', '1', '2', '3')) ||
-       (mario->velocity.x < 0 && utility::any_of(level_info[y][(position.x - 11) / 20], '0', '1', '2', '3')) ||
-       (mario->velocity.y > 0 && utility::any_of(level_info[(position.y + 11) / 20][x], '0', '1', '2', '3')) ||
-       (mario->velocity.y < 0 && utility::any_of(level_info[(position.y - 11) / 20][x], '0', '1', '2', '3')))
+    auto const heading = mario->heading;
+    auto const velocity = mario->velocity;
+    if((int)position.x % 20 >= 8 && (int)position.x % 20 <= 12 && (int)position.y % 20 >= 8 && (int)position.y % 20 <= 12)
     {
-        mario->velocity = {0.f, 0.f};
+        // If Mario wants to change direction and he can, let him.
+        if((heading.x > 0 && !utility::any_of(level_info[position.y / 20][(position.x + 10) / 20], '0', '1', '2', '3')) ||
+           (heading.x < 0 && !utility::any_of(level_info[position.y / 20][(position.x - 10) / 20], '0', '1', '2', '3')) ||
+           (heading.y > 0 && !utility::any_of(level_info[(position.y + 10) / 20][position.x / 20], '0', '1', '2', '3')) ||
+           (heading.y < 0 && !utility::any_of(level_info[(position.y - 10) / 20][position.x / 20], '0', '1', '2', '3')))
+        {
+            mario->velocity = heading;
+        }
+        // If Mario is crusing along and he's about to face a wall, stop him.
+        else if((velocity.x > 0 && utility::any_of(level_info[position.y / 20][(position.x + 10) / 20], '0', '1', '2', '3')) ||
+                (velocity.x < 0 && utility::any_of(level_info[position.y / 20][(position.x - 10) / 20], '0', '1', '2', '3')) ||
+                (velocity.y > 0 && utility::any_of(level_info[(position.y + 10) / 20][position.x / 20], '0', '1', '2', '3')) ||
+                (velocity.y < 0 && utility::any_of(level_info[(position.y - 10) / 20][position.x / 20], '0', '1', '2', '3')))
+        {
+            mario->velocity = {0.f, 0.f};
+        }
+        // Else we let him cruise along.
     }
+
     // // Prevent the player from going off-screen.
     // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};
     // float const border_distance = 40.f;

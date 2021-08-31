@@ -5,6 +5,7 @@
 #include "command.h"
 #include "entity/brother.h"
 // #include "entity/leader.h"
+#include "utility.h"
 
 #include <SFML/Window.hpp>
 
@@ -15,21 +16,25 @@ player_t::player_t()
 {
     float const speed = 100.f;
 
-    action_bindings[action::go_down] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
+    action_bindings[action::cruise] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.velocity = {0.f, speed};
+            bro.heading = bro.velocity;
         });
-    action_bindings[action::go_left] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
+    action_bindings[action::head_down] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.velocity = {-speed, 0.f};
+            bro.heading = {0.f, speed};
         });
-    action_bindings[action::go_right] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
+    action_bindings[action::head_left] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.velocity = {speed, 0.f};
+            bro.heading = {-speed, 0.f};
         });
-    action_bindings[action::go_up] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
+    action_bindings[action::head_right] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.velocity = {0.f, -speed};
+            bro.heading = {speed, 0.f};
+        });
+    action_bindings[action::head_up] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
+        {
+            bro.heading = {0.f, -speed};
         });
 
     action_bindings[action::fire] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
@@ -47,6 +52,38 @@ void player_t::handle_event(
         if(auto i = bindings::keyboard().find(event.key.code); i != bindings::keyboard().end() && !is_realtime_action(i->second))
         {
             commands.push(action_bindings[i->second]);
+        }
+    }
+    else if(event.type == sf::Event::KeyReleased)
+    {
+        if(auto i = bindings::keyboard().find(event.key.code); i != bindings::keyboard().end() && 
+                                                               !is_realtime_action(i->second) && 
+                                                               utility::any_of(i->second, action::head_down, action::head_left, action::head_right, action::head_up))
+        {
+            commands.push(action_bindings[action::cruise]);
+        }
+    }
+    else if(event.type == sf::Event::JoystickMoved)
+    {
+        if(auto const x_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X); x_axis > 1)
+        {
+            commands.push(action_bindings[action::head_right]);
+        }
+        else if(x_axis < -1)
+        {
+            commands.push(action_bindings[action::head_left]);
+        }
+        else if(auto const y_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y); y_axis > 1)
+        {
+            commands.push(action_bindings[action::head_down]);
+        }
+        else if(y_axis < -1)
+        {
+            commands.push(action_bindings[action::head_up]);
+        }
+        else
+        {
+            commands.push(action_bindings[action::cruise]);
         }
     }
     else if(event.type == sf::Event::JoystickButtonPressed)
@@ -79,23 +116,23 @@ void player_t::handle_realtime_input(
         }
     }
 
-    if(auto const x_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X); x_axis > 1)
-    {
-        commands.push(action_bindings[action::go_right]);
-    }
-    else if(x_axis < -1)
-    {
-        commands.push(action_bindings[action::go_left]);
-    }
+    // if(auto const x_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X); x_axis > 1)
+    // {
+    //     commands.push(action_bindings[action::head_right]);
+    // }
+    // else if(x_axis < -1)
+    // {
+    //     commands.push(action_bindings[action::head_left]);
+    // }
 
-    if(auto const y_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y); y_axis > 1)
-    {
-        commands.push(action_bindings[action::go_down]);
-    }
-    else if(y_axis < -1)
-    {
-        commands.push(action_bindings[action::go_up]);
-    }
+    // if(auto const y_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y); y_axis > 1)
+    // {
+    //     commands.push(action_bindings[action::head_down]);
+    // }
+    // else if(y_axis < -1)
+    // {
+    //     commands.push(action_bindings[action::head_up]);
+    // }
 }
 
 bool player_t::is_realtime_action(
@@ -103,10 +140,11 @@ bool player_t::is_realtime_action(
 {
     switch(a)
     {
-        case action::go_down:
-        case action::go_left:
-        case action::go_right:
-        case action::go_up:
+        // case action::cruise:
+        // case action::head_down:
+        // case action::head_left:
+        // case action::head_right:
+        // case action::head_up:
         case action::fire:
             return true;
             break;

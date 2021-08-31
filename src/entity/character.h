@@ -23,6 +23,8 @@ public:
 
     virtual ~character() = default;
 
+    sf::Vector2f heading;
+
 protected:
     virtual void update_self(
         sf::Time const& dt,
