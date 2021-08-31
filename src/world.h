@@ -3,7 +3,7 @@
 #include "command.h"
 // #include "effects/bloom.h"
 // #include "entity/enemy.h"
-// #include "entity/leader.h"
+#include "entity/brother.h"
 #include "level.h"
 #include "resources.h"
 #include "scene.h"
@@ -85,7 +85,7 @@ private:
     // sf::Vector2f const player_spawn_point;
     // float scroll_speed;
     
-    // entity::brother* player;
+    entity::brother* mario;
     // std::vector<entity::enemy*> enemies;
 
     // struct spawn

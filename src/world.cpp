@@ -173,7 +173,7 @@ void world_t::build_scene()
                     break;
                 case 'x':
                     {
-                        n = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("mario");
+                        n = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("mario");
                     }
                     break;
                 case 'y':
@@ -190,88 +190,10 @@ void world_t::build_scene()
         }
     }
 
-    // // Create background sprite on background layer.
-    // sf::Texture& background_texture = utility::single::mutable_instance<resources::textures_t>().get(resources::texture::jungle);
-    // background_texture.setRepeated(true);
-    // sf::IntRect const background_rect{bounds};
-    // layers[layer::background]->attach<scene::sprite_t>(resources::texture::jungle, background_rect)->setPosition(bounds.left, bounds.top);
-
-    // // Add the finish line to background layer.
-    // layers[layer::background]->attach<scene::sprite_t>(resources::texture::finish_line)->setPosition(0.f, -76.f);
-
     // // Create the particle systems.
     // layers[layer::projectiles]->attach<particles<smoke>>(resources::textures().get(resources::texture::particle));
     // layers[layer::projectiles]->attach<particles<propellant>>(resources::textures().get(resources::texture::particle));
-
-    // // Create leader aircraft and move to air layer.
-    // player = layers[layer::aircrafts]->attach<entity::leader_t>();
-    // player->setPosition(player_spawn_point);
-
-    // auto add_enemy = [=](auto const& f, sf::Vector2f const& ds) mutable
-    //     {
-    //         enemy_spawns.insert({f, player_spawn_point + ds});
-    //     };
-    // auto const make_raptor = []
-    //     {
-    //         return std::make_unique<entity::raptor>();
-    //     };
-    // auto const make_avenger = []
-    //     {
-    //         return std::make_unique<entity::avenger>();
-    //     };
-
-    // add_enemy(make_raptor,  {   0.f,  -500.f});
-    // add_enemy(make_raptor,  {   0.f, -1000.f});
-    // add_enemy(make_raptor,  {+100.f, -1150.f});
-    // add_enemy(make_raptor,  {-100.f, -1150.f});
-    // add_enemy(make_avenger, {  70.f, -1500.f});
-    // add_enemy(make_avenger, { -70.f, -1500.f});
-    // add_enemy(make_avenger, { -70.f, -1710.f});
-    // add_enemy(make_avenger, {  70.f, -1700.f});
-    // add_enemy(make_avenger, {  30.f, -1850.f});
-    // add_enemy(make_raptor,  { 300.f, -2200.f});
-    // add_enemy(make_raptor,  {-300.f, -2200.f});
-    // add_enemy(make_raptor,  {   0.f, -2200.f});
-    // add_enemy(make_raptor,  {   0.f, -2500.f});
-    // add_enemy(make_avenger, {-300.f, -2700.f});
-    // add_enemy(make_avenger, {-300.f, -2700.f});
-    // add_enemy(make_raptor,  {   0.f, -3000.f});
-    // add_enemy(make_raptor,  { 250.f, -3250.f});
-    // add_enemy(make_raptor,  {-250.f, -3250.f});
-    // add_enemy(make_avenger, {   0.f, -3500.f});
-    // add_enemy(make_avenger, {   0.f, -3700.f});
-    // add_enemy(make_raptor,  {   0.f, -3800.f});
-    // add_enemy(make_avenger, {   0.f, -4000.f});
-    // add_enemy(make_avenger, {-200.f, -4200.f});
-    // add_enemy(make_raptor,  { 200.f, -4200.f});
-    // add_enemy(make_raptor,  {   0.f, -4400.f});
 }
-
-// void world_t::remove_unviewables()
-// {
-//     commands_.push(make_command<entity::entity<>>([battlefield = battlefield_bounds()](entity::entity<>& e, sf::Time const&)
-//         {
-//             if(!battlefield.intersects(e.collision_bounds()))
-//             {
-//                 e.remove = true;
-//             }
-//         }));
-// }
-
-// void world_t::spawn_enemies()
-// {
-//     while(!enemy_spawns.empty() &&
-//           enemy_spawns.rbegin()->where.y > battlefield_bounds().top)
-//     {
-//         auto const enemy_spawn = enemy_spawns.extract(*enemy_spawns.rbegin()).value();
-
-//         auto e = enemy_spawn.what();
-//         e->setPosition(enemy_spawn.where);
-//         e->setRotation(180.f);
-
-//         layers[aircrafts]->attach(std::move(e));
-//     }
-// }
 
 template<typename Entity1, typename Entity2>
 std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const& p)
@@ -373,12 +295,8 @@ void world_t::update(
     // // Scroll the view.
     // view.move(0.f, scroll_speed * dt.asSeconds());
 
-    // // Flag entities outside viewable area.
-    // remove_unviewables();
-
     // // Guide guided missiles.
     // guide_missiles();
-
 
     // // Reset player velocity.
     // player->velocity = {0.f, 0.f};
@@ -398,6 +316,19 @@ void world_t::update(
     // }
     // player->velocity += {0.f, scroll_speed};
 
+    // Check if mario is about to hit a wall.
+    auto const position = mario->getPosition();
+    // size_t const x = (position.x - 10) / 20, y = (position.y - 10) / 20;
+    size_t const x = (position.x + 10) / 20, y = position.y / 20;
+
+    // spdlog::info("mario is at [{}, {}]", x, y);
+    if((mario->velocity.x > 0 && utility::any_of(level_info[y][(position.x + 11) / 20], '0', '1', '2', '3')) ||
+       (mario->velocity.x < 0 && utility::any_of(level_info[y][(position.x - 11) / 20], '0', '1', '2', '3')) ||
+       (mario->velocity.y > 0 && utility::any_of(level_info[(position.y + 11) / 20][x], '0', '1', '2', '3')) ||
+       (mario->velocity.y < 0 && utility::any_of(level_info[(position.y - 11) / 20][x], '0', '1', '2', '3')))
+    {
+        mario->velocity = {0.f, 0.f};
+    }
     // // Prevent the player from going off-screen.
     // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};
     // float const border_distance = 40.f;

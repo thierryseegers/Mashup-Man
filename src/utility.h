@@ -66,6 +66,12 @@ sf::Vector2f to_vector2f(
 sf::Color to_color(
     toml::array const& values);
 
+template<typename T, typename ... Vals>
+bool any_of(T t, Vals ...vals)
+{
+    return (... || (t == vals));
+}
+
 int random(
     int const max);
 

@@ -13,7 +13,7 @@
 player_t::player_t()
     // : status{mission::running}
 {
-    float const speed = 50.f;
+    float const speed = 100.f;
 
     action_bindings[action::go_down] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
