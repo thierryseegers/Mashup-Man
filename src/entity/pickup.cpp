@@ -18,12 +18,10 @@ namespace entity::pickup
 coin::coin()
 {
     sprite = std::make_unique<animated_sprite_t>(
-                *magic_enum::enum_cast<resources::texture>(*configuration::values()["items"]["texture"].value<std::string>()),
-                utility::to_intrect(*configuration::values()["items"]["coin"]["texture_rect"].as_array()),
-                utility::to_vector2i(*configuration::values()["items"]["coin"]["frame_size"].as_array()),
-                *configuration::values()["items"]["coin"]["n_frames"].value<std::size_t>(),
-                sf::seconds(*configuration::values()["items"]["coin"]["duration"].value<float>()),
-                *configuration::values()["items"]["coin"]["repeat"].value<bool>(),
+                resources::texture::items,
+                std::vector<sf::IntRect>{{0, 96, 16, 16}, {16, 96, 16, 16}, {32, 96, 16, 16}, {48, 96, 16, 16}},
+                sf::seconds(1.f),
+                animated_sprite_t::repeat::loop,
                 configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f));
 }
 
@@ -60,12 +58,10 @@ void mushroom::apply(
 flower::flower()
 {
     sprite = std::make_unique<animated_sprite_t>(
-                *magic_enum::enum_cast<resources::texture>(*configuration::values()["items"]["texture"].value<std::string>()),
-                utility::to_intrect(*configuration::values()["items"]["flower"]["texture_rect"].as_array()),
-                utility::to_vector2i(*configuration::values()["items"]["flower"]["frame_size"].as_array()),
-                *configuration::values()["items"]["flower"]["n_frames"].value<std::size_t>(),
-                sf::seconds(*configuration::values()["items"]["flower"]["duration"].value<float>()),
-                *configuration::values()["items"]["flower"]["repeat"].value<bool>(),
+                resources::texture::items,
+                std::vector<sf::IntRect>{{0, 32, 16, 16}, {16, 32, 16, 16}, {32, 32, 16, 16}, {48, 32, 16, 16}},
+                sf::seconds(1.f),
+                animated_sprite_t::repeat::loop,
                 configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f));
 }
 

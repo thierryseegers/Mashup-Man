@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <vector>
 class sprite_t :
     public sf::Transformable,
     public sf::Drawable
@@ -37,13 +38,18 @@ class animated_sprite_t :
     public sprite_t
 {
 public:
+    enum class repeat
+    {
+        back_and_forth, // TODO: implement.
+        loop,
+        none,
+    };
+
     animated_sprite_t(
-        resources::texture const& texture,
-        sf::IntRect const& bounds,
-        sf::Vector2i const frame_size,
-        std::size_t const n_frames, // Could this not be computed from 'bounds' and 'frame_size'?
+        resources::texture const& texture_sheet,
+        std::vector<sf::IntRect> const& texture_rects,
         sf::Time const duration,
-        bool const repeat,
+        repeat const repeat_,
         float const scale);
 
     virtual ~animated_sprite_t() = default;
@@ -53,7 +59,7 @@ public:
         commands_t& commands) override;
 
 protected:
-    sf::IntRect const bounds;
+    std::vector<sf::IntRect> const texture_rects;
     sf::Vector2i const frame_size;
 
     std::size_t const n_frames;
@@ -62,5 +68,5 @@ protected:
     sf::Time const duration;
     sf::Time elapsed;
 
-    bool const repeat;
+    repeat const repeat_;
 };

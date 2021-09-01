@@ -30,21 +30,18 @@ void sprite_t::draw(
 }
 
 animated_sprite_t::animated_sprite_t(
-    resources::texture const& texture,
-    sf::IntRect const& bounds,
-    sf::Vector2i const frame_size,
-    std::size_t const n_frames,
+    resources::texture const& texture_sheet,
+    std::vector<sf::IntRect> const& texture_rects,
     sf::Time const duration,
-    bool const repeat,
+    repeat const repeat_,
     float const scale)
-    : sprite_t{texture, sf::IntRect{bounds.left, bounds.top, frame_size.x, frame_size.y}, scale}
-    , bounds{bounds}
-    , frame_size{frame_size}
-    , n_frames{n_frames}
+    : sprite_t{texture_sheet, texture_rects[0], scale}
+    , texture_rects{texture_rects}
+    , n_frames{texture_rects.size()}
     , current_frame{0}
     , duration{duration}
     , elapsed{sf::Time::Zero}
-    , repeat{repeat}
+    , repeat_{repeat_}
 {}
 
 void animated_sprite_t::update(
@@ -54,32 +51,32 @@ void animated_sprite_t::update(
     auto const time_per_frame{duration / static_cast<float>(n_frames)};
     elapsed += dt;
 
-    auto texture_rect{sprite.getTextureRect()};
+    // auto texture_rect{sprite.getTextureRect()};
 
-    if(current_frame == 0)
-    {
-        texture_rect = sf::IntRect{bounds.left, bounds.top, frame_size.x, frame_size.y};
-    }
+    // if(current_frame == 0)
+    // {
+    //     texture_rect = texture_rects[0];
+    // }
 
-    while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat))
+    while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat_ != repeat::none))
     {
-        // Move texture rect to next rect.
-        texture_rect.left += frame_size.x;
-        if(texture_rect.left + texture_rect.width > bounds.width)
-        {
-            texture_rect.left = 0;
-            texture_rect.top += frame_size.y;
-        }
+        // // Move texture rect to next rect.
+        // texture_rect.left += frame_size.x;
+        // if(texture_rect.left + texture_rect.width > bounds.width)
+        // {
+        //     texture_rect.left = 0;
+        //     texture_rect.top += frame_size.y;
+        // }
 
         elapsed -= time_per_frame;
 
-        if(repeat)
+        if(repeat_ != repeat::none)
         {
             current_frame = (current_frame + 1) % n_frames;
-            if(current_frame == 0)
-            {
-                texture_rect = {bounds.left, bounds.top, frame_size.x, frame_size.y};
-            }
+            // if(current_frame == 0)
+            // {
+            //     texture_rect = {bounds.left, bounds.top, frame_size.x, frame_size.y};
+            // }
         }
         else
         {
@@ -87,5 +84,5 @@ void animated_sprite_t::update(
         }
     }
 
-    sprite.setTextureRect(texture_rect);
+    sprite.setTextureRect(texture_rects[current_frame]);
 }

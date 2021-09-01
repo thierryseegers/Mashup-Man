@@ -23,20 +23,11 @@ scale = 1.2
 texture = "items"
 
 [items.coin]
-texture_rect = [0, 96, 64, 16]
-frame_size = [16, 16]
-n_frames = 4
-duration = 1.0
-repeat = true
+scale = 0.8
 
 [items.mushroom]
 texture_rect = [0, 0, 16, 16]
 scale = 1.2
 
 [items.flower]
-texture_rect = [0, 32, 64, 16]
-frame_size = [16, 16]
-n_frames = 4
-duration = 1.0
-repeat = true
 scale = 1.2
