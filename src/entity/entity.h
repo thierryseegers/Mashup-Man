@@ -27,15 +27,10 @@ public:
     using T::T;
 };
 
-class entity
+struct entity
     : public scene::node
 {
 public:
-    entity(
-        std::unique_ptr<sprite_t> sprite)
-        : sprite{std::move(sprite)}
-    {}
-
     virtual ~entity() = default;
 
     virtual sf::FloatRect collision_bounds() const override
@@ -56,6 +51,8 @@ public:
     sf::Vector2f velocity;
 
 protected:
+    std::unique_ptr<sprite_t> sprite;
+
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override
@@ -72,7 +69,6 @@ protected:
         sprite->draw(target, states);
     }
 
-    std::unique_ptr<sprite_t> sprite;
 };
 
 }

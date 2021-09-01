@@ -16,8 +16,6 @@ class pickup :
     public entity
 {
 public:
-    using entity::entity;
-
     virtual resources::sound_effect sound_effect() const = 0;
 
     virtual void apply(

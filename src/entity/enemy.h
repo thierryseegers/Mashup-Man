@@ -21,16 +21,6 @@ namespace entity
 class enemy : public hostile<character>
 {
 public:
-    using hostile<character>::hostile;
-    // enemy(
-    //     // int const starting_life,
-    //     // int const speed,
-    //     // float const attack_rate,
-    //     // flight::pattern const& pattern,
-    //     resources::texture const& texture,
-    //     sf::IntRect const& text_rect,
-    //     float const& scale = 1.f);
-
     virtual ~enemy() = default;
 
 protected:

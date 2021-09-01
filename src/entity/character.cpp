@@ -11,11 +11,6 @@
 namespace entity
 {
 
-character::character(
-    std::unique_ptr<sprite_t> sprite)
-    : entity{std::move(sprite)}
-{}
-
 void character::update_self(
     sf::Time const& dt,
     commands_t& commands)

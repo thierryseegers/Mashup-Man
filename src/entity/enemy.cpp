@@ -134,11 +134,12 @@ void enemy::update_self(
 }
 
 goomba::goomba()
-    : enemy{std::make_unique<sprite_t>(
+{
+    sprite = std::make_unique<sprite_t>(
                 *magic_enum::enum_cast<resources::texture>(*configuration::values()["enemies"]["texture"].value<std::string_view>()),
                 utility::to_intrect(*configuration::values()["enemies"]["goomba"]["texture_rect"].as_array()),
-                configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f))}
-{}
+                configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f));
+}
 
 // void avenger::attack(
 //     scene::projectiles& layer) const

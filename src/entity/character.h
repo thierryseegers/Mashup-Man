@@ -16,9 +16,6 @@ namespace entity
 class character : public entity
 {
 public:
-    character(
-        std::unique_ptr<sprite_t> sprite);
-
     virtual ~character() = default;
 
     sf::Vector2f heading;

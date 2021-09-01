@@ -24,11 +24,7 @@ namespace entity
 
 brother::brother(
     std::string const& name)
-    : friendly<character>{std::make_unique<sprite_t>(
-                            *magic_enum::enum_cast<resources::texture>(*configuration::values()["brothers"]["texture"].value<std::string>()),
-                            utility::to_intrect(*configuration::values()["brothers"][name]["texture_rect"].as_array()),
-                            configuration::values()["brothers"][name]["scale"].value_or<float>(1.f))}
-    , size{size::small}
+    : size{size::small}
     , attribute{attribute::plain}
     // , default_texture_rect{sprite.getTextureRect()}
     // , bullet_spread{1}
@@ -40,7 +36,10 @@ brother::brother(
     // , missile_guidance{true}
     // , launching_missile{false}
 {
-    // velocity.x = 40;
+    sprite = std::make_unique<sprite_t>(
+                            *magic_enum::enum_cast<resources::texture>(*configuration::values()["brothers"]["texture"].value<std::string>()),
+                            utility::to_intrect(*configuration::values()["brothers"][name]["texture_rect"].as_array()),
+                            configuration::values()["brothers"][name]["scale"].value_or<float>(1.f));
 }
 
 void brother::fire()
