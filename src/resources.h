@@ -45,6 +45,7 @@ enum class texture
 enum class sound_effect
 {
     collect_coin,
+    collect_powerup,
     // allied_gunfire,
     // enemy_gunfire,
     // explosion_1,

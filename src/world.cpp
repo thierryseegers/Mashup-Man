@@ -34,14 +34,9 @@ world_t::world_t(
     : target{output_target}
     , view{output_target.getDefaultView()}
     , sound{sound}
-    // , bounds{0.f, 0.f, view.getSize().x, 5000.f}
-    // , player_spawn_point{view.getSize().x / 2.f, bounds.height - view.getSize().y / 2.f}
-    // , scroll_speed{-50.f}
-    // , player{nullptr}
+    , mario{nullptr}
+    , immovables{{}}
 {
-    // scene_texture.create(target.getSize().x, target.getSize().y);
-
-    // load_textures();
     build_scene();
 
     // view.setCenter(player_spawn_point);
@@ -201,7 +196,7 @@ void world_t::build_scene()
 }
 
 template<typename Entity1, typename Entity2>
-std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const& p)
+std::pair<Entity1*, Entity2*> match(std::pair<entity::entity*, entity::entity*> const& p)
 {
     if(auto *pa = dynamic_cast<Entity1*>(p.first))
     {
@@ -249,14 +244,13 @@ void world_t::handle_collisions()
         //     projectile->remove = true;
         // }
         // else 
-        if(auto [bro, coin] = match<entity::brother, entity::pickup::coin>(collision); bro && coin)
+        if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
         {
-            spdlog::info("Brother got some dough at [{}, {}]!", coin->getPosition().x, coin->getPosition().y);
-            coin->apply(*bro);
-            bro->play_local_sound(commands_, resources::sound_effect::collect_coin);
+            pickup->apply(*bro);
 
-            immovables[coin->getPosition().y / 20][coin->getPosition().x / 20] = nullptr;
-            coin->remove = true;
+            sound.play(pickup->sound_effect());
+            immovables[pickup->getPosition().y / 20][pickup->getPosition().x / 20] = nullptr;
+            pickup->remove = true;
         }
         // else if(auto [leader, enemy] = match<entity::brother, entity::enemy>(collision); leader && enemy)
         // {

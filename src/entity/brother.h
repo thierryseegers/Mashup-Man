@@ -21,10 +21,15 @@ public:
 
     virtual ~brother() = default;
 
-    // void repair(
-    //     int const amount);
-
     void fire();
+
+    void consume_mushroom();
+
+    void consume_flower();
+
+    void hit_enemy();
+
+    void hit_fireball();
 
     // void launch_missile();
 
@@ -36,6 +41,18 @@ public:
     //     int const amount);
 
 private:
+    enum class size
+    {
+        small,
+        big
+    } size;
+
+    enum class attribute
+    {
+        plain,
+        fiery
+    } attribute;
+
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;

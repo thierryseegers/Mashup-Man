@@ -26,6 +26,11 @@ coin::coin()
                 configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f))}
 {}
 
+resources::sound_effect coin::sound_effect() const
+{
+    return resources::sound_effect::collect_coin;
+}
+
 void coin::apply(
     brother& /*b*/) const
 {
@@ -38,6 +43,11 @@ mushroom::mushroom()
                 utility::to_intrect(*configuration::values()["items"]["mushroom"]["texture_rect"].as_array()),
                 configuration::values()["items"]["mushroom"]["scale"].value_or<float>(1.f))}
 {}
+
+resources::sound_effect mushroom::sound_effect() const
+{
+    return resources::sound_effect::collect_powerup;
+}
 
 void mushroom::apply(
     brother& /*b*/) const
@@ -56,32 +66,15 @@ flower::flower()
                 configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f))}
 {}
 
+resources::sound_effect flower::sound_effect() const
+{
+    return resources::sound_effect::collect_powerup;
+}
+
 void flower::apply(
     brother& /*b*/) const
 {
     // leader.collect_missile(3);
 }
-
-// increase_spread::increase_spread()
-//     : pickup{*magic_enum::enum_cast<resources::texture>(*configuration::values()["pickup"]["texture"].value<std::string>()),
-//              utility::to_intrect(*configuration::values()["pickup"]["fire_spread"]["texture_rect"].as_array())}
-// {}
-
-// void increase_spread::apply(
-//     brother& leader) const
-// {
-//     leader.increase_bullet_spread();
-// }
-
-// increase_fire_rate::increase_fire_rate()
-//     : pickup{*magic_enum::enum_cast<resources::texture>(*configuration::values()["pickup"]["texture"].value<std::string>()),
-//              utility::to_intrect(*configuration::values()["pickup"]["fire_rate"]["texture_rect"].as_array())}
-// {}
-
-// void increase_fire_rate::apply(
-//     brother& leader) const
-// {
-//     leader.increase_fire_rate();
-// }
 
 }

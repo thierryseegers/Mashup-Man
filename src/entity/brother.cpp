@@ -28,6 +28,8 @@ brother::brother(
                             *magic_enum::enum_cast<resources::texture>(*configuration::values()["brothers"]["texture"].value<std::string>()),
                             utility::to_intrect(*configuration::values()["brothers"][name]["texture_rect"].as_array()),
                             configuration::values()["brothers"][name]["scale"].value_or<float>(1.f))}
+    , size{size::small}
+    , attribute{attribute::plain}
     // , default_texture_rect{sprite.getTextureRect()}
     // , bullet_spread{1}
     // , fire_rate{1}
@@ -45,6 +47,32 @@ void brother::fire()
 {
     // firing = true;
 }
+
+void brother::consume_mushroom()
+{
+    size = size::big;
+}
+
+void brother::consume_flower()
+{
+    attribute = attribute::fiery;
+}
+
+void brother::hit_enemy()
+{
+    switch(size)
+    {
+        case size::small:
+            break;
+        case size::big:
+            size = size::small;
+            attribute = attribute::plain;
+            break;
+    }
+}
+
+void brother::hit_fireball()
+{}
 
 // void brother::launch_missile()
 // {

@@ -58,19 +58,15 @@ public:
     // [[nodiscard]] bool player_reached_end() const;
 
 private:
-    // void load_textures();
     void build_scene();
     
     // void remove_unviewables();
     void handle_collisions();
-    // void guide_missiles();
-    // void spawn_enemies();
 
     // sf::FloatRect view_bounds() const;
     // sf::FloatRect battlefield_bounds() const;
 
     sf::RenderTarget& target;
-    // sf::RenderTexture scene_texture;
     sf::View view;
 
     // effect::bloom bloom_effect;
@@ -81,28 +77,9 @@ private:
 
     commands_t commands_;
 
-    // sf::FloatRect const bounds;
-    // sf::Vector2f const player_spawn_point;
-    // float scroll_speed;
-    
     entity::brother* mario;
-    // std::vector<entity::enemy*> enemies;
-
-    // struct spawn
-    // {
-    //     std::function<std::unique_ptr<entity::character> ()> const what;
-    //     sf::Vector2f const where;
-
-    //     bool operator<(spawn const& other) const
-    //     {
-    //         return where.y < other.where.y;
-    //     }
-    // };
-
-    // std::multiset<spawn> enemy_spawns;
 
     level::info level_info;
     level::grid<entity::entity*> immovables;
     std::vector<entity::entity*> characters;
-
 };

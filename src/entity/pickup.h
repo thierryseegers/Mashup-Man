@@ -18,6 +18,8 @@ class pickup :
 public:
     using entity::entity;
 
+    virtual resources::sound_effect sound_effect() const = 0;
+
     virtual void apply(
         brother& b) const = 0;
 };
@@ -27,6 +29,8 @@ class coin :
 {
 public:
     coin();
+
+    virtual resources::sound_effect sound_effect() const override;
 
     virtual void apply(
         brother& b) const override;
@@ -38,6 +42,8 @@ class mushroom :
 public:
     mushroom();
 
+    virtual resources::sound_effect sound_effect() const override;
+
     virtual void apply(
         brother& b) const override;
 };
@@ -47,6 +53,8 @@ class flower :
 {
 public:
     flower();
+
+    virtual resources::sound_effect sound_effect() const override;
 
     virtual void apply(
         brother& b) const override;
