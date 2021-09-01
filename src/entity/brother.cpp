@@ -36,10 +36,15 @@ brother::brother(
     // , missile_guidance{true}
     // , launching_missile{false}
 {
-    sprite = std::make_unique<sprite_t>(
-                            *magic_enum::enum_cast<resources::texture>(*configuration::values()["brothers"]["texture"].value<std::string>()),
-                            utility::to_intrect(*configuration::values()["brothers"][name]["texture_rect"].as_array()),
-                            configuration::values()["brothers"][name]["scale"].value_or<float>(1.f));
+    if(name == "mario")
+    {
+        sprite = std::make_unique<animated_sprite_t>(
+                resources::texture::brothers,
+                std::vector<sf::IntRect>{{43, 9, 16, 16}, {60, 9, 16, 16}, {77, 9, 16, 16}},
+                sf::seconds(0.4f),
+                animated_sprite_t::repeat::loop,
+                configuration::values()["brothers"]["scale"].value_or<float>(1.f));
+    }
 }
 
 void brother::fire()
