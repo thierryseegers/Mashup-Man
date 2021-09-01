@@ -135,9 +135,11 @@ void enemy::update_self(
 
 goomba::goomba()
 {
-    sprite = std::make_unique<sprite_t>(
-                *magic_enum::enum_cast<resources::texture>(*configuration::values()["enemies"]["texture"].value<std::string_view>()),
-                utility::to_intrect(*configuration::values()["enemies"]["goomba"]["texture_rect"].as_array()),
+    sprite = std::make_unique<animated_sprite_t>(
+                resources::texture::enemies,
+                std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}},
+                sf::seconds(1.f),
+                animated_sprite_t::repeat::loop,
                 configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f));
 }
 

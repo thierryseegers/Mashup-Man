@@ -15,7 +15,6 @@ scale = 1.2
 texture = "enemies"
 
 [enemies.goomba]
-texture_rect = [1, 28, 16, 16]
 scale = 1.2
 
 [items]
