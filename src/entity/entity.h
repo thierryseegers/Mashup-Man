@@ -31,44 +31,29 @@ struct entity
     : public scene::node
 {
 public:
+    entity(
+        sprite sprite_);
+
     virtual ~entity() = default;
 
-    virtual sf::FloatRect collision_bounds() const override
-    {
-        return world_transform().transformRect(sprite->getGlobalBounds());
-    }
+    virtual sf::FloatRect collision_bounds() const override;
 
     void play_local_sound(
         commands_t& commands,
-        resources::sound_effect const se) const
-    {
-        commands.push(make_command<scene::sound_t>([=](scene::sound_t& s, sf::Time const&)
-        {
-            s.play(se, world_position());
-        }));
-    }
+        resources::sound_effect const se) const;
 
     sf::Vector2f velocity;
 
 protected:
-    std::unique_ptr<sprite_t> sprite;
+    sprite sprite_;
 
     virtual void update_self(
         sf::Time const& dt,
-        commands_t& commands) override
-    {
-        sf::Transformable::move(velocity * dt.asSeconds());
-
-        sprite->update(dt, commands);
-    }
+        commands_t& commands) override;
 
     virtual void draw_self(
         sf::RenderTarget& target,
-        sf::RenderStates states) const override
-    {
-        sprite->draw(target, states);
-    }
-
+        sf::RenderStates states) const override;
 };
 
 }

@@ -8,18 +8,45 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 
-#include <string>
 
 namespace entity
 {
 
-class brother : public friendly<character>
+class brother :
+    public friendly<character>
 {
 public:
+    enum class size
+    {
+        small,
+        big
+    };
+
+    enum class attribute
+    {
+        plain,
+        fiery
+    };
+
+    enum class motion
+    {
+        moving,
+        still
+    };
+
+    enum class liveness
+    {
+        alive,
+        dead
+    };
+
     brother(
-        std::string const& name);
+        sprite const& sprite_);
 
     virtual ~brother() = default;
+
+    void set_direction(
+        sf::Vector2f const& direction);
 
     void fire();
 
@@ -31,48 +58,47 @@ public:
 
     void hit_fireball();
 
-    // void launch_missile();
-
-    // void increase_fire_rate();
-
-    // void increase_bullet_spread();
-
-    // void collect_missile(
-    //     int const amount);
-
-private:
-    enum class size
-    {
-        small,
-        big
-    } size;
-
-    enum class attribute
-    {
-        plain,
-        fiery
-    } attribute;
-
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
 
+    void update_sprite();
+
     // void shoot_bullet(
     //     scene::projectiles& layer) const;
 
-    // void shoot_missile(
-    //     scene::projectiles& layer) const;
+    sf::IntRect (*still_sprite_rect_)(
+        brother::size const,
+        brother::attribute const,
+        brother::liveness const);
 
-    // sf::IntRect const default_texture_rect; // Texture rectangle for leader flying straight.
+    std::vector<sf::IntRect> (*animated_sprite_rects_)(
+        brother::size const,
+        brother::attribute const);
 
-    // int bullet_spread;
+    size size_;
+    attribute attribute_;
+    motion motion_;
+    liveness liveness_;
+
     // int fire_rate;
     // sf::Time fire_countdown;
     // bool firing;
+};
 
-    // int missile_ammo;
-    // bool missile_guidance;
-    // bool launching_missile;
+class mario :
+    public brother
+{
+public:
+    mario();
+};
+
+class luigi :
+    public brother
+{
+public:
+    luigi();
 };
 
 }

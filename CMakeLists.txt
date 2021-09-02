@@ -68,6 +68,7 @@ add_executable(${PROJECT_NAME}
     src/entity/character.h
     src/entity/enemy.cpp
     src/entity/enemy.h
+    src/entity/entity.cpp
     src/entity/entity.h
     src/entity/pickup.cpp
     src/entity/pickup.h

@@ -16,6 +16,8 @@ namespace entity
 class character : public entity
 {
 public:
+    using entity::entity;
+
     virtual ~character() = default;
 
     sf::Vector2f heading;

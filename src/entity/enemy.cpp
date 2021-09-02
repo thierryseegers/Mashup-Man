@@ -134,14 +134,14 @@ void enemy::update_self(
 }
 
 goomba::goomba()
-{
-    sprite = std::make_unique<animated_sprite_t>(
-                resources::texture::enemies,
-                std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}},
-                sf::seconds(1.f),
-                animated_sprite_t::repeat::loop,
-                configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f));
-}
+    : enemy{
+        sprite{
+            resources::texture::enemies,
+            std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}},
+            sf::seconds(1.f),
+            sprite::repeat::loop,
+            configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f)}}
+{}
 
 // void avenger::attack(
 //     scene::projectiles& layer) const

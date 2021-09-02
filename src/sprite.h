@@ -6,36 +6,12 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <functional>
 #include <vector>
-class sprite_t :
+
+class sprite :
     public sf::Transformable,
     public sf::Drawable
-{
-public:
-    sprite_t(
-        resources::texture const& texture,
-        sf::IntRect const& texture_rect,
-        float const scale);
-
-    virtual ~sprite_t() = default;
-
-    sf::FloatRect getGlobalBounds() const;
-
-    virtual void draw(
-        sf::RenderTarget& target,
-        sf::RenderStates states) const override;
-
-    virtual void update(
-        sf::Time const&,
-        commands_t&)
-    {}
-
-protected:
-    sf::Sprite sprite;
-};
-
-class animated_sprite_t :
-    public sprite_t
 {
 public:
     enum class repeat
@@ -45,28 +21,49 @@ public:
         none,
     };
 
-    animated_sprite_t(
+    sprite(
+        resources::texture const& texture_sheet,
+        sf::IntRect const& texture_rect,
+        float const scale_factor);
+
+    sprite(
         resources::texture const& texture_sheet,
         std::vector<sf::IntRect> const& texture_rects,
         sf::Time const duration,
         repeat const repeat_,
-        float const scale);
+        float const scale_factor);
 
-    virtual ~animated_sprite_t() = default;
+    ~sprite() = default;
 
-    virtual void update(
-        sf::Time const& dt,
-        commands_t& commands) override;
+    void still(
+        sf::IntRect const& texture_rect);
+
+    void animate(
+        std::vector<sf::IntRect> const& texture_rects,
+        sf::Time const duration,
+        repeat const repeat_);
+
+    void flip();
+
+    void rotate(
+        float const angle);
+
+    sf::FloatRect getGlobalBounds() const;
+
+    void draw(
+        sf::RenderTarget& target,
+        sf::RenderStates states) const override;
+
+    void update(
+        sf::Time const&,
+        commands_t&);
 
 protected:
-    std::vector<sf::IntRect> const texture_rects;
-    sf::Vector2i const frame_size;
+    sf::Sprite sprite_;
 
-    std::size_t const n_frames;
-    std::size_t current_frame;
+    // TODO: figure out why the workaround of this function getting passed 'this->sprite_' is required 
+    // as opposed to to just referring to 'this->sprite_' within the lambda given.
+    std::function<void (sf::Time const&, commands_t&, sf::Sprite&)> updater;
 
-    sf::Time const duration;
-    sf::Time elapsed;
-
-    repeat const repeat_;
+    bool flipped;
 };

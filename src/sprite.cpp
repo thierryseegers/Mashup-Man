@@ -6,83 +6,113 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
+#include <spdlog/spdlog.h>
 
-sprite_t::sprite_t(
+sprite::sprite(
     resources::texture const& texture,
     sf::IntRect const& texture_rect,
-    float const scale)
-    : sprite{resources::textures().get(texture), texture_rect}
+    float const scale_factor)
+    : sprite_{resources::textures().get(texture)}
+    , flipped{false}
 {
-    utility::center_origin(sprite);
-    sprite.setScale(scale, scale);
+    still(texture_rect);
+
+    sprite_.setScale(scale_factor, scale_factor);
 }
 
-sf::FloatRect sprite_t::getGlobalBounds() const
-{
-    return sprite.getGlobalBounds();
-}
-
-void sprite_t::draw(
-    sf::RenderTarget& target,
-    sf::RenderStates states) const 
-{
-    target.draw(sprite, states);
-}
-
-animated_sprite_t::animated_sprite_t(
-    resources::texture const& texture_sheet,
+sprite::sprite(
+    resources::texture const& texture,
     std::vector<sf::IntRect> const& texture_rects,
     sf::Time const duration,
     repeat const repeat_,
-    float const scale)
-    : sprite_t{texture_sheet, texture_rects[0], scale}
-    , texture_rects{texture_rects}
-    , n_frames{texture_rects.size()}
-    , current_frame{0}
-    , duration{duration}
-    , elapsed{sf::Time::Zero}
-    , repeat_{repeat_}
-{}
-
-void animated_sprite_t::update(
-    sf::Time const& dt,
-    commands_t&)
+    float const scale_factor)
+    : sprite_{resources::textures().get(texture)}
+    , flipped{false}
 {
-    auto const time_per_frame{duration / static_cast<float>(n_frames)};
-    elapsed += dt;
+    animate(texture_rects, duration, repeat_);
 
-    // auto texture_rect{sprite.getTextureRect()};
+    sprite_.setScale(scale_factor, scale_factor);
+}
 
-    // if(current_frame == 0)
-    // {
-    //     texture_rect = texture_rects[0];
-    // }
+void sprite::still(
+    sf::IntRect const& texture_rect)
+{
+    sprite_.setTextureRect(texture_rect);
+    utility::center_origin(sprite_);
 
-    while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat_ != repeat::none))
+    updater = [](sf::Time const&, commands_t&, sf::Sprite&){};
+}
+
+void sprite::animate(
+    std::vector<sf::IntRect> const& texture_rects,
+    sf::Time const duration,
+    repeat const repeat_)
+{
+    sprite_.setTextureRect(texture_rects[0]);
+    utility::center_origin(sprite_);
+
+    // As expressed in the header file, this ought to just capture and manipulate 
+    // 'this->sprite_' rather than be passed a reference to it. Clue: it actually 
+    // works when calling 'animate' after the object is constructed but it doesn't 
+    // when called from the constructor.
+    updater = [=,
+               current_frame = std::size_t{0},
+               elapsed = sf::Time::Zero,
+               n_frames = texture_rects.size(),
+               time_per_frame = duration / static_cast<float>(texture_rects.size())]
+               (
+                sf::Time const& dt,
+                commands_t&,
+                sf::Sprite& sprite) mutable
     {
-        // // Move texture rect to next rect.
-        // texture_rect.left += frame_size.x;
-        // if(texture_rect.left + texture_rect.width > bounds.width)
-        // {
-        //     texture_rect.left = 0;
-        //     texture_rect.top += frame_size.y;
-        // }
+        elapsed += dt;
 
-        elapsed -= time_per_frame;
-
-        if(repeat_ != repeat::none)
+        while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat_ != repeat::none))
         {
-            current_frame = (current_frame + 1) % n_frames;
-            // if(current_frame == 0)
-            // {
-            //     texture_rect = {bounds.left, bounds.top, frame_size.x, frame_size.y};
-            // }
-        }
-        else
-        {
-            ++current_frame;
-        }
-    }
+            elapsed -= time_per_frame;
 
-    sprite.setTextureRect(texture_rects[current_frame]);
+            if(repeat_ == repeat::loop)
+            {
+                current_frame = (current_frame + 1) % n_frames;
+            }
+            else
+            {
+                ++current_frame;
+            }
+        }
+
+        sprite.setTextureRect(texture_rects[current_frame]);
+    };
+}
+
+void sprite::flip()
+{
+    sprite_.scale(-1.f , 1.f);
+
+    flipped = !flipped;
+}
+
+void sprite::rotate(
+    float const angle)
+{
+    sprite_.rotate(angle);
+}
+
+sf::FloatRect sprite::getGlobalBounds() const
+{
+    return sprite_.getGlobalBounds();
+}
+
+void sprite::draw(
+    sf::RenderTarget& target,
+    sf::RenderStates states) const 
+{
+    target.draw(sprite_, states);
+}
+
+void sprite::update(
+        sf::Time const& dt,
+        commands_t& commands)
+{
+    updater(dt, commands, sprite_);
 }

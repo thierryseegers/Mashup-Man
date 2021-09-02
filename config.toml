@@ -21,7 +21,6 @@ texture = "items"
 scale = 0.8
 
 [items.mushroom]
-texture_rect = [0, 0, 16, 16]
 scale = 1.2
 
 [items.flower]

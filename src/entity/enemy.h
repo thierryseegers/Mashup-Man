@@ -21,6 +21,8 @@ namespace entity
 class enemy : public hostile<character>
 {
 public:
+    using hostile<character>::hostile;
+
     virtual ~enemy() = default;
 
 protected:

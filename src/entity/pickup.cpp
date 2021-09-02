@@ -16,14 +16,14 @@ namespace entity::pickup
 {
 
 coin::coin()
-{
-    sprite = std::make_unique<animated_sprite_t>(
-                resources::texture::items,
-                std::vector<sf::IntRect>{{0, 96, 16, 16}, {16, 96, 16, 16}, {32, 96, 16, 16}, {48, 96, 16, 16}},
-                sf::seconds(1.f),
-                animated_sprite_t::repeat::loop,
-                configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f));
-}
+    : pickup{
+        sprite{
+            resources::texture::items,
+            std::vector<sf::IntRect>{{0, 96, 16, 16}, {16, 96, 16, 16}, {32, 96, 16, 16}, {48, 96, 16, 16}},
+            sf::seconds(1.f),
+            sprite::repeat::loop,
+            configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f)}}
+{}
 
 resources::sound_effect coin::sound_effect() const
 {
@@ -37,12 +37,12 @@ void coin::apply(
 }
 
 mushroom::mushroom()
-{
-    sprite = std::make_unique<sprite_t>(
-                *magic_enum::enum_cast<resources::texture>(*configuration::values()["items"]["texture"].value<std::string>()),
-                utility::to_intrect(*configuration::values()["items"]["mushroom"]["texture_rect"].as_array()),
-                configuration::values()["items"]["mushroom"]["scale"].value_or<float>(1.f));
-}
+    : pickup{
+        sprite{
+            resources::texture::items,
+            sf::IntRect{0, 0, 16, 16},
+            configuration::values()["items"]["mushroom"]["scale"].value_or<float>(1.f)}}
+{}
 
 resources::sound_effect mushroom::sound_effect() const
 {
@@ -50,20 +50,20 @@ resources::sound_effect mushroom::sound_effect() const
 }
 
 void mushroom::apply(
-    brother& /*b*/) const
+    brother& brother_) const
 {
-    // leader.repair(25);
+    brother_.consume_mushroom();
 }
 
 flower::flower()
-{
-    sprite = std::make_unique<animated_sprite_t>(
-                resources::texture::items,
-                std::vector<sf::IntRect>{{0, 32, 16, 16}, {16, 32, 16, 16}, {32, 32, 16, 16}, {48, 32, 16, 16}},
-                sf::seconds(1.f),
-                animated_sprite_t::repeat::loop,
-                configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f));
-}
+    : pickup{
+        sprite{
+            resources::texture::items,
+            std::vector<sf::IntRect>{{0, 32, 16, 16}, {16, 32, 16, 16}, {32, 32, 16, 16}, {48, 32, 16, 16}},
+            sf::seconds(1.f),
+            sprite::repeat::loop,
+            configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f)}}
+{}
 
 resources::sound_effect flower::sound_effect() const
 {
@@ -71,9 +71,9 @@ resources::sound_effect flower::sound_effect() const
 }
 
 void flower::apply(
-    brother& /*b*/) const
+    brother& brother_) const
 {
-    // leader.collect_missile(3);
+    brother_.consume_flower();
 }
 
 }

@@ -172,13 +172,13 @@ void world_t::build_scene()
                     break;
                 case 'x':
                     {
-                        e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("mario");
+                        e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
                         characters.push_back(e);
                     }
                     break;
                 case 'y':
                     {
-                        e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::brother>("luigi");
+                        e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
                     }
                     break;
             }
@@ -328,7 +328,8 @@ void world_t::update(
            (heading.y > 0 && !utility::any_of(level_info[(position.y + 10) / 20][position.x / 20], '0', '1', '2', '3')) ||
            (heading.y < 0 && !utility::any_of(level_info[(position.y - 10) / 20][position.x / 20], '0', '1', '2', '3')))
         {
-            mario->velocity = heading;
+            mario->set_direction(heading);
+            // mario->velocity = heading;
         }
         // If Mario is crusing along and he's about to face a wall, stop him.
         else if((velocity.x > 0 && utility::any_of(level_info[position.y / 20][(position.x + 10) / 20], '0', '1', '2', '3')) ||
@@ -336,7 +337,8 @@ void world_t::update(
                 (velocity.y > 0 && utility::any_of(level_info[(position.y + 10) / 20][position.x / 20], '0', '1', '2', '3')) ||
                 (velocity.y < 0 && utility::any_of(level_info[(position.y - 10) / 20][position.x / 20], '0', '1', '2', '3')))
         {
-            mario->velocity = {0.f, 0.f};
+            mario->set_direction({0.f, 0.f});
+            // mario->velocity = {0.f, 0.f};
         }
         // Else we let him cruise along.
     }
