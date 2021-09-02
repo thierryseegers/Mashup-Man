@@ -52,10 +52,22 @@ void brother::set_direction(
     if(velocity.x >= 0 && direction.x < 0)
     {
         sprite_.flip();
+        sprite_.set_rotation(0);
     }
     else if(velocity.x <= 0 && direction.x > 0)
     {
-        sprite_.flip();
+        sprite_.unflip();
+        sprite_.set_rotation(0);
+    }
+    else if(velocity.y >= 0 && direction.y < 0)
+    {
+        sprite_.unflip();
+        sprite_.set_rotation(270.f);
+    }
+    else if(velocity.y <= 0 && direction.y >0)
+    {
+        sprite_.unflip();
+        sprite_.set_rotation(90.f);
     }
 
     velocity = direction;

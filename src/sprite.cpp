@@ -87,15 +87,26 @@ void sprite::animate(
 
 void sprite::flip()
 {
-    sprite_.scale(-1.f , 1.f);
-
-    flipped = !flipped;
+    if(!flipped)
+    {
+        sprite_.setScale(-1.f , 1.f);
+        flipped = true;
+    }
 }
 
-void sprite::rotate(
+void sprite::unflip()
+{
+    if(flipped)
+    {
+        sprite_.setScale(1.f, 1.f);
+        flipped = false;
+    }
+}
+
+void sprite::set_rotation(
     float const angle)
 {
-    sprite_.rotate(angle);
+    sprite_.setRotation(angle);
 }
 
 sf::FloatRect sprite::getGlobalBounds() const

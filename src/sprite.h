@@ -10,7 +10,6 @@
 #include <vector>
 
 class sprite :
-    public sf::Transformable,
     public sf::Drawable
 {
 public:
@@ -45,7 +44,9 @@ public:
 
     void flip();
 
-    void rotate(
+    void unflip();
+
+    void set_rotation(
         float const angle);
 
     sf::FloatRect getGlobalBounds() const;

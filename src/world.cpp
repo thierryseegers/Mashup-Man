@@ -304,10 +304,8 @@ void world_t::handle_collisions()
 void world_t::update(
     sf::Time const dt)
 {
-
     // // Guide guided missiles.
     // guide_missiles();
-
 
     // Dispatch commands.
     while(!commands_.empty())
@@ -323,22 +321,23 @@ void world_t::update(
     if((int)position.x % 20 >= 8 && (int)position.x % 20 <= 12 && (int)position.y % 20 >= 8 && (int)position.y % 20 <= 12)
     {
         // If Mario wants to change direction and he can, let him.
-        if((heading.x > 0 && !utility::any_of(level_info[position.y / 20][(position.x + 10) / 20], '0', '1', '2', '3')) ||
-           (heading.x < 0 && !utility::any_of(level_info[position.y / 20][(position.x - 10) / 20], '0', '1', '2', '3')) ||
-           (heading.y > 0 && !utility::any_of(level_info[(position.y + 10) / 20][position.x / 20], '0', '1', '2', '3')) ||
-           (heading.y < 0 && !utility::any_of(level_info[(position.y - 10) / 20][position.x / 20], '0', '1', '2', '3')))
+        if((heading.x > 0 && velocity.x <= 0 && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
+           (heading.x < 0 && velocity.x >= 0 && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
+           (heading.y > 0 && velocity.y <= 0 && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
+           (heading.y < 0 && velocity.y >= 0 && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3')))
         {
+            spdlog::info("Changing direction at coordinates [{}, {}] to [{}, {}]", position.x, position.y, heading.x, heading.y);
             mario->set_direction(heading);
-            // mario->velocity = heading;
+            mario->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
         }
         // If Mario is crusing along and he's about to face a wall, stop him.
-        else if((velocity.x > 0 && utility::any_of(level_info[position.y / 20][(position.x + 10) / 20], '0', '1', '2', '3')) ||
-                (velocity.x < 0 && utility::any_of(level_info[position.y / 20][(position.x - 10) / 20], '0', '1', '2', '3')) ||
-                (velocity.y > 0 && utility::any_of(level_info[(position.y + 10) / 20][position.x / 20], '0', '1', '2', '3')) ||
-                (velocity.y < 0 && utility::any_of(level_info[(position.y - 10) / 20][position.x / 20], '0', '1', '2', '3')))
+        else if((velocity.x > 0 && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
+                (velocity.x < 0 && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
+                (velocity.y > 0 && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
+                (velocity.y < 0 && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3')))
         {
+            spdlog::info("Hit a wall at coordinates [{}, {}] facing [{}, {}]", position.x, position.y, velocity.x, velocity.y);
             mario->set_direction({0.f, 0.f});
-            // mario->velocity = {0.f, 0.f};
         }
         // Else we let him cruise along.
     }
