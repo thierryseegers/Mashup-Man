@@ -4,13 +4,7 @@
 #include "configuration.h"
 // #include "effects/bloom.h"
 // #include "effects/post_effect.h"
-#include "entity/brother.h"
-#include "entity/entity.h"
-#include "entity/enemy.h"
-// #include "entity/missile.h"
-// #include "entity/projectile.h"
-#include "entity/pickup.h"
-#include "entity/pipe.h"
+#include "entity/entities.h"
 // #include "particle.h"
 #include "maze.h"
 #include "resources.h"
@@ -136,6 +130,7 @@ void world_t::build_scene()
     layers[magic_enum::enum_integer(layer::id::maze)] = graph.attach<layer::maze>();
     layers[magic_enum::enum_integer(layer::id::items)] = graph.attach<layer::items>();
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
+    layers[magic_enum::enum_integer(layer::id::pipes)] = graph.attach<layer::pipes>();
 
     auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
     m->layout(wall_texture_offsets, wall_rotations);
@@ -173,8 +168,13 @@ void world_t::build_scene()
                     break;
                 case 'p':
                     {
-                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pipe>();
+                        e = layers[magic_enum::enum_integer(layer::id::pipes)]->attach<entity::pipe>();
                         immovables[r][c] = e;
+
+                        if(c == 0)
+                        {
+                            e->setRotation(180);
+                        }
                     }
                     break;
                 case 'x':
@@ -259,13 +259,18 @@ void world_t::handle_collisions()
             immovables[pickup->getPosition().y / 20][pickup->getPosition().x / 20] = nullptr;
             pickup->remove = true;
         }
-        // else if(auto [leader, enemy] = match<entity::brother, entity::enemy>(collision); leader && enemy)
-        // {
-        //     spdlog::info("Leader crashed into enemy!");
-        //     auto const leader_health = leader->health();
-        //     leader->damage(enemy->health());
-        //     enemy->damage(leader_health);
-        // }
+        else if(auto [bro, p] = match<entity::brother, entity::pipe>(collision); bro && p)
+        {
+            sound.play(resources::sound_effect::warp);
+            if(p->getPosition().x == 10)
+            {
+                bro->setPosition(27 * 20 - 10, bro->getPosition().y);
+            }
+            else
+            {
+                bro->setPosition(1 * 20 + 10, bro->getPosition().y);
+            }
+        }
     }
 }
 

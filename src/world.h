@@ -23,7 +23,8 @@ enum class id
 {
     maze,
     items,
-    characters
+    characters,
+    pipes
 };
 
 class maze :
@@ -38,6 +39,9 @@ class characters :
     public scene::node
 {};
 
+class pipes :
+    public scene::node
+{};
 }
 
 class world_t

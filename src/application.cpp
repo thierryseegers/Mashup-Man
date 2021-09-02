@@ -44,15 +44,11 @@ application::application()
             sf::Image corner;
             corner.create(16, 16);
             corner.copy(tileset, 0, 0, sf::IntRect{69 + (x * 17), 80 + (y * 17), 16, 16});
-            corner.createMaskFromColor({58, 74, 93});
+            corner.createMaskFromColor({147, 187, 236});
             pipe.update(corner, x * 16, y * 16);
         }
     }
     textures.copy(resources::texture::pipe, pipe);
-    textures.get(resources::texture::pipe).copyToImage().saveToFile("pipe.png");
-
-    // textures.load(resources::texture::title_screen, "Media/Textures/TitleScreen.png");
-	// textures.load(resources::texture::buttons, "Media/Textures/Buttons.png");
 
     // auto& shaders = utility::single::mutable_instance<resources::shaders_t>();
     // shaders.load(resources::shader_pass::brightness, "Media/Shaders/Fullpass.vert", "Media/Shaders/Brightness.frag");
