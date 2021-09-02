@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
 
+#include <array>
 #include <functional>
 #include <vector>
 
@@ -66,5 +67,6 @@ protected:
     // as opposed to to just referring to 'this->sprite_' within the lambda given.
     std::function<void (sf::Time const&, commands_t&, sf::Sprite&)> updater;
 
+    float scale_factor;
     bool flipped;
 };

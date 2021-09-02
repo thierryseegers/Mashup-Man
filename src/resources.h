@@ -23,7 +23,9 @@ enum class texture
 {
     brothers,
     enemies,
+    features,
     items,
+    pipe,
     walls,
     // buttons, 
     // entities,
@@ -46,6 +48,7 @@ enum class sound_effect
 {
     collect_coin,
     collect_powerup,
+    warp
     // allied_gunfire,
     // enemy_gunfire,
     // explosion_1,
@@ -83,6 +86,14 @@ public:
             throw std::runtime_error("resources::holder::load failed to load " + path.string());
         }
 
+        resources[id] = std::move(resource);
+    }
+
+    void copy(
+        Type const id,
+        Resource copy)
+    {
+        auto resource = std::make_unique<Resource>(copy);
         resources[id] = std::move(resource);
     }
 

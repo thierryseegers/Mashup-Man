@@ -28,8 +28,29 @@ application::application()
     auto& textures = utility::single::mutable_instance<resources::textures_t>();
     textures.load(resources::texture::brothers, "assets/images/NES - Super Mario Bros - Mario & Luigi.png");
     textures.load(resources::texture::enemies, "assets/images/NES - Super Mario Bros - Enemies & Bosses.png");
+    textures.load(resources::texture::features, "assets/images/NES - Super Mario Bros - Tileset.png");
     textures.load(resources::texture::items, "assets/images/NES - Super Mario Bros - Items Objects and NPCs.png");
     textures.load(resources::texture::walls, "assets/images/walls.png");
+
+    // Craft the pipe texture from its four tiles in items tileset.
+    sf::Image tileset;
+    tileset.loadFromFile("assets/images/NES - Super Mario Bros - Tileset.png");
+    sf::Texture pipe;
+    pipe.create(32, 32);
+    for(auto const y : std::initializer_list<int>{0, 1})
+    {
+        for(auto const x : std::initializer_list<int>{0, 1})
+        {
+            sf::Image corner;
+            corner.create(16, 16);
+            corner.copy(tileset, 0, 0, sf::IntRect{69 + (x * 17), 80 + (y * 17), 16, 16});
+            corner.createMaskFromColor({58, 74, 93});
+            pipe.update(corner, x * 16, y * 16);
+        }
+    }
+    textures.copy(resources::texture::pipe, pipe);
+    textures.get(resources::texture::pipe).copyToImage().saveToFile("pipe.png");
+
     // textures.load(resources::texture::title_screen, "Media/Textures/TitleScreen.png");
 	// textures.load(resources::texture::buttons, "Media/Textures/Buttons.png");
 

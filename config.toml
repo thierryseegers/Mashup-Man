@@ -25,3 +25,10 @@ scale = 1.2
 
 [items.flower]
 scale = 1.2
+
+[features]
+
+texture = "tileset"
+
+[features.pipe]
+scale = 1.0

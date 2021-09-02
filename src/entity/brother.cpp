@@ -307,7 +307,6 @@ luigi::luigi()
 {
     still_sprite_rect_ = luigi_still_sprite_rect;
     animated_sprite_rects_ = luigi_animated_sprite_rects;
-
 }
 
 }

@@ -13,6 +13,7 @@ sprite::sprite(
     sf::IntRect const& texture_rect,
     float const scale_factor)
     : sprite_{resources::textures().get(texture)}
+    , scale_factor{scale_factor}
     , flipped{false}
 {
     still(texture_rect);
@@ -27,6 +28,7 @@ sprite::sprite(
     repeat const repeat_,
     float const scale_factor)
     : sprite_{resources::textures().get(texture)}
+    , scale_factor{scale_factor}
     , flipped{false}
 {
     animate(texture_rects, duration, repeat_);
@@ -89,7 +91,7 @@ void sprite::flip()
 {
     if(!flipped)
     {
-        sprite_.setScale(-1.f , 1.f);
+        sprite_.setScale(-scale_factor , scale_factor);
         flipped = true;
     }
 }
@@ -98,7 +100,7 @@ void sprite::unflip()
 {
     if(flipped)
     {
-        sprite_.setScale(1.f, 1.f);
+        sprite_.setScale(scale_factor, scale_factor);
         flipped = false;
     }
 }

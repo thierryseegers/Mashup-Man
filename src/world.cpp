@@ -10,6 +10,7 @@
 // #include "entity/missile.h"
 // #include "entity/projectile.h"
 #include "entity/pickup.h"
+#include "entity/pipe.h"
 // #include "particle.h"
 #include "maze.h"
 #include "resources.h"
@@ -167,6 +168,12 @@ void world_t::build_scene()
                 case 'm':
                     {
                         e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
+                        immovables[r][c] = e;
+                    }
+                    break;
+                case 'p':
+                    {
+                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pipe>();
                         immovables[r][c] = e;
                     }
                     break;

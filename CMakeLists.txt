@@ -71,6 +71,8 @@ add_executable(${PROJECT_NAME}
     src/entity/entity.h
     src/entity/pickup.cpp
     src/entity/pickup.h
+    src/entity/pipe.cpp
+    src/entity/pipe.h
     src/level.cpp
     src/level.h
     src/main.cpp
