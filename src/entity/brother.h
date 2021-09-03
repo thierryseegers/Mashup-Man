@@ -3,9 +3,7 @@
 #include "command.h"
 #include "direction.h"
 #include "entity/character.h"
-#include "entity/entity.h"
 #include "layer.h"
-#include "scene.h"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>

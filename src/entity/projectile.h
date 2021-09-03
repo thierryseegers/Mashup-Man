@@ -1,7 +1,6 @@
 #pragma once
 
-#include "entity/entities.h"
-#include "sprite.h"
+#include "entity/entity.h"
 
 namespace entity
 {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "entity/entity.h"
+#include "entity/projectile.h"
 
 namespace entity
 {
 
 class fireball
-    : public entity
+    : public projectile
 {
 public:
     fireball(

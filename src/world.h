@@ -2,8 +2,7 @@
 
 #include "command.h"
 // #include "effects/bloom.h"
-#include "entity/character.h"
-#include "entity/projectile.h"
+#include "entity/entities.h"
 #include "layer.h"
 #include "level.h"
 #include "resources.h"
@@ -13,9 +12,7 @@
 #include <magic_enum.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <array>
-#include <set>
-#include <vector>
+#include <list>
 
 class world_t
 {

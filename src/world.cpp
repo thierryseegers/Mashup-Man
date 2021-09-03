@@ -267,6 +267,16 @@ void world_t::handle_collisions()
                 bro->hit();
             }
         }
+        if(auto [e, projectile] = match<entity::enemy, entity::projectile>(collision); e && projectile)
+        {
+            if(!projectile->remove)
+            {
+                projectile->remove = true;
+                projectiles.remove(projectile);
+
+                e->remove = true;
+            }
+        }
         else if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
         {
             if(!pickup->remove)

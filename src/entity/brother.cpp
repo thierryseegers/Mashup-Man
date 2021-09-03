@@ -106,7 +106,27 @@ void brother::update_sprite()
 void brother::shoot_fireball(
     layer::projectiles& layer) const
 {
-    add_projectile<fireball>(layer, getPosition(), heading_);
+    auto position = getPosition();
+
+    switch(heading_)
+    {
+        case direction::up:
+            position.y -= 20;
+            break;
+        case direction::down:
+            position.y += 20;
+            break;
+        case direction::left:
+            position.x -= 20;
+            break;
+        case direction::right:
+            position.x += 20;
+            break;
+        default:
+            break;
+    }
+
+    add_projectile<fireball>(layer, position, heading_);
 }
 
 void brother::update_self(
