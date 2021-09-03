@@ -44,7 +44,10 @@ brother::brother(
 
 void brother::fire()
 {
-    firing = true;
+    if(attribute_ == attribute::fiery)
+    {
+        firing = true;
+    }
 }
 
 void brother::consume_mushroom()
@@ -100,7 +103,6 @@ void brother::shoot_fireball(
     {
         add_projectile<fireball>(layer, getPosition(), heading_);
     }
-    
 }
 
 void brother::update_self(
