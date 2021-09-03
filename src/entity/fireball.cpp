@@ -47,7 +47,7 @@ fizzle::fizzle()
     : animation{
         resources::texture::items,
         {{112, 144, 16, 16}, {112, 160, 16, 16}, {112, 176, 16, 16}},
-        sf::seconds(0.2f)}
+        sf::seconds(0.1f)}
 {}
 
 }

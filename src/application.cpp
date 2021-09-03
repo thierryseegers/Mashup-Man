@@ -143,6 +143,6 @@ void application::render()
 
     window.setView(window.getDefaultView());
 
-    window.draw(statistics_text);
+    // window.draw(statistics_text);
     window.display();
 }

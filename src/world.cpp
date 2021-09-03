@@ -266,13 +266,17 @@ void world_t::handle_collisions()
                 bro->hit();
             }
         }
-        if(auto [e, projectile] = match<entity::enemy, entity::projectile>(collision); e && projectile)
+        if(auto [e, fireball] = match<entity::enemy, entity::fireball>(collision); e && fireball)
         {
-            if(!projectile->remove)
+            if(!fireball->remove)
             {
-                projectile->remove = true;
+                fireball->remove = true;
 
                 e->hit();
+
+                e->remove = true;
+                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
+                sound.play(resources::sound_effect::kick);
             }
         }
         else if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)

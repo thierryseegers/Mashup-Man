@@ -45,6 +45,7 @@ enum class sound_effect
     collect_coin,
     collect_powerup,
     fireball,
+    kick,
     warp
     // button
 };
