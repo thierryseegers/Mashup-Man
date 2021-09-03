@@ -3,10 +3,9 @@
 #include "command.h"
 #include "configuration.h"
 #include "entity/character.h"
-// #include "entity/bullet.h"
 #include "entity/entity.h"
-// #include "entity/missile.h"
-// #include "entity/projectile.h"
+#include "entity/fireball.h"
+#include "layer.h"
 #include "resources.h"
 #include "scene.h"
 #include "utility.h"
@@ -28,9 +27,9 @@ brother::brother(
     , attribute_{attribute::plain}
     , motion_{motion::still}
     , liveness_{liveness::alive}
-    // , fire_rate{1}
-    // , fire_countdown{sf::Time::Zero}
-    // , firing{false}
+    , fire_cooldown{sf::seconds(*configuration::values()["brothers"]["fire_cooldown"].value<float>())}
+    , fire_countdown{sf::Time::Zero}
+    , firing{false}
 {}
 
 void brother::set_direction(
@@ -80,7 +79,7 @@ void brother::set_direction(
 
 void brother::fire()
 {
-    // firing = true;
+    firing = true;
 }
 
 void brother::consume_mushroom()
@@ -97,7 +96,7 @@ void brother::consume_flower()
     update_sprite();
 }
 
-void brother::hit_enemy()
+void brother::hit()
 {
     switch(size_)
     {
@@ -109,46 +108,34 @@ void brother::hit_enemy()
             attribute_ = attribute::plain;
             break;
     }
+
+    update_sprite();
 }
 
-void brother::hit_fireball()
-{}
-
 void brother::update_self(
-        sf::Time const& dt,
-        commands_t& commands)
+    sf::Time const& dt,
+    commands_t& commands)
 {
-    // {
-    //     auto texture_rect = default_texture_rect;
-    //     if(velocity.x < 0.f)
-    //     {
-    //         texture_rect.left += default_texture_rect.width;
-    //     }
-    //     else if(velocity.x > 0.f)
-    //     {
-    //         texture_rect.left += 2 * default_texture_rect.width;
-    //     }
+    if(firing && fire_countdown <= sf::Time::Zero)
+    {
+        commands.push(make_command<layer::projectiles>([=](layer::projectiles& layer, sf::Time const&)
+        {
+            shoot_fireball(layer);
+        }));
 
-    //     sprite.setTextureRect(texture_rect);
-    // }
+        commands.push(make_command<scene::sound_t>([](scene::sound_t& s, sf::Time const&)
+        {
+            s.play(resources::sound_effect::fireball);
+        }));
 
-    // if(firing && fire_countdown <= sf::Time::Zero)
-    // {
-    //     commands.push(make_command<scene::projectiles>([=](scene::projectiles& layer, sf::Time const&)
-    //     {
-    //         shoot_bullet(layer);
-    //     }));
-
-    //     play_local_sound(commands, resources::sound_effect::allied_gunfire);
-
-    //     fire_countdown += sf::seconds(1.f / (fire_rate + 1));
-    //     firing = false;
-    // }
-    // else if(fire_countdown > sf::Time::Zero)
-    // {
-    //     fire_countdown -= dt;
-    //     firing = false;
-    // }
+        fire_countdown += fire_cooldown;
+        firing = false;
+    }
+    else if(fire_countdown > sf::Time::Zero)
+    {
+        fire_countdown -= dt;
+        firing = false;
+    }
 
     character::update_self(dt, commands);
 }
@@ -164,26 +151,12 @@ void brother::update_sprite()
         sprite_.animate(animated_sprite_rects_(size_, attribute_), sf::seconds(0.5f), sprite::repeat::loop);
     }
 }
-// void brother::shoot_bullet(
-//     scene::projectiles& layer) const
-// {
-//     switch(bullet_spread)
-//     {
-//     case 1:
-//         add_projectile<bullet<friendly>>(layer, {0.f, 0.5f}, projectile::upward);
-//         break;
-//     case 2:
-//         add_projectile<bullet<friendly>>(layer, {-0.33f, 0.33f}, projectile::upward);
-//         add_projectile<bullet<friendly>>(layer, {0.33f, 0.33f}, projectile::upward);
-//         break;
-//     case 3:
-//         add_projectile<bullet<friendly>>(layer, {0.f, 0.5f}, projectile::upward);
-//         add_projectile<bullet<friendly>>(layer, {-0.33f, 0.33f}, projectile::upward);
-//         add_projectile<bullet<friendly>>(layer, {0.33f, 0.33f}, projectile::upward);
-//         break;
-//     }
-// }
 
+void brother::shoot_fireball(
+    layer::projectiles& layer) const
+{
+    add_projectile<fireball>(layer, getPosition())->velocity = {velocity.x * 2, velocity.y * 2};
+}
 
 using still_sprite_rects = 
     std::array<

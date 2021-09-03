@@ -130,6 +130,7 @@ void world_t::build_scene()
     layers[magic_enum::enum_integer(layer::id::maze)] = graph.attach<layer::maze>();
     layers[magic_enum::enum_integer(layer::id::items)] = graph.attach<layer::items>();
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
+    layers[magic_enum::enum_integer(layer::id::projectiles)] = graph.attach<layer::projectiles>();
     layers[magic_enum::enum_integer(layer::id::pipes)] = graph.attach<layer::pipes>();
 
     auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
@@ -180,7 +181,7 @@ void world_t::build_scene()
                 case 'x':
                     {
                         e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
-                        characters.push_back(e);
+                        characters.push_back(mario);
                     }
                     break;
                 case 'y':
@@ -219,7 +220,7 @@ std::pair<Entity1*, Entity2*> match(std::pair<entity::entity*, entity::entity*> 
             return {pb, pa};
         }
     }
-    
+
     return {nullptr, nullptr};
 }
 
@@ -227,14 +228,28 @@ void world_t::handle_collisions()
 {
     std::set<std::pair<entity::entity*, entity::entity*>> collisions;
 
+    // Detect collisions of characters (ought to be only the brothers) and pickups and pipes.
     for(auto* const character : characters)
     {
         size_t const r = character->getPosition().y / 20, c = character->getPosition().x / 20;
         if(auto* const immovable = immovables[r][c]; immovable && character->collides(immovable))
         {
-            collisions.insert(std::minmax(&(*character), &(*immovable)));
+            collisions.insert(std::minmax<entity::entity*>(character, immovable));
         }
     }
+
+    // for(auto* const character : characters)
+    // {
+    //     // scene::node *p = layers[magic_enum::enum_integer(layer::id::characters)];
+    //     // p->
+    //     for(auto* const projectile : projectiles)
+    //     {
+    //         if(character->collides(projectile))
+    //         {
+    //             collisions.insert(std::minmax<entity::entity*>(character, projectile));
+    //         }
+    //     }
+    // }
 
     for(auto const& collision : collisions)
     {
@@ -251,13 +266,26 @@ void world_t::handle_collisions()
         //     projectile->remove = true;
         // }
         // else 
-        if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
+        if(auto [bro, projectile] = match<entity::brother, entity::projectile>(collision); bro && projectile)
         {
-            pickup->apply(*bro);
+            if(!projectile->remove)
+            {
+                projectile->remove = true;
+                projectiles.remove(projectile);
 
-            sound.play(pickup->sound_effect());
-            immovables[pickup->getPosition().y / 20][pickup->getPosition().x / 20] = nullptr;
-            pickup->remove = true;
+                bro->hit();
+            }
+        }
+        else if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
+        {
+            if(!pickup->remove)
+            {
+                pickup->remove = true;
+                immovables[pickup->getPosition().y / 20][pickup->getPosition().x / 20] = nullptr;
+
+                pickup->apply(*bro);
+                sound.play(pickup->sound_effect());
+            }
         }
         else if(auto [bro, p] = match<entity::brother, entity::pipe>(collision); bro && p)
         {

@@ -67,6 +67,8 @@ add_executable(${PROJECT_NAME}
     src/entity/character.h
     src/entity/enemy.cpp
     src/entity/enemy.h
+    src/entity/fireball.cpp
+    src/entity/fireball.h
     src/entity/entities.h
     src/entity/entity.cpp
     src/entity/entity.h
@@ -74,6 +76,8 @@ add_executable(${PROJECT_NAME}
     src/entity/pickup.h
     src/entity/pipe.cpp
     src/entity/pipe.h
+    src/entity/projectile.cpp
+    src/entity/projectile.h
     src/level.cpp
     src/level.h
     src/main.cpp

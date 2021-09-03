@@ -1,10 +1,9 @@
 [brothers]
 
+fire_cooldown = 0.5
+fireball_speed = 200
 scale = 1.2
-
-[brothers.mario]
-
-[brothers.luigi]
+speed = 100
 
 [enemies]
 

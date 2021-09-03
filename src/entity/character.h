@@ -2,7 +2,7 @@
 
 #include "command.h"
 #include "entity/entity.h"
-// #include "projectile.h"
+#include "layer.h"
 #include "resources.h"
 #include "scene.h"
 
@@ -20,38 +20,22 @@ public:
 
     virtual ~character() = default;
 
-    sf::Vector2f heading;
-
 protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
 
-    // template<typename Projectile>
-    // void add_projectile(
-    //     scene::projectiles& layer,
-    //     sf::Vector2f const& offset,
-    //     float const& dir) const
-    // {
-    //     auto p = std::make_unique<Projectile>();
+    template<typename Projectile>
+    Projectile* add_projectile(
+        layer::projectiles& layer,
+        sf::Vector2f const& position) const
+    {
+        auto p = layer.attach<Projectile>();
 
-    //     sf::Vector2f const o{offset.x * sprite.getGlobalBounds().width,
-    //                          offset.y * sprite.getGlobalBounds().height};
+        p->setPosition(position);
 
-    //     p->setPosition(world_position() + o * dir);
-    //     if(dir == projectile::downward)
-    //     {
-    //         p->setRotation(180.f);
-    //     }
-    //     p->velocity = sf::Vector2f{0, p->speed} * dir;
-
-    //     layer.attach(std::move(p));
-    // }
-
-    // int const starting_life;
-    // int life;
-
-    // lifebar *bar;
+        return p;
+    }
 };
 
 }

@@ -140,6 +140,12 @@ public:
     {}
 
     void play(
+        resources::sound_effect const se)
+    {
+        sound.play(se);
+    }
+
+    void play(
         resources::sound_effect const se,
         sf::Vector2f const position)
     {

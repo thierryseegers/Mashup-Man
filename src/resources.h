@@ -27,12 +27,7 @@ enum class texture
     items,
     pipe,
     walls,
-    // buttons, 
-    // entities,
-    // explosion,
-    // finish_line,
-    // jungle,
-    // particle,
+    // buttons,
     // title_screen,
 };
 
@@ -48,13 +43,8 @@ enum class sound_effect
 {
     collect_coin,
     collect_powerup,
+    fireball,
     warp
-    // allied_gunfire,
-    // enemy_gunfire,
-    // explosion_1,
-    // explosion_2,
-    // launch_missile,
-    // collect_pickup,
     // button
 };
 

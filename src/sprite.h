@@ -24,14 +24,14 @@ public:
     sprite(
         resources::texture const& texture_sheet,
         sf::IntRect const& texture_rect,
-        float const scale_factor);
+        float const scale_factor = 1.f);
 
     sprite(
         resources::texture const& texture_sheet,
         std::vector<sf::IntRect> const& texture_rects,
         sf::Time const duration,
-        repeat const repeat_,
-        float const scale_factor);
+        repeat const repeat_ = repeat::loop,
+        float const scale_factor = 1.f);
 
     ~sprite() = default;
 

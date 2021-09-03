@@ -1,4 +1,4 @@
-#include "pipe.h"
+#include "entity/pipe.h"
 
 #include "configuration.h"
 #include "entity.h"

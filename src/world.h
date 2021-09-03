@@ -2,8 +2,9 @@
 
 #include "command.h"
 // #include "effects/bloom.h"
-// #include "entity/enemy.h"
-#include "entity/brother.h"
+#include "entity/character.h"
+#include "entity/projectile.h"
+#include "layer.h"
 #include "level.h"
 #include "resources.h"
 #include "scene.h"
@@ -15,34 +16,6 @@
 #include <array>
 #include <set>
 #include <vector>
-
-namespace layer
-{
-
-enum class id
-{
-    maze,
-    items,
-    characters,
-    pipes
-};
-
-class maze :
-    public scene::node
-{};
-
-class items :
-    public scene::node
-{};
-
-class characters :
-    public scene::node
-{};
-
-class pipes :
-    public scene::node
-{};
-}
 
 class world_t
 {
@@ -84,6 +57,8 @@ private:
     entity::brother* mario;
 
     level::info level_info;
+
     level::grid<entity::entity*> immovables;
-    std::vector<entity::entity*> characters;
+    std::list<entity::projectile*> projectiles;
+    std::list<entity::character*> characters;
 };

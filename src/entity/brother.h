@@ -3,17 +3,17 @@
 #include "command.h"
 #include "entity/character.h"
 #include "entity/entity.h"
+#include "layer.h"
 #include "scene.h"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 
-
 namespace entity
 {
 
-class brother :
-    public friendly<character>
+class brother
+    : public friendly<character>
 {
 public:
     enum class size
@@ -54,9 +54,9 @@ public:
 
     void consume_flower();
 
-    void hit_enemy();
+    void hit();
 
-    void hit_fireball();
+    sf::Vector2f heading;
 
 protected:
     virtual void update_self(
@@ -65,8 +65,8 @@ protected:
 
     void update_sprite();
 
-    // void shoot_bullet(
-    //     scene::projectiles& layer) const;
+    void shoot_fireball(
+        layer::projectiles& layer) const;
 
     sf::IntRect (*still_sprite_rect_)(
         brother::size const,
@@ -82,20 +82,20 @@ protected:
     motion motion_;
     liveness liveness_;
 
-    // int fire_rate;
-    // sf::Time fire_countdown;
-    // bool firing;
+    sf::Time fire_cooldown;
+    sf::Time fire_countdown;
+    bool firing;
 };
 
-class mario :
-    public brother
+class mario
+    : public brother
 {
 public:
     mario();
 };
 
-class luigi :
-    public brother
+class luigi
+    : public brother
 {
 public:
     luigi();

@@ -23,6 +23,7 @@ player::player()
 
     sound_buffers.load(resources::sound_effect::collect_coin, "assets/sounds/Super Mario Bros 1 and 2(JP)/Coin.wav");
     sound_buffers.load(resources::sound_effect::collect_powerup, "assets/sounds/Super Mario Bros 1 and 2(JP)/Powerup.wav");
+    sound_buffers.load(resources::sound_effect::fireball, "assets/sounds/Super Mario Bros 1 and 2(JP)/Fire ball.wav");
     sound_buffers.load(resources::sound_effect::warp, "assets/sounds/Super Mario Bros 1 and 2(JP)/Warp.wav");
 }
 

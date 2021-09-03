@@ -1,4 +1,4 @@
-#include "pickup.h"
+#include "entity/pickup.h"
 
 #include "configuration.h"
 #include "entity/brother.h"
