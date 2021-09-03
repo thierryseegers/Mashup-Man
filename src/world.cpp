@@ -387,8 +387,15 @@ void world_t::update(
         // Else we let him cruise along.
     }
 
-    // If a fireball hits a wall, remove it.
-
+    // If a fireball hits a wall or a pipe, remove it.
+    for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
+    {
+        auto const r = projectile->getPosition().y / 20, c = projectile->getPosition().x/ 20;
+        if(utility::any_of(level_info[r][c], '0', '1', '2', '3', 'p'))
+        {
+            projectile->remove = true;
+        }
+    }
 
     // // Prevent the player from going off-screen.
     // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};
