@@ -23,6 +23,8 @@ public:
 
     virtual ~character() = default;
 
+    virtual void hit() = 0;
+
 protected:
     virtual void update_self(
         sf::Time const& dt,

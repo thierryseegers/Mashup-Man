@@ -23,6 +23,7 @@ public:
 
     void update(
         sf::Time const dt);
+
     void draw();
 
     commands_t& commands();
@@ -34,8 +35,14 @@ public:
 private:
     void build_scene();
     
-    // void remove_unviewables();
     void handle_collisions();
+
+    void update_brother(
+        entity::brother *bro);
+
+    void update_fireballs();
+
+    void update_enemies();
 
     // sf::FloatRect view_bounds() const;
     // sf::FloatRect battlefield_bounds() const;
@@ -56,6 +63,4 @@ private:
     level::info level_info;
 
     level::grid<entity::entity*> immovables;
-    std::list<entity::projectile*> projectiles;
-    std::list<entity::character*> characters;
 };

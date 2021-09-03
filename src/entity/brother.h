@@ -68,7 +68,7 @@ public:
 
     void consume_flower();
 
-    void hit();
+    virtual void hit() override;
 
 protected:
     virtual void update_sprite() override;

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <map>
 #include <memory>
 #include <numeric>
 #include <tuple>
@@ -156,6 +157,7 @@ void world_t::build_scene()
                     break;
                 case 'g':
                     e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
+                    e->throttle(1.f);
                     break;
                 case 'm':
                     e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
@@ -172,11 +174,9 @@ void world_t::build_scene()
                     break;
                 case 'x':
                     e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
-                    characters.push_back(mario);
                     break;
                 case 'y':
                     e = luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
-                    characters.push_back(luigi);
                     break;
             }
 
@@ -262,7 +262,6 @@ void world_t::handle_collisions()
             if(!projectile->remove)
             {
                 projectile->remove = true;
-                projectiles.remove(projectile);
 
                 bro->hit();
             }
@@ -272,9 +271,8 @@ void world_t::handle_collisions()
             if(!projectile->remove)
             {
                 projectile->remove = true;
-                projectiles.remove(projectile);
 
-                e->remove = true;
+                e->hit();
             }
         }
         else if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
@@ -343,54 +341,48 @@ void world_t::handle_collisions()
 //     return bounds;
 // }
 
-void world_t::update(
-    sf::Time const dt)
+void world_t::update_brother(
+    entity::brother *bro)
 {
-    // // Guide guided missiles.
-    // guide_missiles();
+    // Control a brother's direction given his desired direction (steering), current direction (heading) and any close by walls.
+    auto const position = bro->getPosition();
+    auto const heading = bro->heading();
+    auto const steering = bro->steering();
 
-    // Dispatch commands.
-    while(!commands_.empty())
-    {
-        graph.on_command(commands_.front(), dt);
-        commands_.pop();
-    }
-
-    // Control Mario's direction given his desired direction (steering), current direction (heading) and any walls.
-    auto const position = mario->getPosition();
-    auto const heading = mario->heading();
-    auto const steering = mario->steering();
     if((int)position.x % 20 >= 8 && (int)position.x % 20 <= 12 && (int)position.y % 20 >= 8 && (int)position.y % 20 <= 12)
     {
-        // If Mario wants to change direction and he can, let him.
-        if((steering != heading || mario->speed() == 0.f) &&
+        // If the brother wants to change direction and he can, let him.
+        if((steering != heading || bro->speed() == 0.f) &&
            ((steering == direction::right  && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
             (steering == direction::left   && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
             (steering == direction::down   && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
             (steering == direction::up     && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
         {
             spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(steering));
-            mario->head(steering);
-            mario->throttle(1.f);
-            mario->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
+            bro->head(steering);
+            bro->throttle(1.f);
+            bro->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
         }
-        // If Mario is crusing along and he's about to face a wall, stop him.
-        else if(mario->speed() != 0.f &&
+        // Else if the brother is crusing along and he's about to face a wall, stop him.
+        else if(bro->speed() != 0.f &&
                 ((heading == direction::right    && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
                  (heading == direction::left     && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
                  (heading == direction::down     && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
                  (heading == direction::up       && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
         {
             spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, magic_enum::enum_name(heading));
-            mario->throttle(0.f);
+            bro->throttle(0.f);
         }
         // Else we let him cruise along.
     }
+}
 
+void world_t::update_fireballs()
+{
     // If a fireball hits a wall or a pipe, remove it.
     for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
     {
-        auto const r = projectile->getPosition().y / 20, c = projectile->getPosition().x/ 20;
+        auto const r = projectile->getPosition().y / 20, c = projectile->getPosition().x / 20;
         if(utility::any_of(level_info[r][c], '0', '1', '2', '3', 'p'))
         {
             if(auto* fireball = dynamic_cast<entity::fireball*>(projectile))
@@ -419,6 +411,88 @@ void world_t::update(
             }
         }
     }
+}
+
+void world_t::update_enemies()
+{
+    for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
+    {
+        if(auto* goomba = dynamic_cast<entity::goomba*>(character))
+        {
+            auto const position = goomba->getPosition();
+            if((int)position.x % 20 >= 9 && (int)position.x % 20 <= 11 && (int)position.y % 20 >= 9 && (int)position.y % 20 <= 11)
+            {
+                auto const heading = goomba->heading();
+
+                std::map<direction, sf::Vector2f> paths;
+                if(heading != direction::left && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3', 'p'))
+                {
+                    paths[direction::right] = {position.x + 20, position.y};
+                }
+                if(heading != direction::right && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3', 'p'))
+                {
+                    paths[direction::left] = {position.x - 20, position.y};
+                }
+                if(heading != direction::up && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3', 'p'))
+                {
+                    paths[direction::down] = {position.x, position.y + 20};
+                }
+                if(heading != direction::down && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3', 'p'))
+                {
+                    paths[direction::up] = {position.x, position.y - 20};
+                }
+
+                // If a goomba is at an intersection, ask it for a direction.
+                if(paths.size() >= 2)
+                {
+                    std::vector<sf::Vector2f> brothers_positions{mario->getPosition()};
+                    if(luigi)
+                    {
+                        brothers_positions.push_back(luigi->getPosition());
+                    }
+                    
+                    goomba->head(goomba->fork(brothers_positions, paths));
+                    // goomba->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
+
+                    spdlog::info("Goomba decided to go {}", magic_enum::enum_name(goomba->heading()));
+                }
+                // Else, if it hit a wall, follow the straightforward path.
+                else if(paths.begin()->first != heading)
+                {
+                    goomba->head(paths.begin()->first);
+                    spdlog::info("Goomba is turning {}", magic_enum::enum_name(goomba->heading()));
+                }
+                // Else, let it cruise along.
+            }
+        }
+    }
+}
+
+void world_t::update(
+    sf::Time const dt)
+{
+    // // Guide guided missiles.
+    // guide_missiles();
+
+    // Dispatch commands.
+    while(!commands_.empty())
+    {
+        graph.on_command(commands_.front(), dt);
+        commands_.pop();
+    }
+
+    // Update the brothers' movements.
+    update_brother(mario);
+    if(luigi)
+    {
+        update_brother(luigi);
+    }
+
+    // Update fireballs' movements.
+    update_fireballs();
+
+    // Update enemies' movements.
+    update_enemies();
 
     // // Prevent the player from going off-screen.
     // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};

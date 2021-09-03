@@ -70,22 +70,28 @@ void brother::consume_mushroom()
 
 void brother::consume_flower()
 {
-    attribute_ = attribute::fiery;
+    if(size_ == size::small)
+    {
+        size_ = size::big;
+    }
+    else
+    {
+        attribute_ = attribute::fiery;
+    }
 
     update_sprite();
 }
 
 void brother::hit()
 {
-    switch(size_)
+    if(size_ == size::small)
     {
-        case size::small:
-            // I'm dead.
-            break;
-        case size::big:
-            size_ = size::small;
-            attribute_ = attribute::plain;
-            break;
+        liveness_ = liveness::dead;
+    }
+    else
+    {
+        size_ = size::small;
+        attribute_ = attribute::plain;
     }
 
     update_sprite();

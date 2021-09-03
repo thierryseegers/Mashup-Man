@@ -23,35 +23,10 @@
 namespace entity
 {
 
-// flight::pattern to_flight_pattern(
-//     toml::array const& values)
-// {
-//     flight::pattern pattern;
-
-//     for(auto const& node : values)
-//     {
-//         auto const& move = *node.as_array();
-//         pattern.push_back({*move[0].value<float>(), *move[1].value<float>()});
-//     }
-
-//     return pattern;
-// }
-
-// enemy::enemy(
-//     // int const starting_life,
-//     // int const speed,
-//     // float const attack_rate,
-//     // flight::pattern const& pattern,
-//     resources::texture const& texture,
-//     sf::IntRect const& texture_rect,
-//     float const& scale)
-//     : hostile<character>{texture, texture_rect, scale}
-//     // , speed{speed}
-//     // , pattern{pattern}
-//     // , current{this->pattern, this->pattern.begin()}
-//     // , travelled{0}
-//     // , attack_rate{attack_rate}
-// {}
+void enemy::hit()
+{
+    mode_ = mode::dead;
+}
 
 void enemy::update_self(
         sf::Time const& dt,
@@ -141,9 +116,24 @@ goomba::goomba()
             sf::seconds(1.f),
             sprite::repeat::loop,
             configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f)},
-        *configuration::values()["brothers"]["speed"].value<int>(),
+        *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
         direction::left}
 {}
+
+direction goomba::fork(
+    std::vector<sf::Vector2f> const& brother_positions,
+    std::map<direction, sf::Vector2f> const& choices) const
+{
+    auto const closest = std::min_element(brother_positions.begin(), brother_positions.end(), [=](auto const& p1, auto const& p2)
+    {
+        return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
+    });
+
+    return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
+    {
+        return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
+    })->first;
+}
 
 // void avenger::attack(
 //     scene::projectiles& layer) const
