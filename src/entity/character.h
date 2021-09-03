@@ -15,7 +15,8 @@
 namespace entity
 {
 
-class character : public entity
+class character
+    : public entity
 {
 public:
     using entity::entity;

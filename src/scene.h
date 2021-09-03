@@ -17,10 +17,10 @@
 namespace scene
 {
 
-class node :
-    public sf::Transformable,
-    public sf::Drawable,
-    private sf::NonCopyable
+class node 
+    : public sf::Transformable
+    , public sf::Drawable
+    , private sf::NonCopyable
 {
 public:
     class iterator
@@ -132,8 +132,8 @@ float distance(
 template<size_t Count>
 using layers = std::array<scene::node*, Count>;
 
-class sound_t :
-    public node
+class sound_t
+    : public node
 {
 public:
     explicit sound_t(

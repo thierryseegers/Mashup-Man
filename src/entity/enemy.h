@@ -18,7 +18,8 @@
 namespace entity
 {
 
-class enemy : public hostile<character>
+class enemy
+    : public hostile<character>
 {
 public:
     using hostile<character>::hostile;
@@ -44,7 +45,8 @@ protected:
     // sf::Time attack_countdown;
 };
 
-class goomba : public enemy
+class goomba
+    : public enemy
 {
 public:
     goomba();

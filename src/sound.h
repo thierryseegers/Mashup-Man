@@ -11,8 +11,8 @@
 namespace sound
 {
 
-class player :
-    private sf::NonCopyable
+class player
+    : private sf::NonCopyable
 {
 public:
     player();

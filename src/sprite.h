@@ -10,8 +10,8 @@
 #include <functional>
 #include <vector>
 
-class sprite :
-    public sf::Drawable
+class sprite
+    : public sf::Drawable
 {
 public:
     enum class repeat

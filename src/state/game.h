@@ -10,8 +10,8 @@
 namespace state
 {
 
-class game :
-    public state
+class game
+    : public state
 {
 public:
     game(

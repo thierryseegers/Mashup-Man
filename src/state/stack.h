@@ -19,8 +19,8 @@ namespace state
 
 class state;
 
-class stack :
-    private sf::NonCopyable
+class stack
+    : private sf::NonCopyable
 {
 public:
     struct context_t

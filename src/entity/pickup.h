@@ -12,8 +12,8 @@
 namespace entity::pickup
 {
 
-class pickup :
-    public entity
+class pickup
+    : public entity
 {
 public:
     using entity::entity;
@@ -24,8 +24,8 @@ public:
         brother& b) const = 0;
 };
 
-class coin :
-    public pickup
+class coin
+    : public pickup
 {
 public:
     coin();
@@ -36,8 +36,8 @@ public:
         brother& b) const override;
 };
 
-class mushroom : 
-    public pickup
+class mushroom
+    : public pickup
 {
 public:
     mushroom();
@@ -48,8 +48,8 @@ public:
         brother& b) const override;
 };
 
-class flower : 
-    public pickup
+class flower
+    : public pickup
 {
 public:
     flower();
@@ -59,23 +59,5 @@ public:
     virtual void apply(
         brother& b) const override;
 };
-
-// class increase_spread : public pickup
-// {
-// public:
-//     increase_spread();
-
-//     virtual void apply(
-//         brother& leader) const override;
-// };
-
-// class increase_fire_rate : public pickup
-// {
-// public:
-//     increase_fire_rate();
-
-//     virtual void apply(
-//         brother& leader) const override;
-// };
 
 }
