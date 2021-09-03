@@ -9,7 +9,8 @@ class fireball
     : public entity
 {
 public:
-    fireball();
+    fireball(
+        direction const heading_);
 
 };
 

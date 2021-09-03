@@ -4,6 +4,7 @@
 #include "configuration.h"
 // #include "effects/bloom.h"
 // #include "effects/post_effect.h"
+#include "entity/character.h"
 #include "entity/entities.h"
 // #include "particle.h"
 #include "maze.h"
@@ -356,28 +357,29 @@ void world_t::update(
 
     // Control Mario's direction given his desired direction (heading), current direction (velocity) and any walls.
     auto const position = mario->getPosition();
-    auto const heading = mario->heading;
-    auto const velocity = mario->velocity;
+    auto const facing = mario->facing();
+    auto const heading = mario->heading();
     if((int)position.x % 20 >= 8 && (int)position.x % 20 <= 12 && (int)position.y % 20 >= 8 && (int)position.y % 20 <= 12)
     {
         // If Mario wants to change direction and he can, let him.
-        if((heading.x > 0 && velocity.x <= 0 && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
-           (heading.x < 0 && velocity.x >= 0 && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
-           (heading.y > 0 && velocity.y <= 0 && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
-           (heading.y < 0 && velocity.y >= 0 && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3')))
+        if(facing != heading &&
+           ((facing == direction::right  && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
+            (facing == direction::left   && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
+            (facing == direction::down   && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
+            (facing == direction::up     && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
         {
-            spdlog::info("Changing direction at coordinates [{}, {}] to [{}, {}]", position.x, position.y, heading.x, heading.y);
-            mario->set_direction(heading);
+            spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(facing));
+            mario->head(facing);
             mario->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
         }
         // If Mario is crusing along and he's about to face a wall, stop him.
-        else if((velocity.x > 0 && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
-                (velocity.x < 0 && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
-                (velocity.y > 0 && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
-                (velocity.y < 0 && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3')))
+        else if((heading == direction::right    && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
+                (heading == direction::left     && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
+                (heading == direction::down     && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
+                (heading == direction::up       && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3')))
         {
-            spdlog::info("Hit a wall at coordinates [{}, {}] facing [{}, {}]", position.x, position.y, velocity.x, velocity.y);
-            mario->set_direction({0.f, 0.f});
+            spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, magic_enum::enum_name(heading));
+            mario->head(direction::still);
         }
         // Else we let him cruise along.
     }

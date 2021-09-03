@@ -1,17 +1,72 @@
 #include "entity/entity.h"
 
+#include <magic_enum.hpp>
 namespace entity
 {
 
 entity::entity(
-    sprite sprite_)
-    : velocity{}
-    , sprite_{sprite_}
+    sprite sprite_,
+    float const speed,
+    direction const heading_)
+    : sprite_{sprite_}
+    , heading_{heading_}
+    , speed{speed}
 {}
 
 sf::FloatRect entity::collision_bounds() const
 {
     return world_transform().transformRect(sprite_.getGlobalBounds());
+}
+
+direction entity::heading() const
+{
+    return heading_;
+}
+
+void entity::head(
+    direction const d)
+{
+    switch(d)
+    {
+        case direction::up:
+            sprite_.unflip();
+            sprite_.set_rotation(270.f);
+            break;
+        case direction::down:
+            sprite_.unflip();
+            sprite_.set_rotation(90.f);
+            break;
+        case direction::left:
+            sprite_.flip();
+            sprite_.set_rotation(0);
+            break;
+        case direction::right:
+            sprite_.unflip();
+            sprite_.set_rotation(0);
+            break;
+        default:
+            break;
+    }
+
+    bool sprite_update = false;
+
+    if(d == direction::still &&
+       heading_ != direction::still)
+    {
+        sprite_update = true;
+    }
+    else if(d != direction::still &&
+            heading_ == direction::still)
+    {
+        sprite_update = true;
+    }
+
+    heading_ = d;
+
+    if(sprite_update)
+    {
+        update_sprite();
+    }
 }
 
 void entity::play_local_sound(
@@ -24,11 +79,24 @@ void entity::play_local_sound(
     }));
 }
 
+void entity::update_sprite()
+{}
+
 void entity::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    sf::Transformable::move(velocity * dt.asSeconds());
+    static std::array<sf::Vector2f, magic_enum::enum_count<direction>()> const directions = []
+    {
+        return std::array<sf::Vector2f, magic_enum::enum_count<direction>()>{
+                sf::Vector2f{0.f, -1.f},
+                sf::Vector2f{0.f, 1.f},
+                sf::Vector2f{-1.f, 0.f},
+                sf::Vector2f{1.f, 0.f},
+                sf::Vector2f{0.f, 0.f}};
+    }();
+
+    sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * speed * dt.asSeconds());
 
     sprite_.update(dt, commands);
 }

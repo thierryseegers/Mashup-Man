@@ -1,20 +1,19 @@
 [brothers]
 
-fire_cooldown = 0.5
-fireball_speed = 200
 scale = 1.2
 speed = 100
 
-[enemies]
+[brothers.fireball]
+cooldown = 0.5
+speed = 200
 
-texture = "enemies"
+[enemies]
 
 [enemies.goomba]
 scale = 1.2
+speed = 100
 
 [items]
-
-texture = "items"
 
 [items.coin]
 scale = 0.8
@@ -26,8 +25,6 @@ scale = 1.2
 scale = 1.2
 
 [features]
-
-texture = "tileset"
 
 [features.pipe]
 scale = 1.0

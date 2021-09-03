@@ -21,61 +21,26 @@ namespace entity
 {
 
 brother::brother(
-    sprite const& sprite_)
-    : friendly<character>{sprite_}
+    direction const facing_,
+    still_sprite_rect_f still_sprite_rect,
+    animated_sprite_rects_f animated_sprite_rects)
+    : friendly<character>{
+        sprite{
+            resources::texture::brothers,
+            still_sprite_rect(size::small, attribute::plain, liveness::alive),
+            configuration::values()["brothers"]["scale"].value_or<float>(1.f)},
+        *configuration::values()["brothers"]["speed"].value<float>(),
+        facing_}
+    , still_sprite_rect(still_sprite_rect)
+    , animated_sprite_rects{animated_sprite_rects}
     , size_{size::small}
     , attribute_{attribute::plain}
     , motion_{motion::still}
     , liveness_{liveness::alive}
-    , fire_cooldown{sf::seconds(*configuration::values()["brothers"]["fire_cooldown"].value<float>())}
+    , fire_cooldown{sf::seconds(*configuration::values()["brothers"]["fireball"]["cooldown"].value<float>())}
     , fire_countdown{sf::Time::Zero}
     , firing{false}
 {}
-
-void brother::set_direction(
-    sf::Vector2f const& direction)
-{
-    bool sprite_update = false;
-
-    if(direction.x == 0.f && direction.y == 0.f &&
-       (velocity.x != 0.f || velocity.y != 0.f))
-    {
-        sprite_update = true;
-    }
-    else if((direction.x != 0.f || direction.y != 0.f) &&
-            velocity.x == 0.f && velocity.y == 0.f)
-    {
-        sprite_update = true;
-    }
-
-    if(velocity.x >= 0 && direction.x < 0)
-    {
-        sprite_.flip();
-        sprite_.set_rotation(0);
-    }
-    else if(velocity.x <= 0 && direction.x > 0)
-    {
-        sprite_.unflip();
-        sprite_.set_rotation(0);
-    }
-    else if(velocity.y >= 0 && direction.y < 0)
-    {
-        sprite_.unflip();
-        sprite_.set_rotation(270.f);
-    }
-    else if(velocity.y <= 0 && direction.y >0)
-    {
-        sprite_.unflip();
-        sprite_.set_rotation(90.f);
-    }
-
-    velocity = direction;
-
-    if(sprite_update)
-    {
-        update_sprite();
-    }
-}
 
 void brother::fire()
 {
@@ -112,6 +77,32 @@ void brother::hit()
     update_sprite();
 }
 
+void brother::update_sprite()
+{
+    if(heading_ == direction::still)
+    {
+        sprite_.still(still_sprite_rect(size_, attribute_, liveness_));
+    }
+    else
+    {
+        sprite_.animate(animated_sprite_rects(size_, attribute_), sf::seconds(0.5f), sprite::repeat::loop);
+    }
+}
+
+void brother::shoot_fireball(
+    layer::projectiles& layer) const
+{
+    if(heading_ == direction::still)
+    {
+        add_projectile<fireball>(layer, getPosition(), facing_);
+    }
+    else
+    {
+        add_projectile<fireball>(layer, getPosition(), heading_);
+    }
+    
+}
+
 void brother::update_self(
     sf::Time const& dt,
     commands_t& commands)
@@ -138,24 +129,6 @@ void brother::update_self(
     }
 
     character::update_self(dt, commands);
-}
-
-void brother::update_sprite()
-{
-    if(velocity.x == 0.f && velocity.y == 0.f)
-    {
-        sprite_.still(still_sprite_rect_(size_, attribute_, liveness_));
-    }
-    else
-    {
-        sprite_.animate(animated_sprite_rects_(size_, attribute_), sf::seconds(0.5f), sprite::repeat::loop);
-    }
-}
-
-void brother::shoot_fireball(
-    layer::projectiles& layer) const
-{
-    add_projectile<fireball>(layer, getPosition())->velocity = {velocity.x * 2, velocity.y * 2};
 }
 
 using still_sprite_rects = 
@@ -219,14 +192,10 @@ std::vector<sf::IntRect> mario_animated_sprite_rects(
 
 mario::mario()
     : brother{
-        sprite{
-            resources::texture::brothers,
-            mario_still_sprite_rect(size::small, attribute::plain, liveness::alive),
-            configuration::values()["brothers"]["scale"].value_or<float>(1.f)}}
-{
-    still_sprite_rect_ = mario_still_sprite_rect;
-    animated_sprite_rects_ = mario_animated_sprite_rects;
-}
+        direction::right,
+        mario_still_sprite_rect,
+        mario_animated_sprite_rects}
+{}
 
 sf::IntRect luigi_still_sprite_rect(
     brother::size const size_,
@@ -273,13 +242,9 @@ std::vector<sf::IntRect> luigi_animated_sprite_rects(
 
 luigi::luigi()
     : brother{
-        sprite{
-            resources::texture::brothers,
-            luigi_still_sprite_rect(size::small, attribute::plain, liveness::alive),
-            configuration::values()["brothers"]["scale"].value_or<float>(1.f)}}
-{
-    still_sprite_rect_ = luigi_still_sprite_rect;
-    animated_sprite_rects_ = luigi_animated_sprite_rects;
-}
+        direction::left,
+        luigi_still_sprite_rect,
+        luigi_animated_sprite_rects}
+{}
 
 }

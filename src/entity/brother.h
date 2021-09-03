@@ -40,13 +40,23 @@ public:
         dead
     };
 
+private:
+    using still_sprite_rect_f = sf::IntRect (*)(
+                                    brother::size const,
+                                    brother::attribute const,
+                                    brother::liveness const);
+
+    using animated_sprite_rects_f = std::vector<sf::IntRect>(*)(
+                                        brother::size const,
+                                        brother::attribute const);
+
+public:
     brother(
-        sprite const& sprite_);
+        direction const facing_,
+        still_sprite_rect_f still_sprite_rect,
+        animated_sprite_rects_f animated_sprite_rects);
 
     virtual ~brother() = default;
-
-    void set_direction(
-        sf::Vector2f const& direction);
 
     void fire();
 
@@ -56,26 +66,18 @@ public:
 
     void hit();
 
-    sf::Vector2f heading;
-
 protected:
-    virtual void update_self(
-        sf::Time const& dt,
-        commands_t& commands) override;
-
-    void update_sprite();
+    virtual void update_sprite() override;
 
     void shoot_fireball(
         layer::projectiles& layer) const;
 
-    sf::IntRect (*still_sprite_rect_)(
-        brother::size const,
-        brother::attribute const,
-        brother::liveness const);
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
 
-    std::vector<sf::IntRect> (*animated_sprite_rects_)(
-        brother::size const,
-        brother::attribute const);
+    still_sprite_rect_f still_sprite_rect;
+    animated_sprite_rects_f animated_sprite_rects;
 
     size size_;
     attribute attribute_;

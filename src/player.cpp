@@ -3,8 +3,9 @@
 #include "action.h"
 #include "bindings.h"
 #include "command.h"
+#include "direction.h"
+#include "entity/entity.h"
 #include "entity/brother.h"
-// #include "entity/leader.h"
 #include "utility.h"
 
 #include <SFML/Window.hpp>
@@ -14,27 +15,25 @@
 player_t::player_t()
     // : status{mission::running}
 {
-    float const speed = 100.f;
-
     action_bindings[action::cruise] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.heading = bro.velocity;
+            bro.face(direction::still);
         });
     action_bindings[action::head_down] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.heading = {0.f, speed};
+            bro.face(direction::down);
         });
     action_bindings[action::head_left] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.heading = {-speed, 0.f};
+            bro.face(direction::left);
         });
     action_bindings[action::head_right] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.heading = {speed, 0.f};
+            bro.face(direction::right);
         });
     action_bindings[action::head_up] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.heading = {0.f, -speed};
+            bro.face(direction::up);
         });
 
     action_bindings[action::fire] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
