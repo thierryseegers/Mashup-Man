@@ -11,7 +11,7 @@ speed = 200
 
 [enemies.goomba]
 scale = 1.2
-speed = 100
+speed = 85
 
 [items]
 

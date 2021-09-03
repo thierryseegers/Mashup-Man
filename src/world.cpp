@@ -450,9 +450,15 @@ void world_t::update_enemies()
                     {
                         brothers_positions.push_back(luigi->getPosition());
                     }
-                    
-                    goomba->head(goomba->fork(brothers_positions, paths));
-                    // goomba->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
+
+                    auto const direction = goomba->fork(brothers_positions, paths);
+                    goomba->head(direction);
+                    sf::Vector2f const nudged{position.x + (direction == direction::right ? 4 : direction == direction::left ? -4 : 0),
+                                              position.y + (direction == direction::down ? 4 : direction == direction::up ? -4 : 0)};
+
+                    // Nudge it along so it doesn't get to redecide immediately...
+                    goomba->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
+                                        position.y + (direction == direction::down ? 2 : direction == direction::up ? -2 : 0));
 
                     spdlog::info("Goomba decided to go {}", magic_enum::enum_name(goomba->heading()));
                 }
@@ -460,6 +466,12 @@ void world_t::update_enemies()
                 else if(paths.begin()->first != heading)
                 {
                     goomba->head(paths.begin()->first);
+
+                    // Nudge it along so it doesn't get to redecide immediately...
+                    auto const direction = goomba->heading();
+                    goomba->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
+                                        position.y + (direction == direction::down ? 2 : direction == direction::up ? -2 : 0));
+
                     spdlog::info("Goomba is turning {}", magic_enum::enum_name(goomba->heading()));
                 }
                 // Else, let it cruise along.
