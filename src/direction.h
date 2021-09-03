@@ -6,5 +6,5 @@ enum class direction
     down,
     left,
     right,
-    still
+    none
 };

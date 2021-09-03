@@ -36,8 +36,8 @@ class entity
 public:
     entity(
         sprite sprite_,
-        float const speed = 0,
-        direction const heading_ = direction::still);
+        int const max_speed = 0,
+        direction const heading_ = direction::right);
 
     virtual ~entity() = default;
 
@@ -48,6 +48,11 @@ public:
     void head(
         direction const d);
 
+    float speed() const;
+
+    void throttle(
+        float const t);
+
     void play_local_sound(
         commands_t& commands,
         resources::sound_effect const se) const;
@@ -56,7 +61,8 @@ protected:
     sprite sprite_;
 
     direction heading_;
-    float speed;
+    int max_speed;
+    float throttle_;
 
     virtual void update_sprite();
 

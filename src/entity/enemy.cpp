@@ -141,7 +141,7 @@ goomba::goomba()
             sf::seconds(1.f),
             sprite::repeat::loop,
             configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f)},
-        *configuration::values()["brothers"]["speed"].value<float>(),
+        *configuration::values()["brothers"]["speed"].value<int>(),
         direction::left}
 {}
 

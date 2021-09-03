@@ -6,12 +6,15 @@ namespace entity
 
 entity::entity(
     sprite sprite_,
-    float const speed,
+    int const max_speed,
     direction const heading_)
     : sprite_{sprite_}
     , heading_{heading_}
-    , speed{speed}
-{}
+    , max_speed{max_speed}
+    , throttle_{0.f}
+{
+    head(heading_);
+}
 
 sf::FloatRect entity::collision_bounds() const
 {
@@ -48,25 +51,20 @@ void entity::head(
             break;
     }
 
-    bool sprite_update = false;
-
-    if(d == direction::still &&
-       heading_ != direction::still)
-    {
-        sprite_update = true;
-    }
-    else if(d != direction::still &&
-            heading_ == direction::still)
-    {
-        sprite_update = true;
-    }
-
     heading_ = d;
+}
 
-    if(sprite_update)
-    {
-        update_sprite();
-    }
+float entity::speed() const
+{
+    return throttle_ * max_speed;
+}
+
+void entity::throttle(
+    float const t)
+{
+    throttle_ = t;
+
+    update_sprite();
 }
 
 void entity::play_local_sound(
@@ -92,11 +90,10 @@ void entity::update_self(
                 sf::Vector2f{0.f, -1.f},
                 sf::Vector2f{0.f, 1.f},
                 sf::Vector2f{-1.f, 0.f},
-                sf::Vector2f{1.f, 0.f},
-                sf::Vector2f{0.f, 0.f}};
+                sf::Vector2f{1.f, 0.f}};
     }();
 
-    sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * speed * dt.asSeconds());
+    sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * (max_speed * throttle_) * dt.asSeconds());
 
     sprite_.update(dt, commands);
 }

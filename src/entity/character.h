@@ -18,22 +18,11 @@ namespace entity
 class character : public entity
 {
 public:
-    character(
-        sprite sprite_,
-        float const speed,
-        direction const facing_,
-        direction const heading_ = direction::still);
+    using entity::entity;
 
     virtual ~character() = default;
 
-    direction facing() const;
-
-    void face(
-        direction const d);
-
 protected:
-    direction facing_;
-
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -47,6 +36,7 @@ protected:
         auto p = layer.attach<Projectile>(heading);
 
         p->setPosition(position);
+        p->throttle(1.f);
 
         return p;
     }

@@ -29,7 +29,7 @@ brother::brother(
             resources::texture::brothers,
             still_sprite_rect(size::small, attribute::plain, liveness::alive),
             configuration::values()["brothers"]["scale"].value_or<float>(1.f)},
-        *configuration::values()["brothers"]["speed"].value<float>(),
+        *configuration::values()["brothers"]["speed"].value<int>(),
         facing_}
     , still_sprite_rect(still_sprite_rect)
     , animated_sprite_rects{animated_sprite_rects}
@@ -41,6 +41,17 @@ brother::brother(
     , fire_countdown{sf::Time::Zero}
     , firing{false}
 {}
+
+direction brother::steering() const
+{
+    return steering_;
+}
+
+void brother::steer(
+    direction const d)
+{
+    steering_ = d;
+}
 
 void brother::fire()
 {
@@ -82,7 +93,7 @@ void brother::hit()
 
 void brother::update_sprite()
 {
-    if(heading_ == direction::still)
+    if(throttle_ == 0.f)
     {
         sprite_.still(still_sprite_rect(size_, attribute_, liveness_));
     }
@@ -95,14 +106,7 @@ void brother::update_sprite()
 void brother::shoot_fireball(
     layer::projectiles& layer) const
 {
-    if(heading_ == direction::still)
-    {
-        add_projectile<fireball>(layer, getPosition(), facing_);
-    }
-    else
-    {
-        add_projectile<fireball>(layer, getPosition(), heading_);
-    }
+    add_projectile<fireball>(layer, getPosition(), heading_);
 }
 
 void brother::update_self(

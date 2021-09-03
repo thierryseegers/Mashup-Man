@@ -73,7 +73,7 @@ public:
     Node* attach(
         Args&&... args)
     {
-        auto& child = children.emplace_back(new Node(std::forward<Args>(args)...));
+        auto& child = children_.emplace_back(new Node(std::forward<Args>(args)...));
         child->parent = this;
         return static_cast<Node*>(child.get());
     }
@@ -93,6 +93,8 @@ public:
         sf::RenderStates states) const final;
 
     std::set<std::pair<node*, node*>> collisions();
+
+    std::vector<node*> children() const;
 
     [[nodiscard]] bool collides(node const* other) const;
 
@@ -115,7 +117,7 @@ protected:
 
     virtual sf::FloatRect collision_bounds() const;
 
-    std::vector<std::unique_ptr<node>> children;
+    std::vector<std::unique_ptr<node>> children_;
     node *parent = nullptr;
 };
 

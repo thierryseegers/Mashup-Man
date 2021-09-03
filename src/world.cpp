@@ -31,6 +31,7 @@ world_t::world_t(
     , view{output_target.getDefaultView()}
     , sound{sound}
     , mario{nullptr}
+    , luigi{nullptr}
     , immovables{{}}
 {
     build_scene();
@@ -146,49 +147,36 @@ void world_t::build_scene()
             switch(level_info[r][c])
             {
                 case '.':
-                    {
-                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
-                        immovables[r][c] = e;
-                    }
+                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
+                    immovables[r][c] = e;
                     break;
                 case 'f':
-                    {
-                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
-                        immovables[r][c] = e;
-                    }
+                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
+                    immovables[r][c] = e;
                     break;
                 case 'g':
-                    {
-                        e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
-                    }
+                    e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
                     break;
                 case 'm':
-                    {
-                        e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
-                        immovables[r][c] = e;
-                    }
+                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
+                    immovables[r][c] = e;
                     break;
                 case 'p':
-                    {
-                        e = layers[magic_enum::enum_integer(layer::id::pipes)]->attach<entity::pipe>();
-                        immovables[r][c] = e;
+                    e = layers[magic_enum::enum_integer(layer::id::pipes)]->attach<entity::pipe>();
+                    immovables[r][c] = e;
 
-                        if(c == 0)
-                        {
-                            e->setRotation(180);
-                        }
+                    if(c == 0)
+                    {
+                        e->setRotation(180);
                     }
                     break;
                 case 'x':
-                    {
-                        e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
-                        characters.push_back(mario);
-                    }
+                    e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
+                    characters.push_back(mario);
                     break;
                 case 'y':
-                    {
-                        e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
-                    }
+                    e = luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
+                    characters.push_back(luigi);
                     break;
             }
 
@@ -205,7 +193,7 @@ void world_t::build_scene()
 }
 
 template<typename Entity1, typename Entity2>
-std::pair<Entity1*, Entity2*> match(std::pair<entity::entity*, entity::entity*> const& p)
+std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const& p)
 {
     if(auto *pa = dynamic_cast<Entity1*>(p.first))
     {
@@ -227,30 +215,32 @@ std::pair<Entity1*, Entity2*> match(std::pair<entity::entity*, entity::entity*> 
 
 void world_t::handle_collisions()
 {
-    std::set<std::pair<entity::entity*, entity::entity*>> collisions;
+    std::set<std::pair<scene::node*, scene::node*>> collisions;
 
-    // Detect collisions of characters (ought to be only the brothers) and pickups and pipes.
-    for(auto* const character : characters)
+    // Detect collisions between characters (ought to be only the brothers) and pickups and pipes.
+    for(auto* const bro : std::initializer_list<entity::brother*>{mario, luigi})
     {
-        size_t const r = character->getPosition().y / 20, c = character->getPosition().x / 20;
-        if(auto* const immovable = immovables[r][c]; immovable && character->collides(immovable))
+        if(bro)
         {
-            collisions.insert(std::minmax<entity::entity*>(character, immovable));
+            size_t const r = bro->getPosition().y / 20, c = bro->getPosition().x / 20;
+            if(auto* const immovable = immovables[r][c]; immovable && bro->collides(immovable))
+            {
+                collisions.insert(std::minmax<scene::node*>(bro, immovable));
+            }
         }
     }
 
-    // for(auto* const character : characters)
-    // {
-    //     // scene::node *p = layers[magic_enum::enum_integer(layer::id::characters)];
-    //     // p->
-    //     for(auto* const projectile : projectiles)
-    //     {
-    //         if(character->collides(projectile))
-    //         {
-    //             collisions.insert(std::minmax<entity::entity*>(character, projectile));
-    //         }
-    //     }
-    // }
+    // Detect collisions between characters and projectiles.
+    for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
+    {
+        for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
+        {
+            if(character->collides(projectile))
+            {
+                collisions.insert(std::minmax<scene::node*>(character, projectile));
+            }
+        }
+    }
 
     for(auto const& collision : collisions)
     {
@@ -288,10 +278,11 @@ void world_t::handle_collisions()
                 sound.play(pickup->sound_effect());
             }
         }
-        else if(auto [bro, p] = match<entity::brother, entity::pipe>(collision); bro && p)
+        else if(auto [bro, pipe_] = match<entity::brother, entity::pipe>(collision); bro && pipe_)
         {
             sound.play(resources::sound_effect::warp);
-            if(p->getPosition().x == 10)
+            // TODO: change hard-code to soft-code.
+            if(pipe_->getPosition().x == 10)
             {
                 bro->setPosition(27 * 20 - 10, bro->getPosition().y);
             }
@@ -355,34 +346,39 @@ void world_t::update(
         commands_.pop();
     }
 
-    // Control Mario's direction given his desired direction (heading), current direction (velocity) and any walls.
+    // Control Mario's direction given his desired direction (steering), current direction (heading) and any walls.
     auto const position = mario->getPosition();
-    auto const facing = mario->facing();
     auto const heading = mario->heading();
+    auto const steering = mario->steering();
     if((int)position.x % 20 >= 8 && (int)position.x % 20 <= 12 && (int)position.y % 20 >= 8 && (int)position.y % 20 <= 12)
     {
         // If Mario wants to change direction and he can, let him.
-        if(facing != heading &&
-           ((facing == direction::right  && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
-            (facing == direction::left   && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
-            (facing == direction::down   && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
-            (facing == direction::up     && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
+        if((steering != heading || mario->speed() == 0.f) &&
+           ((steering == direction::right  && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
+            (steering == direction::left   && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
+            (steering == direction::down   && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
+            (steering == direction::up     && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
         {
-            spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(facing));
-            mario->head(facing);
+            spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(steering));
+            mario->head(steering);
+            mario->throttle(1.f);
             mario->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
         }
         // If Mario is crusing along and he's about to face a wall, stop him.
-        else if((heading == direction::right    && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
-                (heading == direction::left     && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
-                (heading == direction::down     && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
-                (heading == direction::up       && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3')))
+        else if(mario->speed() != 0.f &&
+                ((heading == direction::right    && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
+                 (heading == direction::left     && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
+                 (heading == direction::down     && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
+                 (heading == direction::up       && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
         {
             spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, magic_enum::enum_name(heading));
-            mario->head(direction::still);
+            mario->throttle(0.f);
         }
         // Else we let him cruise along.
     }
+
+    // If a fireball hits a wall, remove it.
+
 
     // // Prevent the player from going off-screen.
     // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};

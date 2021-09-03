@@ -17,23 +17,23 @@ player_t::player_t()
 {
     action_bindings[action::cruise] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.face(direction::still);
+            bro.steer(direction::none);
         });
     action_bindings[action::head_down] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.face(direction::down);
+            bro.steer(direction::down);
         });
     action_bindings[action::head_left] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.face(direction::left);
+            bro.steer(direction::left);
         });
     action_bindings[action::head_right] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.face(direction::right);
+            bro.steer(direction::right);
         });
     action_bindings[action::head_up] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
         {
-            bro.face(direction::up);
+            bro.steer(direction::up);
         });
 
     action_bindings[action::fire] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)

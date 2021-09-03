@@ -16,7 +16,7 @@ fireball::fireball(
             {{96, 144, 8, 8}, {104, 144, 8, 8}, {96, 152, 8, 8}, {104, 152, 8, 8}},
             sf::seconds(0.2f),
             sprite::repeat::loop},
-        *configuration::values()["brothers"]["fireball"]["speed"].value<float>(),
+        *configuration::values()["brothers"]["fireball"]["speed"].value<int>(),
         heading_}
 {}
 

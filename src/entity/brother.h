@@ -1,6 +1,7 @@
 #pragma once
 
 #include "command.h"
+#include "direction.h"
 #include "entity/character.h"
 #include "entity/entity.h"
 #include "layer.h"
@@ -58,6 +59,11 @@ public:
 
     virtual ~brother() = default;
 
+    [[nodiscard]] direction steering() const;
+
+    void steer(
+        direction const d);
+
     void fire();
 
     void consume_mushroom();
@@ -78,6 +84,8 @@ protected:
 
     still_sprite_rect_f still_sprite_rect;
     animated_sprite_rects_f animated_sprite_rects;
+
+    direction steering_;
 
     size size_;
     attribute attribute_;

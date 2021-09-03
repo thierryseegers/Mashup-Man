@@ -41,9 +41,9 @@ node::iterator::pointer node::iterator::operator->()
 
 node::iterator node::iterator::operator++()
 {
-    if(current->parent && ++indices.back() != current->parent->children.size())
+    if(current->parent && ++indices.back() != current->parent->children_.size())
     {
-        current = next(current->parent->children[indices.back()].get());
+        current = next(current->parent->children_[indices.back()].get());
     }
     else
     {
@@ -79,10 +79,10 @@ bool node::iterator::operator!=(iterator const& rhs)
 
 node* node::iterator::next(node* n)
 {
-    if(n && n->children.size())
+    if(n && n->children_.size())
     {
         indices.push_back(0);
-        return next(n->children[0].get());
+        return next(n->children_[0].get());
     }
     else
         return n;
@@ -92,7 +92,7 @@ void node::attach(
     std::unique_ptr<node> child)
 {
     child->parent = this;
-    children.push_back(std::move(child));
+    children_.push_back(std::move(child));
 }
 
 void node::on_command(
@@ -101,7 +101,7 @@ void node::on_command(
 {
     command(*this, dt);
 
-    for(auto& child : children)
+    for(auto& child : children_)
     {
         child->on_command(command, dt);
     }
@@ -113,7 +113,7 @@ void node::update(
 {
     update_self(dt, commands);
 
-    for(auto& child : children)
+    for(auto& child : children_)
     {
         child->update(dt, commands);
     }
@@ -121,8 +121,8 @@ void node::update(
 
 void node::sweep_removed()
 {
-    children.erase(std::remove_if(children.begin(), children.end(), [](auto const& n){ return n->remove; }), children.end());
-    std::for_each(children.begin(), children.end(), std::mem_fn(&node::sweep_removed));
+    children_.erase(std::remove_if(children_.begin(), children_.end(), [](auto const& n){ return n->remove; }), children_.end());
+    std::for_each(children_.begin(), children_.end(), std::mem_fn(&node::sweep_removed));
 }
 
 void node::draw(
@@ -147,7 +147,7 @@ void node::draw(
         target.draw(shape);
     }
 
-    for(auto& child : children)
+    for(auto& child : children_)
     {
         child->draw(target, states);
     }
@@ -197,6 +197,15 @@ void node::update_self(
     sf::Time const&,
     commands_t&)
 {}
+
+std::vector<node*> node::children() const
+{
+    std::vector<node*> c{children_.size()};
+
+    std::transform(children_.begin(), children_.end(), c.begin(), [](auto const& up){ return up.get(); });
+    
+    return c;
+}
 
 bool node::collides(node const* other) const
 {

@@ -54,7 +54,7 @@ private:
 
     commands_t commands_;
 
-    entity::brother* mario;
+    entity::brother *mario, *luigi;
 
     level::info level_info;
 
