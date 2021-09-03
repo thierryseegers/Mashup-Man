@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include "entity/brother.h"
 #include "resources.h"
 // #include "state/game_over.h"
 #include "state/game.h"
@@ -13,9 +14,13 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <type_traits>
+
 application::application()
-    : window{sf::VideoMode(1024, 768), "SuperPacBros", sf::Style::Close}
-    , states{{/*music, */player_1, sound, window}}
+    : window{sf::VideoMode(1024, 768), "SuperPacBros", sf::Style::Default}
+    , player_1{std::type_identity<entity::mario>{}}
+    , player_2{std::type_identity<entity::luigi>{}}
+    , states{{/*music, */player_1, player_2, sound, window}}
     , statistics_num_frames{0}
 {
     window.setKeyRepeatEnabled(false);

@@ -28,16 +28,17 @@ bool game::update(
 
     // if(!world.player_alive())
     // {
-    //     states.context.player.mission_status() = player_t::mission::failure;
+    //     states.context.player.mission_status() = player::mission::failure;
     //     states.request_push(id::game_over);
     // }
     // else if(world.player_reached_end())
     // {
-    //     states.context.player.mission_status() = player_t::mission::success;
+    //     states.context.player.mission_status() = player::mission::success;
     //     states.request_push(id::game_over);
     // }
 
-    states.context.player.handle_realtime_input(world.commands());
+    states.context.player_1.handle_realtime_input(world.commands());
+    states.context.player_2.handle_realtime_input(world.commands());
 
     return true;
 }
@@ -46,7 +47,8 @@ bool game::handle_event(
     sf::Event const& event)
 {
     // Game input handling.
-    states.context.player.handle_event(event, world.commands());
+    states.context.player_1.handle_event(event, world.commands());
+    states.context.player_2.handle_event(event, world.commands());
 
     // // Escape key or Start button pressed, trigger the pause screen.
     // if(event.type == sf::Event::KeyReleased &&

@@ -27,9 +27,10 @@ private:
     void render();
 
     // music::player music;
-    player_t player_1;
-    sound::player sound;
     sf::RenderWindow window;
+    player player_1;
+    player player_2;
+    sound::player sound;
 
     state::stack states;
 

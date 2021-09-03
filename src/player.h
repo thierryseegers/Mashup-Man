@@ -2,12 +2,16 @@
 
 #include "action.h"
 #include "command.h"
+#include "direction.h"
+#include "entity/brother.h"
 
 #include <SFML/Window.hpp>
 
 #include <map>
+#include <string>
+#include <type_traits>
 
-class player_t
+class player
 {
 public:
     // enum class mission
@@ -17,7 +21,38 @@ public:
     //     success,
     // };
 
-    player_t();
+    template<typename Brother>
+    player(std::type_identity<Brother>)
+    // : status{mission::running}
+        : name{std::is_same_v<Brother, entity::mario> ? "mario" : "luigi"}
+        , joystick_id{std::is_same_v<Brother, entity::mario> ? 0 : 1}
+    {
+        action_bindings[action::cruise] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+            {
+                bro.steer(direction::none);
+            });
+        action_bindings[action::head_down] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+            {
+                bro.steer(direction::down);
+            });
+        action_bindings[action::head_left] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+            {
+                bro.steer(direction::left);
+            });
+        action_bindings[action::head_right] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+            {
+                bro.steer(direction::right);
+            });
+        action_bindings[action::head_up] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+            {
+                bro.steer(direction::up);
+            });
+
+        action_bindings[action::fire] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+            {
+                bro.fire();
+            });
+    }
 
     void handle_event(
         sf::Event const& event,
@@ -42,4 +77,6 @@ private:
     std::map<action, command_t> action_bindings;
 
     // mission status;
+    std::string name;
+    unsigned int joystick_id;
 };

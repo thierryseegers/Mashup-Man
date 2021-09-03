@@ -26,7 +26,8 @@ public:
     struct context_t
     {
         // music::player& music;
-        player_t& player;
+        player& player_1;
+        player& player_2;
         sound::player& sound;
         sf::RenderWindow& window;
     } context;

@@ -12,59 +12,29 @@
 
 #include <map>
 
-player_t::player_t()
-    // : status{mission::running}
-{
-    action_bindings[action::cruise] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
-        {
-            bro.steer(direction::none);
-        });
-    action_bindings[action::head_down] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
-        {
-            bro.steer(direction::down);
-        });
-    action_bindings[action::head_left] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
-        {
-            bro.steer(direction::left);
-        });
-    action_bindings[action::head_right] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
-        {
-            bro.steer(direction::right);
-        });
-    action_bindings[action::head_up] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
-        {
-            bro.steer(direction::up);
-        });
-
-    action_bindings[action::fire] = make_command<entity::brother>([=](entity::brother& bro, sf::Time const&)
-        {
-            bro.fire();
-        });
-}
-
-void player_t::handle_event(
+void player::handle_event(
     sf::Event const& event,
     commands_t& commands)
 {
     if(event.type == sf::Event::KeyPressed)
     {
-        if(auto i = bindings::keyboard().find(event.key.code); i != bindings::keyboard().end() && !is_realtime_action(i->second))
+        if(auto i = bindings::keyboard(name).find(event.key.code); i != bindings::keyboard(name).end() && !is_realtime_action(i->second))
         {
             commands.push(action_bindings[i->second]);
         }
     }
     else if(event.type == sf::Event::KeyReleased)
     {
-        if(auto i = bindings::keyboard().find(event.key.code); i != bindings::keyboard().end() && 
+        if(auto i = bindings::keyboard(name).find(event.key.code); i != bindings::keyboard(name).end() && 
                                                                !is_realtime_action(i->second) && 
                                                                utility::any_of(i->second, action::head_down, action::head_left, action::head_right, action::head_up))
         {
             commands.push(action_bindings[action::cruise]);
         }
     }
-    else if(event.type == sf::Event::JoystickMoved)
+    else if(event.type == sf::Event::JoystickMoved && event.joystickMove.joystickId == joystick_id)
     {
-        if(auto const x_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X); x_axis > 1)
+        if(auto const x_axis = sf::Joystick::getAxisPosition(joystick_id, sf::Joystick::Axis::X); x_axis > 1)
         {
             commands.push(action_bindings[action::head_right]);
         }
@@ -72,7 +42,7 @@ void player_t::handle_event(
         {
             commands.push(action_bindings[action::head_left]);
         }
-        else if(auto const y_axis = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y); y_axis > 1)
+        else if(auto const y_axis = sf::Joystick::getAxisPosition(joystick_id, sf::Joystick::Axis::Y); y_axis > 1)
         {
             commands.push(action_bindings[action::head_down]);
         }
@@ -85,7 +55,7 @@ void player_t::handle_event(
             commands.push(action_bindings[action::cruise]);
         }
     }
-    else if(event.type == sf::Event::JoystickButtonPressed)
+    else if(event.type == sf::Event::JoystickButtonPressed && event.joystickMove.joystickId == joystick_id)
     {
         if(auto i = bindings::joystick().find(event.joystickButton.button); i != bindings::joystick().end() && !is_realtime_action(i->second))
         {
@@ -94,10 +64,10 @@ void player_t::handle_event(
     }
 }
 
-void player_t::handle_realtime_input(
+void player::handle_realtime_input(
     commands_t& commands)
 {
-    for(auto const& [key, what] : bindings::keyboard())
+    for(auto const& [key, what] : bindings::keyboard(name))
     {
         if(sf::Keyboard::isKeyPressed(key) &&
            is_realtime_action(what))
@@ -108,7 +78,7 @@ void player_t::handle_realtime_input(
 
     for(auto const& [button, what] : bindings::joystick())
     {
-        if(sf::Joystick::isButtonPressed(0, button) &&
+        if(sf::Joystick::isButtonPressed(joystick_id, button) &&
            is_realtime_action(what))
         {
             commands.push(action_bindings[what]);
@@ -134,7 +104,7 @@ void player_t::handle_realtime_input(
     // }
 }
 
-bool player_t::is_realtime_action(
+bool player::is_realtime_action(
     action const a)
 {
     switch(a)
