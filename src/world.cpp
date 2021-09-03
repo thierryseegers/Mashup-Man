@@ -393,7 +393,30 @@ void world_t::update(
         auto const r = projectile->getPosition().y / 20, c = projectile->getPosition().x/ 20;
         if(utility::any_of(level_info[r][c], '0', '1', '2', '3', 'p'))
         {
-            projectile->remove = true;
+            if(auto* fireball = dynamic_cast<entity::fireball*>(projectile))
+            {
+                fireball->remove = true;
+                sf::Vector2f offset;
+                switch(fireball->heading())
+                {
+                    case direction::right:
+                        offset = {7.f, 0.f};
+                        break;
+                    case direction::left:
+                        offset = {-7.f, 0.f};
+                        break;
+                    case direction::down:
+                        offset = {0.f, 7.f};
+                        break;
+                    case direction::up:
+                        offset = {0.f, -7.f};
+                        break;
+                    default:
+                        break;
+                }
+                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition() + offset);
+                sound.play(resources::sound_effect::bump);
+            }
         }
     }
 

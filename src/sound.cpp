@@ -21,6 +21,7 @@ player::player()
 {
     auto& sound_buffers = utility::single::mutable_instance<resources::sound_buffers_t>();
 
+    sound_buffers.load(resources::sound_effect::bump, "assets/sounds/Super Mario Bros 1 and 2(JP)/Bump.wav");
     sound_buffers.load(resources::sound_effect::collect_coin, "assets/sounds/Super Mario Bros 1 and 2(JP)/Coin.wav");
     sound_buffers.load(resources::sound_effect::collect_powerup, "assets/sounds/Super Mario Bros 1 and 2(JP)/Powerup.wav");
     sound_buffers.load(resources::sound_effect::fireball, "assets/sounds/Super Mario Bros 1 and 2(JP)/Fire ball.wav");

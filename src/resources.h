@@ -41,6 +41,7 @@ enum class texture
 
 enum class sound_effect
 {
+    bump,
     collect_coin,
     collect_powerup,
     fireball,

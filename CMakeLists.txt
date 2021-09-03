@@ -61,6 +61,8 @@ add_executable(${PROJECT_NAME}
     src/command.h
     src/configuration.cpp
     src/configuration.h
+    src/entity/animation.cpp
+    src/entity/animation.h
     src/entity/brother.cpp
     src/entity/brother.h
     src/entity/character.cpp
