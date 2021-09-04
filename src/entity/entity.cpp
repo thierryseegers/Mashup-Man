@@ -90,7 +90,8 @@ void entity::update_self(
                 sf::Vector2f{0.f, -1.f},
                 sf::Vector2f{0.f, 1.f},
                 sf::Vector2f{-1.f, 0.f},
-                sf::Vector2f{1.f, 0.f}};
+                sf::Vector2f{1.f, 0.f},
+                sf::Vector2f{0.f, 0.f}};
     }();
 
     sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * (max_speed * throttle_) * dt.asSeconds());
