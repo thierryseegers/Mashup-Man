@@ -26,7 +26,7 @@ public:
         sf::Event const& event) override;
 
 private:
-    world_t world;
+    world world_;
 };
 
 }

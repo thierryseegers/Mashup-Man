@@ -11,20 +11,20 @@ namespace state
 game::game(
     stack& states)
     : state{states}
-    , world{states.context.window, states.context.sound}
+    , world_{states.context.window, states.context.sound}
 {
     // states.context.music.play(music::theme::mission);
 }
 
 void game::draw()
 {
-    world.draw();
+    world_.draw();
 }
 
 bool game::update(
     sf::Time const& dt)
 {
-    world.update(dt);
+    world_.update(dt);
 
     // if(!world.player_alive())
     // {
@@ -37,8 +37,8 @@ bool game::update(
     //     states.request_push(id::game_over);
     // }
 
-    states.context.player_1.handle_realtime_input(world.commands());
-    states.context.player_2.handle_realtime_input(world.commands());
+    states.context.player_1.handle_realtime_input(world_.commands());
+    states.context.player_2.handle_realtime_input(world_.commands());
 
     return true;
 }
@@ -47,9 +47,13 @@ bool game::handle_event(
     sf::Event const& event)
 {
     // Game input handling.
-    states.context.player_1.handle_event(event, world.commands());
-    states.context.player_2.handle_event(event, world.commands());
+    states.context.player_1.handle_event(event, world_.commands());
+    states.context.player_2.handle_event(event, world_.commands());
 
+    if(event.type == sf::Event::Resized)
+    {
+        world_.handle_size_changed(event.size);
+    }
     // // Escape key or Start button pressed, trigger the pause screen.
     // if(event.type == sf::Event::KeyReleased &&
     //    event.key.code == sf::Keyboard::Escape)

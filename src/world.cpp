@@ -25,7 +25,7 @@
 #include <tuple>
 #include <vector>
 
-world_t::world_t(
+world::world(
     sf::RenderTarget& output_target,
     sound::player& sound)
     : target{output_target}
@@ -36,10 +36,12 @@ world_t::world_t(
     , luigi{nullptr}
     , immovables{{}}
 {
+    target.setView(view);
+
     build_scene();
 }
 
-commands_t& world_t::commands()
+commands_t& world::commands()
 {
     return commands_;
 }
@@ -118,14 +120,26 @@ std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read
     return {level_info, wall_texture_offsets, wall_rotations};
 }
 
-void world_t::build_scene()
+void world::handle_size_changed(
+    sf::Event::SizeEvent const& event)
+{
+    view.setSize({static_cast<float>(event.width), static_cast<float>(event.height)});
+    target.setView(view);
+
+    auto const scale = std::min((static_cast<float>(event.height - 100) / (level::height * level::tile_size)),
+                                (static_cast<float>(event.width - 20) / (level::width * level::tile_size)));
+    graph.setScale(scale, scale);
+}
+
+void world::build_scene()
 {
     // Read information of the first level.
     level::wall_texture_offsets wall_texture_offsets;
     level::wall_rotations wall_rotations;
     std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
 
-    graph.setPosition((view.getSize().x / 2) - (level::width / 2 * level::tile_size), 50);
+    graph.setOrigin(level::width * level::tile_size / 2, level::height * level::tile_size / 2);
+    graph.setPosition((view.getSize().x / 2), (view.getSize().y / 2));
 
     // Create a sound player.
     graph.attach<scene::sound_t>(sound);
@@ -214,7 +228,7 @@ std::pair<Entity1*, Entity2*> match(std::pair<scene::node*, scene::node*> const&
     return {nullptr, nullptr};
 }
 
-void world_t::handle_collisions()
+void world::handle_collisions()
 {
     std::set<std::pair<scene::node*, scene::node*>> collisions;
 
@@ -346,7 +360,7 @@ void world_t::handle_collisions()
 //     return bounds;
 // }
 
-void world_t::update_brother(
+void world::update_brother(
     entity::brother *bro)
 {
     // Control a brother's direction given his desired direction (steering), current direction (heading) and any close by walls.
@@ -383,7 +397,7 @@ void world_t::update_brother(
     }
 }
 
-void world_t::update_fireballs()
+void world::update_fireballs()
 {
     // If a fireball hits a wall or a pipe, remove it.
     for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
@@ -419,7 +433,7 @@ void world_t::update_fireballs()
     }
 }
 
-void world_t::update_enemies()
+void world::update_enemies()
 {
     for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
     {
@@ -484,7 +498,7 @@ void world_t::update_enemies()
     }
 }
 
-void world_t::update(
+void world::update(
     sf::Time const dt)
 {
     // // Guide guided missiles.
@@ -535,7 +549,7 @@ void world_t::update(
     graph.update(dt, commands_);
 }
 
-void world_t::draw()
+void world::draw()
 {
     // if(effect::post_effect::supported())
     // {

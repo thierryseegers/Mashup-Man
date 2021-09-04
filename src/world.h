@@ -14,10 +14,10 @@
 
 #include <list>
 
-class world_t
+class world
 {
 public:
-    explicit world_t(
+    explicit world(
         sf::RenderTarget& output_target,
         sound::player& sound);
 
@@ -31,6 +31,9 @@ public:
     // [[nodiscard]] bool player_alive() const;
 
     // [[nodiscard]] bool player_reached_end() const;
+
+    void handle_size_changed(
+        sf::Event::SizeEvent const& event);
 
 private:
     void build_scene();
