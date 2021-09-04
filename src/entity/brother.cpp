@@ -6,6 +6,7 @@
 #include "entity/entity.h"
 #include "entity/fireball.h"
 #include "layer.h"
+#include "level.h"
 #include "resources.h"
 #include "scene.h"
 #include "utility.h"
@@ -117,16 +118,16 @@ void brother::shoot_fireball(
     switch(heading_)
     {
         case direction::up:
-            position.y -= 20;
+            position.y -= level::tile_size;
             break;
         case direction::down:
-            position.y += 20;
+            position.y += level::tile_size;
             break;
         case direction::left:
-            position.x -= 20;
+            position.x -= level::tile_size;
             break;
         case direction::right:
-            position.x += 20;
+            position.x += level::tile_size;
             break;
         default:
             break;

@@ -30,6 +30,7 @@ world_t::world_t(
     sound::player& sound)
     : target{output_target}
     , view{output_target.getDefaultView()}
+    // , view{{0, 0, level::tile_size * level::width, level::tile_size * level::height}}
     , sound{sound}
     , mario{nullptr}
     , luigi{nullptr}
@@ -182,7 +183,7 @@ void world_t::build_scene()
 
             if(e)
             {
-                e->setPosition(c * 20.f + 10.f, r * 20.f + 10.f);
+                e->setPosition(c * level::tile_size + level::half_tile_size, r * level::tile_size + level::half_tile_size);
             }
         }
     }
@@ -222,7 +223,7 @@ void world_t::handle_collisions()
     {
         if(bro)
         {
-            size_t const r = bro->getPosition().y / 20, c = bro->getPosition().x / 20;
+            size_t const r = bro->getPosition().y / level::tile_size, c = bro->getPosition().x / level::tile_size;
             if(auto* const immovable = immovables[r][c]; immovable && bro->collides(immovable))
             {
                 collisions.insert(std::minmax<scene::node*>(bro, immovable));
@@ -284,7 +285,7 @@ void world_t::handle_collisions()
             if(!pickup->remove)
             {
                 pickup->remove = true;
-                immovables[pickup->getPosition().y / 20][pickup->getPosition().x / 20] = nullptr;
+                immovables[pickup->getPosition().y / level::tile_size][pickup->getPosition().x / level::tile_size] = nullptr;
 
                 pickup->apply(*bro);
                 sound.play(pickup->sound_effect());
@@ -294,13 +295,13 @@ void world_t::handle_collisions()
         {
             sound.play(resources::sound_effect::warp);
             // TODO: change hard-code to soft-code.
-            if(pipe_->getPosition().x == 10)
+            if(pipe_->getPosition().x == level::half_tile_size)
             {
-                bro->setPosition(27 * 20 - 10, bro->getPosition().y);
+                bro->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, bro->getPosition().y);
             }
             else
             {
-                bro->setPosition(1 * 20 + 10, bro->getPosition().y);
+                bro->setPosition(1 * level::tile_size + level::half_tile_size, bro->getPosition().y);
             }
         }
     }
@@ -339,8 +340,8 @@ void world_t::handle_collisions()
 // {
 //     // Return view bounds + some area at top, where enemies spawn.
 //     sf::FloatRect bounds = view_bounds();
-//     bounds.top -= 100.f;
-//     bounds.height += 100.f;
+//     bounds.top -= level::half_tile_size0.f;
+//     bounds.height += level::half_tile_size0.f;
 
 //     return bounds;
 // }
@@ -349,30 +350,31 @@ void world_t::update_brother(
     entity::brother *bro)
 {
     // Control a brother's direction given his desired direction (steering), current direction (heading) and any close by walls.
-    auto const position = bro->getPosition();
+    sf::Vector2i const position{(int)bro->getPosition().x, (int)bro->getPosition().y};
     auto const heading = bro->heading();
     auto const steering = bro->steering();
 
-    if((int)position.x % 20 >= 8 && (int)position.x % 20 <= 12 && (int)position.y % 20 >= 8 && (int)position.y % 20 <= 12)
+    if(position.x % level::tile_size >= 8 && position.x % level::tile_size <= 12 && position.y % level::tile_size >= 8 && position.y % level::tile_size <= 12)
     {
         // If the brother wants to change direction and he can, let him.
         if((steering != heading || bro->speed() == 0.f) &&
-           ((steering == direction::right  && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
-            (steering == direction::left   && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
-            (steering == direction::down   && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
-            (steering == direction::up     && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
+           ((steering == direction::right  && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3')) ||
+            (steering == direction::left   && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3')) ||
+            (steering == direction::down   && !utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3')) ||
+            (steering == direction::up     && !utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3'))))
         {
             spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(steering));
             bro->head(steering);
             bro->throttle(1.f);
-            bro->setPosition(((int)position.x / 20) * 20 + 10, ((int)position.y / 20) * 20 + 10);
+            bro->setPosition((position.x / level::tile_size) * level::tile_size + level::half_tile_size, (position.y / level::tile_size) * level::tile_size + level::half_tile_size);
         }
         // Else if the brother is crusing along and he's about to face a wall, stop him.
         else if(bro->speed() != 0.f &&
-                ((heading == direction::right    && utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3')) ||
-                 (heading == direction::left     && utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3')) ||
-                 (heading == direction::down     && utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3')) ||
-                 (heading == direction::up       && utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3'))))
+                !((heading == direction::left || heading == direction::right) && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size], 'p')) &&
+                ((heading == direction::right    && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3')) ||
+                 (heading == direction::left     && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3')) ||
+                 (heading == direction::down     && utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3')) ||
+                 (heading == direction::up       && utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3'))))
         {
             spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, magic_enum::enum_name(heading));
             bro->throttle(0.f);
@@ -386,7 +388,7 @@ void world_t::update_fireballs()
     // If a fireball hits a wall or a pipe, remove it.
     for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
     {
-        auto const r = projectile->getPosition().y / 20, c = projectile->getPosition().x / 20;
+        auto const r = projectile->getPosition().y / level::tile_size, c = projectile->getPosition().x / level::tile_size;
         if(utility::any_of(level_info[r][c], '0', '1', '2', '3', 'p'))
         {
             if(auto* fireball = dynamic_cast<entity::fireball*>(projectile))
@@ -423,27 +425,27 @@ void world_t::update_enemies()
     {
         if(auto* goomba = dynamic_cast<entity::goomba*>(character))
         {
-            auto const position = goomba->getPosition();
-            if((int)position.x % 20 >= 9 && (int)position.x % 20 <= 11 && (int)position.y % 20 >= 9 && (int)position.y % 20 <= 11)
+            sf::Vector2i const position{(int)goomba->getPosition().x, (int)goomba->getPosition().y};
+            if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
             {
                 auto const heading = goomba->heading();
 
                 std::map<direction, sf::Vector2f> paths;
-                if(heading != direction::left && !utility::any_of(level_info[position.y / 20][position.x / 20 + 1], '0', '1', '2', '3', 'p'))
+                if(heading != direction::left && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'p'))
                 {
-                    paths[direction::right] = {position.x + 20, position.y};
+                    paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
                 }
-                if(heading != direction::right && !utility::any_of(level_info[position.y / 20][position.x / 20 - 1], '0', '1', '2', '3', 'p'))
+                if(heading != direction::right && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3', 'p'))
                 {
-                    paths[direction::left] = {position.x - 20, position.y};
+                    paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
                 }
-                if(heading != direction::up && !utility::any_of(level_info[position.y / 20 + 1][position.x / 20], '0', '1', '2', '3', 'p'))
+                if(heading != direction::up && !utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'p'))
                 {
-                    paths[direction::down] = {position.x, position.y + 20};
+                    paths[direction::down] = {(float)position.x, (float)position.y + level::tile_size};
                 }
-                if(heading != direction::down && !utility::any_of(level_info[position.y / 20 - 1][position.x / 20], '0', '1', '2', '3', 'p'))
+                if(heading != direction::down && !utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'p'))
                 {
-                    paths[direction::up] = {position.x, position.y - 20};
+                    paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
                 }
 
                 // If a goomba is at an intersection, ask it for a direction.
@@ -457,8 +459,6 @@ void world_t::update_enemies()
 
                     auto const direction = goomba->fork(brothers_positions, paths);
                     goomba->head(direction);
-                    sf::Vector2f const nudged{position.x + (direction == direction::right ? 4 : direction == direction::left ? -4 : 0),
-                                              position.y + (direction == direction::down ? 4 : direction == direction::up ? -4 : 0)};
 
                     // Nudge it along so it doesn't get to redecide immediately...
                     goomba->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
