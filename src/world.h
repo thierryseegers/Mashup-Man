@@ -34,7 +34,7 @@ public:
 
 private:
     void build_scene();
-    
+
     void handle_collisions();
 
     void update_brother(

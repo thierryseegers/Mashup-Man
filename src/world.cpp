@@ -36,8 +36,6 @@ world_t::world_t(
     , immovables{{}}
 {
     build_scene();
-
-    // view.setCenter(player_spawn_point);
 }
 
 commands_t& world_t::commands()
@@ -125,6 +123,8 @@ void world_t::build_scene()
     level::wall_texture_offsets wall_texture_offsets;
     level::wall_rotations wall_rotations;
     std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
+
+    graph.setPosition((view.getSize().x / 2) - (level::width / 2 * level::tile_size), 50);
 
     // Create a sound player.
     graph.attach<scene::sound_t>(sound);
@@ -217,7 +217,7 @@ void world_t::handle_collisions()
 {
     std::set<std::pair<scene::node*, scene::node*>> collisions;
 
-    // Detect collisions between characters (ought to be only the brothers) and pickups and pipes.
+    // Detect collisions between the brothers and pickups and pipes.
     for(auto* const bro : std::initializer_list<entity::brother*>{mario, luigi})
     {
         if(bro)
