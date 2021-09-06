@@ -14,7 +14,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <map>
 #include <type_traits>
+#include <string>
 
 application::application()
     : window{sf::VideoMode(1024, 768), "SuperPacBros", sf::Style::Default}
@@ -31,10 +33,21 @@ application::application()
     fonts.load(resources::font::label, "assets/fonts/Sansation.ttf");
 
     auto& textures = utility::single::mutable_instance<resources::textures_t>();
-    textures.load(resources::texture::brothers, "assets/images/NES - Super Mario Bros - Mario & Luigi.png");
-    textures.load(resources::texture::enemies, "assets/images/NES - Super Mario Bros - Enemies & Bosses.png");
-    textures.load(resources::texture::features, "assets/images/NES - Super Mario Bros - Tileset.png");
-    textures.load(resources::texture::items, "assets/images/NES - Super Mario Bros - Items Objects and NPCs.png");
+    for(auto const& p : std::map<resources::texture, std::string>{
+                            {resources::texture::brothers, "assets/images/NES - Super Mario Bros - Mario & Luigi.png"},
+                            {resources::texture::enemies, "assets/images/NES - Super Mario Bros - Enemies & Bosses.png"},
+                            {resources::texture::features, "assets/images/NES - Super Mario Bros - Tileset.png"},
+                            {resources::texture::items, "assets/images/NES - Super Mario Bros - Items Objects and NPCs.png"}})
+    {
+        sf::Image image;
+        image.loadFromFile(p.second);
+        image.createMaskFromColor({147, 187, 236});
+
+        sf::Texture texture;
+        texture.loadFromImage(image);
+        textures.copy(p.first, texture);
+    }
+
     textures.load(resources::texture::walls, "assets/images/walls.png");
 
     // Craft the pipe texture from its four tiles in items tileset.
