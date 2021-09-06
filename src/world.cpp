@@ -35,6 +35,8 @@ world::world(
     , mario{nullptr}
     , luigi{nullptr}
     , immovables{{}}
+    , mode_{entity::enemy::mode::scatter}
+    , mode_timer{sf::seconds(7.f)}
 {
     target.setView(view);
 
@@ -245,9 +247,10 @@ void world::handle_collisions()
         }
     }
 
-    // Detect collisions between characters and projectiles.
+    // Detect collisions between characters and...
     for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
     {
+        //  ...projectiles.
         for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
         {
             if(character->collides(projectile))
@@ -255,41 +258,67 @@ void world::handle_collisions()
                 collisions.insert(std::minmax<scene::node*>(character, projectile));
             }
         }
+
+        // ...other characters.
+        for(auto* const other : layers[magic_enum::enum_integer(layer::id::characters)]->children())
+        {
+            if(character != other && character->collides(other))
+            {
+
+                collisions.insert(std::minmax<scene::node*>(character, other));
+            }
+        }
     }
 
     for(auto const& collision : collisions)
     {
-        // if(auto [aircraft, projectile] = match<entity::hostile<entity::character>, entity::friendly<entity::projectile>>(collision); aircraft && projectile)
-        // {
-        //     spdlog::info("Friendly shot a hostile!");
-        //     aircraft->damage(projectile->damage);
-        //     projectile->remove = true;
-        // }
-        // else if(auto [aircraft, projectile] = match<entity::friendly<entity::character>, entity::hostile<entity::projectile>>(collision); aircraft && projectile)
-        // {
-        //     spdlog::info("Friendly got shot!");
-        //     aircraft->damage(projectile->damage);
-        //     projectile->remove = true;
-        // }
-        // else 
-        if(auto [bro, projectile] = match<entity::brother, entity::projectile>(collision); bro && projectile)
+        if(auto [brother, enemy] = match<entity::brother, entity::enemy>(collision); brother && enemy)
+        {
+            spdlog::info("Brother got hit by an enemy!");
+
+            brother->remove = true;
+            if(brother == mario)
+            {
+                mario = nullptr;
+            }
+            else
+            {
+                luigi = nullptr;
+            }
+
+            sound.play(resources::sound_effect::short_die);
+        }
+        else if(auto [brother, projectile] = match<entity::brother, entity::projectile>(collision); brother && projectile)
         {
             if(!projectile->remove)
             {
-                projectile->remove = true;
+                spdlog::info("Brother got hit by a projectile!");
 
-                bro->hit();
+                projectile->remove = true;
+                brother->remove = true;
+                if(brother == mario)
+                {
+                    mario = nullptr;
+                }
+                else
+                {
+                    luigi = nullptr;
+                }
+
+                sound.play(resources::sound_effect::short_die);
+
+                layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::fizzle>()->setPosition(projectile->getPosition());
             }
         }
-        if(auto [e, fireball] = match<entity::enemy, entity::fireball>(collision); e && fireball)
+        if(auto [enemy, fireball] = match<entity::enemy, entity::fireball>(collision); enemy && fireball)
         {
             if(!fireball->remove)
             {
                 fireball->remove = true;
 
-                e->hit();
+                enemy->hit();
 
-                e->remove = true;
+                enemy->remove = true;
                 layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
                 sound.play(resources::sound_effect::kick);
             }
@@ -305,11 +334,11 @@ void world::handle_collisions()
                 sound.play(pickup->sound_effect());
             }
         }
-        else if(auto [bro, pipe_] = match<entity::brother, entity::pipe>(collision); bro && pipe_)
+        else if(auto [bro, pipe] = match<entity::brother, entity::pipe>(collision); bro && pipe)
         {
             sound.play(resources::sound_effect::warp);
             // TODO: change hard-code to soft-code.
-            if(pipe_->getPosition().x == level::half_tile_size)
+            if(pipe->getPosition().x == level::half_tile_size)
             {
                 bro->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, bro->getPosition().y);
             }
@@ -433,16 +462,41 @@ void world::update_fireballs()
     }
 }
 
-void world::update_enemies()
+void world::update_enemies(
+    sf::Time const dt)
 {
+    if(!mario && !luigi)
+    {
+        mode_ = entity::enemy::mode::scatter;
+        mode_timer = sf::seconds(7.f);
+    }
+    else if((mode_timer -= dt) <= sf::Time::Zero)
+    {
+        switch(mode_)
+        {
+            case entity::enemy::mode::scatter:
+                mode_ = entity::enemy::mode::chase;
+                mode_timer = sf::seconds(20.f);
+                break;
+            case entity::enemy::mode::chase:
+                mode_ = entity::enemy::mode::scatter;
+                mode_timer = sf::seconds(7.f);
+                break;
+            default:
+                break;
+        }
+    }
+
     for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
     {
-        if(auto* goomba = dynamic_cast<entity::goomba*>(character))
+        if(auto* enemy = dynamic_cast<entity::enemy*>(character))
         {
-            sf::Vector2i const position{(int)goomba->getPosition().x, (int)goomba->getPosition().y};
+            enemy->behave(mode_);
+
+            sf::Vector2i const position{(int)enemy->getPosition().x, (int)enemy->getPosition().y};
             if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
             {
-                auto const heading = goomba->heading();
+                auto const heading = enemy->heading();
 
                 std::map<direction, sf::Vector2f> paths;
                 if(heading != direction::left && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'p'))
@@ -462,35 +516,39 @@ void world::update_enemies()
                     paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
                 }
 
-                // If a goomba is at an intersection, ask it for a direction.
+                // If it is at an intersection, ask it for a direction.
                 if(paths.size() >= 2)
                 {
-                    std::vector<sf::Vector2f> brothers_positions{mario->getPosition()};
+                    std::vector<sf::Vector2f> brothers_positions;
+                    if(mario)
+                    {
+                        brothers_positions.push_back(mario->getPosition());
+                    }
                     if(luigi)
                     {
                         brothers_positions.push_back(luigi->getPosition());
                     }
 
-                    auto const direction = goomba->fork(brothers_positions, paths);
-                    goomba->head(direction);
+                    auto const direction = enemy->fork(brothers_positions, paths);
+                    enemy->head(direction);
 
                     // Nudge it along so it doesn't get to redecide immediately...
-                    goomba->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
+                    enemy->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
                                         position.y + (direction == direction::down ? 2 : direction == direction::up ? -2 : 0));
 
-                    spdlog::info("Goomba decided to go {}", magic_enum::enum_name(goomba->heading()));
+                    spdlog::info("{} decided to go {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
                 }
                 // Else, if it hit a wall, follow the straightforward path.
                 else if(paths.begin()->first != heading)
                 {
-                    goomba->head(paths.begin()->first);
+                    enemy->head(paths.begin()->first);
 
                     // Nudge it along so it doesn't get to redecide immediately...
-                    auto const direction = goomba->heading();
-                    goomba->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
+                    auto const direction = enemy->heading();
+                    enemy->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
                                         position.y + (direction == direction::down ? 2 : direction == direction::up ? -2 : 0));
 
-                    spdlog::info("Goomba is turning {}", magic_enum::enum_name(goomba->heading()));
+                    spdlog::info("{} is turning {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
                 }
                 // Else, let it cruise along.
             }
@@ -512,7 +570,10 @@ void world::update(
     }
 
     // Update the brothers' movements.
-    update_brother(mario);
+    if(mario)
+    {
+        update_brother(mario);
+    }
     if(luigi)
     {
         update_brother(luigi);
@@ -522,7 +583,7 @@ void world::update(
     update_fireballs();
 
     // Update enemies' movements.
-    update_enemies();
+    update_enemies(dt);
 
     // // Prevent the player from going off-screen.
     // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};

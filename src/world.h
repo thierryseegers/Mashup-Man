@@ -45,7 +45,8 @@ private:
 
     void update_fireballs();
 
-    void update_enemies();
+    void update_enemies(
+        sf::Time const dt);
 
     // sf::FloatRect view_bounds() const;
     // sf::FloatRect battlefield_bounds() const;
@@ -64,6 +65,8 @@ private:
     entity::brother *mario, *luigi;
 
     level::info level_info;
-
     level::grid<entity::entity*> immovables;
+
+    entity::enemy::mode mode_;
+    sf::Time mode_timer; // Time left in current mode.
 };
