@@ -1,12 +1,8 @@
 #include "entity/enemy.h"
 
 #include "configuration.h"
-// #include "entity/bullet.h"
 #include "entity/entity.h"
-// #include "entity/explosion.h"
-// #include "entity/flight.h"
-// #include "entity/missile.h"
-#include "entity/pickup.h"
+#include "level.h"
 #include "resources.h"
 #include "scene.h"
 #include "tomlpp.h"
@@ -28,9 +24,36 @@ void enemy::hit()
     mode_ = mode::dead;
 }
 
+void enemy::behave(
+    mode const m)
+{
+    if(mode_ == m)
+    {
+        return;
+    }
+
+    mode_ = m;
+
+    spdlog::info("{} changed to mode to {}.", name(), magic_enum::enum_name(mode_));
+
+    if(mode_ == mode::scatter)
+    {
+        // Pick a random corner area as a target.
+        static size_t const x[2] = {5ul, level::width - 5};
+        static size_t const y[2] = {5ul, level::width - 5};
+
+        float const c = x[utility::random(1)];
+        float const r = y[utility::random(1)];
+
+        target = {c * level::tile_size, r * level::tile_size};
+
+        spdlog::info("{} targetting coordinates [{}, {}].", name(), target.x, target.y);
+    }
+}
+
 void enemy::update_self(
-        sf::Time const& dt,
-        commands_t& commands)
+    sf::Time const& dt,
+    commands_t& commands)
 {
     // if(life)
     // {
@@ -124,17 +147,44 @@ direction goomba::fork(
     std::vector<sf::Vector2f> const& brother_positions,
     std::map<direction, sf::Vector2f> const& choices) const
 {
-    auto const closest = std::min_element(brother_positions.begin(), brother_positions.end(), [=](auto const& p1, auto const& p2)
+    switch(mode_)
     {
-        return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
-    });
+        case  mode::scatter:
+            return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
+                {
+                    return utility::length(target - c1.second) < utility::length(target - c2.second);
+                })->first;
+            break;
+        case mode::chase:
+            {
+                assert(brother_positions.size());
 
-    return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-    {
-        return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
-    })->first;
+                auto const closest = std::min_element(brother_positions.begin(), brother_positions.end(), [=](auto const& p1, auto const& p2)
+                {
+                    return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
+                });
+
+                return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
+                {
+                    return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
+                })->first;
+            }
+            break;
+        case mode::frightened:
+            break;
+        default:
+            break;
+    }
+
+    return choices.begin()->first;
 }
 
+std::string_view goomba::name() const
+{
+    static std::string const name_{"goomba"};
+
+    return name_;
+}
 // void avenger::attack(
 //     scene::projectiles& layer) const
 // {
