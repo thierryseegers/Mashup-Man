@@ -46,6 +46,10 @@ public:
     virtual std::string_view name() const = 0;
 
 protected:
+    static std::function<void (enemy*)> behavior(
+        enemy::mode const before,
+        enemy::mode const after);
+
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;

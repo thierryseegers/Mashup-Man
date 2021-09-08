@@ -33,6 +33,40 @@ sf::Vector2f random_corner()
     return {c * level::tile_size, r * level::tile_size};
 }
 
+std::function<void (enemy*)> enemy::behavior(
+    enemy::mode const before,
+    enemy::mode const after)
+{
+    static auto const behaviors = []
+    {
+        std::map<enemy::mode, std::map<enemy::mode, std::function<void (enemy*)>>> behaviors;
+
+            behaviors[enemy::mode::chase][enemy::mode::frightened] = [](enemy*){};
+
+            behaviors[enemy::mode::chase][enemy::mode::scatter] = [](enemy* e)
+            {
+                e->mode_ = enemy::mode::scatter;
+
+                e->target = random_corner();
+            };
+
+            behaviors[enemy::mode::frightened][enemy::mode::chase] = [](enemy*){};
+
+            behaviors[enemy::mode::frightened][enemy::mode::scatter] = [](enemy*){};
+
+            behaviors[enemy::mode::scatter][enemy::mode::chase] = [&](enemy* e)
+            {
+                e->mode_ = enemy::mode::chase;
+            };
+
+            behaviors[enemy::mode::scatter][enemy::mode::frightened] = [](enemy*){};
+
+            return behaviors;
+    }();
+
+    return behaviors.at(before).at(after);
+}
+
 void enemy::hit()
 {
     mode_ = mode::dead;
@@ -47,37 +81,10 @@ void enemy::behave(
     }
     else
     {
-        static auto const behaviors = [&]
-        {
-            std::map<mode, std::map<mode, std::function<void()>>> behaviors;
+        behavior(mode_, m)(this);
 
-            behaviors[mode::chase][mode::frightened] = []{};
-
-            behaviors[mode::chase][mode::scatter] = [&]
-            {
-                mode_ = m;
-
-                target = random_corner();
-            };
-
-            behaviors[mode::frightened][mode::chase] = []{};
-
-            behaviors[mode::frightened][mode::scatter] = []{};
-
-            behaviors[mode::scatter][mode::chase] = [&]
-            {
-                mode_ = m;
-            };
-            behaviors[mode::scatter][mode::frightened] = []{};
-
-            return behaviors;
-        }();
-
-        behaviors.at(mode_).at(m)();
-
-        spdlog::info("{} changed to mode to {}.", name(), magic_enum::enum_name(mode_));
+        spdlog::info("{} changed mode to {}.", name(), magic_enum::enum_name(mode_));
     }
-
 }
 
 void enemy::update_self(
