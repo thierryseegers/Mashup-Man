@@ -191,9 +191,13 @@ void world::build_scene()
                     break;
                 case 'x':
                     e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
+                    mario_spawn_x = c * level::tile_size + level::half_tile_size;
+                    mario_spawn_y = r * level::tile_size + level::half_tile_size;
                     break;
                 case 'y':
                     e = luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
+                    luigi_spawn_x = c * level::tile_size + level::half_tile_size;
+                    luigi_spawn_y = r * level::tile_size + level::half_tile_size;
                     break;
             }
 
@@ -280,10 +284,12 @@ void world::handle_collisions()
             if(brother == mario)
             {
                 mario = nullptr;
+                mario_spawn_timer = sf::seconds(3);
             }
             else
             {
                 luigi = nullptr;
+                luigi_spawn_timer = sf::seconds(3);
             }
 
             sound.play(resources::sound_effect::short_die);
@@ -300,10 +306,12 @@ void world::handle_collisions()
                 if(brother == mario)
                 {
                     mario = nullptr;
+                    mario_spawn_timer = sf::seconds(3);
                 }
                 else
                 {
                     luigi = nullptr;
+                    luigi_spawn_timer = sf::seconds(3);
                 }
 
                 sound.play(resources::sound_effect::short_die);
@@ -560,9 +568,19 @@ void world::update(
     {
         update_brother(mario);
     }
+    else if((mario_spawn_timer -= dt) <= sf::Time::Zero)
+    {
+        mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
+        mario->setPosition(mario_spawn_x, mario_spawn_y);
+    }
     if(luigi)
     {
         update_brother(luigi);
+    }
+    else if((luigi_spawn_timer -= dt) <= sf::Time::Zero)
+    {
+        luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
+        luigi->setPosition(luigi_spawn_x, luigi_spawn_y);
     }
 
     // Update fireballs' movements.
@@ -576,6 +594,16 @@ void world::update(
 
     // Update the entire graph.
     graph.update(dt, commands_);
+
+    // Tag all unviewable animations to be removed.
+    for(auto& node : graph)
+    {
+        if(node.getPosition().x > view.getSize().x ||
+           node.getPosition().y > view.getSize().y)
+        {
+            node.remove = true;
+        }
+    }
 
     // Remove all destroyed entities.
     graph.sweep_removed();

@@ -63,6 +63,7 @@ private:
     commands_t commands_;
 
     entity::brother *mario, *luigi;
+    float mario_spawn_x, mario_spawn_y, luigi_spawn_x, luigi_spawn_y;
     sf::Time mario_spawn_timer, luigi_spawn_timer;
 
     level::info level_info;
