@@ -53,6 +53,13 @@ public:
     void throttle(
         float const t);
 
+    void nudge(
+        float const distance);
+
+    void nudge(
+        direction const d,
+        float const distance);
+
     void play_local_sound(
         commands_t& commands,
         resources::sound_effect const se) const;

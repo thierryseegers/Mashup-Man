@@ -10,6 +10,8 @@ class projectile
 {
 public:
     using entity::entity;
+
+    virtual ~projectile() = default;
 };
 
 }

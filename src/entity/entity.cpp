@@ -67,6 +67,22 @@ void entity::throttle(
     update_sprite();
 }
 
+void entity::nudge(
+    float const distance)
+{
+    nudge(heading(), distance);
+}
+
+void entity::nudge(
+    direction const d,
+    float const distance)
+{
+    auto const position = getPosition();
+
+    setPosition(position.x + (d == direction::right ? distance : d == direction::left ? -distance : 0.f),
+                position.y + (d == direction::down ? distance : d == direction::up ? -distance : 0.f));
+}
+
 void entity::play_local_sound(
     commands_t& commands,
     resources::sound_effect const se) const

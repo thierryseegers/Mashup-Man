@@ -315,12 +315,13 @@ void world::handle_collisions()
             if(!fireball->remove)
             {
                 fireball->remove = true;
+                enemy->remove = true;
 
                 enemy->hit();
 
-                enemy->remove = true;
-                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
                 sound.play(resources::sound_effect::kick);
+
+                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
             }
         }
         else if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
@@ -337,7 +338,6 @@ void world::handle_collisions()
         else if(auto [bro, pipe] = match<entity::brother, entity::pipe>(collision); bro && pipe)
         {
             sound.play(resources::sound_effect::warp);
-            // TODO: change hard-code to soft-code.
             if(pipe->getPosition().x == level::half_tile_size)
             {
                 bro->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, bro->getPosition().y);
@@ -436,27 +436,14 @@ void world::update_fireballs()
         {
             if(auto* fireball = dynamic_cast<entity::fireball*>(projectile))
             {
+                // Bring it closer to the wall.
+                fireball->nudge(7.f);
+
                 fireball->remove = true;
-                sf::Vector2f offset;
-                switch(fireball->heading())
-                {
-                    case direction::right:
-                        offset = {7.f, 0.f};
-                        break;
-                    case direction::left:
-                        offset = {-7.f, 0.f};
-                        break;
-                    case direction::down:
-                        offset = {0.f, 7.f};
-                        break;
-                    case direction::up:
-                        offset = {0.f, -7.f};
-                        break;
-                    default:
-                        break;
-                }
-                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition() + offset);
+
                 sound.play(resources::sound_effect::bump);
+
+                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
             }
         }
     }
@@ -516,6 +503,16 @@ void world::update_enemies(
                     paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
                 }
 
+                // In case it's in a pipe...
+                if(heading == direction::left && level_info[position.y / level::tile_size][position.x / level::tile_size - 1] == 'p')
+                {
+                    paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
+                }
+                else if(heading == direction::right && level_info[position.y / level::tile_size][position.x / level::tile_size + 1] == 'p')
+                {
+                    paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
+                }
+
                 // If it is at an intersection, ask it for a direction.
                 if(paths.size() >= 2)
                 {
@@ -529,12 +526,11 @@ void world::update_enemies(
                         brothers_positions.push_back(luigi->getPosition());
                     }
 
-                    auto const direction = enemy->fork(brothers_positions, paths);
-                    enemy->head(direction);
+                    // Change heading given chasing strategy.
+                    enemy->head(enemy->fork(brothers_positions, paths));
 
                     // Nudge it along so it doesn't get to redecide immediately...
-                    enemy->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
-                                        position.y + (direction == direction::down ? 2 : direction == direction::up ? -2 : 0));
+                    enemy->nudge(2.f);
 
                     spdlog::info("{} decided to go {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
                 }
@@ -544,9 +540,7 @@ void world::update_enemies(
                     enemy->head(paths.begin()->first);
 
                     // Nudge it along so it doesn't get to redecide immediately...
-                    auto const direction = enemy->heading();
-                    enemy->setPosition(position.x + (direction == direction::right ? 2 : direction == direction::left ? -2 : 0),
-                                        position.y + (direction == direction::down ? 2 : direction == direction::up ? -2 : 0));
+                    enemy->nudge(2.f);
 
                     spdlog::info("{} is turning {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
                 }
@@ -559,9 +553,6 @@ void world::update_enemies(
 void world::update(
     sf::Time const dt)
 {
-    // // Guide guided missiles.
-    // guide_missiles();
-
     // Dispatch commands.
     while(!commands_.empty())
     {
@@ -585,26 +576,17 @@ void world::update(
     // Update enemies' movements.
     update_enemies(dt);
 
-    // // Prevent the player from going off-screen.
-    // sf::FloatRect const bounds{view.getCenter() - view.getSize() / 2.f, view.getSize()};
-    // float const border_distance = 40.f;
-
-    // auto position = player->getPosition();
-    // position.x = std::clamp(position.x, bounds.left + border_distance, bounds.left + bounds.width - border_distance);
-    // position.y = std::clamp(position.y, bounds.top + border_distance, bounds.top + bounds.height - border_distance);
-
-    // player->setPosition(position);
-
     // Deal with collision.
     handle_collisions();
 
-    // Remove all destroyed entities, spawn new enemies if need be.
+    // Remove all destroyed entities.
     graph.sweep_removed();
     // spawn_enemies();
 
-    // Remove played sounds and reposition player in sound space.
+    // Remove played sounds.
     sound.remove_stopped();
-    // sound.listener_position(player->world_position());
+
+    // Respawn brothers if need be.
 
     // Update the entire graph.
     graph.update(dt, commands_);

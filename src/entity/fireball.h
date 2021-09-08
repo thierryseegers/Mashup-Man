@@ -15,6 +15,8 @@ public:
     fireball(
         direction const heading_);
 
+    virtual ~fireball() = default;
+
 private:
     void update_self(
         sf::Time const& dt,
