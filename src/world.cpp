@@ -30,7 +30,6 @@ world::world(
     sound::player& sound)
     : target{output_target}
     , view{output_target.getDefaultView()}
-    // , view{{0, 0, level::tile_size * level::width, level::tile_size * level::height}}
     , sound{sound}
     , mario{nullptr}
     , luigi{nullptr}
@@ -38,7 +37,7 @@ world::world(
     , enemy_mode_{entity::enemy::mode::scatter}
     , enemy_mode_timer{sf::seconds(7.f)}
 {
-    target.setView(view);
+    handle_size_changed({(unsigned int)view.getSize().x, (unsigned int)view.getSize().y});
 
     build_scene();
 }

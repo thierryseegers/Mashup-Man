@@ -19,7 +19,7 @@
 #include <string>
 
 application::application()
-    : window{sf::VideoMode(1024, 768), "SuperPacBros", sf::Style::Default}
+    : window{sf::VideoMode(/*1024*/sf::VideoMode::getDesktopMode().width, /*768*/sf::VideoMode::getDesktopMode().height), "SuperPacBros", sf::Style::Default}
     , player_1{std::type_identity<entity::mario>{}}
     , player_2{std::type_identity<entity::luigi>{}}
     , states{{/*music, */player_1, player_2, sound, window}}
