@@ -67,6 +67,6 @@ private:
     level::info level_info;
     level::grid<entity::entity*> immovables;
 
-    entity::enemy::mode mode_;
-    sf::Time mode_timer; // Time left in current mode.
+    entity::enemy::mode enemy_mode_;
+    sf::Time enemy_mode_timer; // Time left in current mode.
 };

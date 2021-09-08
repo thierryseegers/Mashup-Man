@@ -35,8 +35,8 @@ world::world(
     , mario{nullptr}
     , luigi{nullptr}
     , immovables{{}}
-    , mode_{entity::enemy::mode::scatter}
-    , mode_timer{sf::seconds(7.f)}
+    , enemy_mode_{entity::enemy::mode::scatter}
+    , enemy_mode_timer{sf::seconds(7.f)}
 {
     target.setView(view);
 
@@ -264,7 +264,6 @@ void world::handle_collisions()
         {
             if(character != other && character->collides(other))
             {
-
                 collisions.insert(std::minmax<scene::node*>(character, other));
             }
         }
@@ -294,7 +293,8 @@ void world::handle_collisions()
             {
                 spdlog::info("Brother got hit by a projectile!");
 
-                projectile->remove = true;
+                projectile->hit();
+
                 brother->remove = true;
                 if(brother == mario)
                 {
@@ -306,45 +306,41 @@ void world::handle_collisions()
                 }
 
                 sound.play(resources::sound_effect::short_die);
-
-                layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::fizzle>()->setPosition(projectile->getPosition());
             }
         }
         if(auto [enemy, fireball] = match<entity::enemy, entity::fireball>(collision); enemy && fireball)
         {
             if(!fireball->remove)
             {
-                fireball->remove = true;
                 enemy->remove = true;
 
                 enemy->hit();
+                fireball->hit();
 
                 sound.play(resources::sound_effect::kick);
-
-                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
             }
         }
-        else if(auto [bro, pickup] = match<entity::brother, entity::pickup::pickup>(collision); bro && pickup)
+        else if(auto [brother, pickup] = match<entity::brother, entity::pickup::pickup>(collision); brother && pickup)
         {
             if(!pickup->remove)
             {
                 pickup->remove = true;
                 immovables[pickup->getPosition().y / level::tile_size][pickup->getPosition().x / level::tile_size] = nullptr;
 
-                pickup->apply(*bro);
+                pickup->apply(*brother);
                 sound.play(pickup->sound_effect());
             }
         }
-        else if(auto [bro, pipe] = match<entity::brother, entity::pipe>(collision); bro && pipe)
+        else if(auto [brother, pipe] = match<entity::brother, entity::pipe>(collision); brother && pipe)
         {
             sound.play(resources::sound_effect::warp);
             if(pipe->getPosition().x == level::half_tile_size)
             {
-                bro->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, bro->getPosition().y);
+                brother->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, brother->getPosition().y);
             }
             else
             {
-                bro->setPosition(1 * level::tile_size + level::half_tile_size, bro->getPosition().y);
+                brother->setPosition(1 * level::tile_size + level::half_tile_size, brother->getPosition().y);
             }
         }
     }
@@ -439,11 +435,9 @@ void world::update_fireballs()
                 // Bring it closer to the wall.
                 fireball->nudge(7.f);
 
-                fireball->remove = true;
+                fireball->hit();
 
                 sound.play(resources::sound_effect::bump);
-
-                layers[magic_enum::enum_integer(layer::id::projectiles)]->attach<entity::fizzle>()->setPosition(fireball->getPosition());
             }
         }
     }
@@ -454,20 +448,20 @@ void world::update_enemies(
 {
     if(!mario && !luigi)
     {
-        mode_ = entity::enemy::mode::scatter;
-        mode_timer = sf::seconds(7.f);
+        enemy_mode_ = entity::enemy::mode::scatter;
+        enemy_mode_timer = sf::seconds(7.f);
     }
-    else if((mode_timer -= dt) <= sf::Time::Zero)
+    else if((enemy_mode_timer -= dt) <= sf::Time::Zero)
     {
-        switch(mode_)
+        switch(enemy_mode_)
         {
             case entity::enemy::mode::scatter:
-                mode_ = entity::enemy::mode::chase;
-                mode_timer = sf::seconds(20.f);
+                enemy_mode_ = entity::enemy::mode::chase;
+                enemy_mode_timer = sf::seconds(20.f);
                 break;
             case entity::enemy::mode::chase:
-                mode_ = entity::enemy::mode::scatter;
-                mode_timer = sf::seconds(7.f);
+                enemy_mode_ = entity::enemy::mode::scatter;
+                enemy_mode_timer = sf::seconds(7.f);
                 break;
             default:
                 break;
@@ -478,7 +472,7 @@ void world::update_enemies(
     {
         if(auto* enemy = dynamic_cast<entity::enemy*>(character))
         {
-            enemy->behave(mode_);
+            enemy->behave(enemy_mode_);
 
             sf::Vector2i const position{(int)enemy->getPosition().x, (int)enemy->getPosition().y};
             if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
@@ -579,17 +573,16 @@ void world::update(
     // Deal with collision.
     handle_collisions();
 
+    // Update the entire graph.
+    graph.update(dt, commands_);
+
     // Remove all destroyed entities.
     graph.sweep_removed();
-    // spawn_enemies();
 
     // Remove played sounds.
     sound.remove_stopped();
 
     // Respawn brothers if need be.
-
-    // Update the entire graph.
-    graph.update(dt, commands_);
 }
 
 void world::draw()

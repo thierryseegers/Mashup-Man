@@ -53,12 +53,6 @@ protected:
     mode mode_ = mode::scatter;
 
     sf::Vector2f target;    // Target coordinates.
-
-    // virtual void attack(
-    //     scene::projectiles& layer) const = 0;
-
-    // float const attack_rate;
-    // sf::Time attack_countdown;
 };
 
 class goomba

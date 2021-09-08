@@ -21,6 +21,9 @@ sf::FloatRect entity::collision_bounds() const
     return world_transform().transformRect(sprite_.getGlobalBounds());
 }
 
+void entity::hit()
+{}
+
 direction entity::heading() const
 {
     return heading_;

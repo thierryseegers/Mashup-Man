@@ -43,6 +43,8 @@ public:
 
     virtual sf::FloatRect collision_bounds() const override;
 
+    virtual void hit();
+
     direction heading() const;
 
     void head(

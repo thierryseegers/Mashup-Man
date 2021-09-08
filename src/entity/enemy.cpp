@@ -12,6 +12,8 @@
 #include <SFML/Graphics.hpp>
 #include <spdlog/spdlog.h>
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -31,24 +33,46 @@ void enemy::behave(
     {
         return;
     }
-
-    mode_ = m;
-
-    spdlog::info("{} changed to mode to {}.", name(), magic_enum::enum_name(mode_));
-
-    if(mode_ == mode::scatter)
+    else
     {
-        // Pick a random corner area as a target.
-        static size_t const x[2] = {5ul, level::width - 5};
-        static size_t const y[2] = {5ul, level::width - 5};
+        static auto const behaviors = [&]
+        {
+            std::map<mode, std::map<mode, std::function<void()>>> behaviors;
 
-        float const c = x[utility::random(1)];
-        float const r = y[utility::random(1)];
+            behaviors[mode::chase][mode::frightened] = []{};
 
-        target = {c * level::tile_size, r * level::tile_size};
+            behaviors[mode::chase][mode::scatter] = [&]
+            {
+                mode_ = m;
 
-        spdlog::info("{} targetting coordinates [{}, {}].", name(), target.x, target.y);
+                // Pick a random corner area as a target.
+                static size_t const x[2] = {5ul, level::width - 5};
+                static size_t const y[2] = {5ul, level::width - 5};
+
+                float const c = x[utility::random(1)];
+                float const r = y[utility::random(1)];
+
+                target = {c * level::tile_size, r * level::tile_size};
+            };
+
+            behaviors[mode::frightened][mode::chase] = []{};
+
+            behaviors[mode::frightened][mode::scatter] = []{};
+
+            behaviors[mode::scatter][mode::chase] = [&]
+            {
+                mode_ = m;
+            };
+            behaviors[mode::scatter][mode::frightened] = []{};
+
+            return behaviors;
+        }();
+
+        behaviors.at(mode_).at(m)();
+
+        spdlog::info("{} changed to mode to {}.", name(), magic_enum::enum_name(mode_));
     }
+
 }
 
 void enemy::update_self(
@@ -150,6 +174,7 @@ direction goomba::fork(
     switch(mode_)
     {
         case  mode::scatter:
+        case mode::dead:
             return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
                 {
                     return utility::length(target - c1.second) < utility::length(target - c2.second);
