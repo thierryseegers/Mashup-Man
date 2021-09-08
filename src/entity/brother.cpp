@@ -25,14 +25,23 @@ class dead
     : public entity
 {
 public:
-    using entity::entity;
+    dead(
+        sprite sprite_)
+    : entity{sprite_}
+    , velocity{0.f, -5.f}
+    {}
 
-    // virtual void update_self(
-    //     sf::Time const& dt,
-    //     commands_t& commands) override
-    // {
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t&) override
+    {
+        velocity.y += 9.8 * dt.asSeconds();
 
-    // }
+        sf::Transformable::move(velocity);
+    }
+
+private:
+    sf::Vector2f velocity;
 };
 
 brother::brother(
