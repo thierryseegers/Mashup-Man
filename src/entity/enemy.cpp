@@ -21,6 +21,18 @@
 namespace entity
 {
 
+sf::Vector2f random_corner()
+{
+    // Pick a random corner area as a target.
+    static size_t const x[2] = {5ul, level::width - 5};
+    static size_t const y[2] = {5ul, level::width - 5};
+
+    float const c = x[utility::random(1)];
+    float const r = y[utility::random(1)];
+
+    return {c * level::tile_size, r * level::tile_size};
+}
+
 void enemy::hit()
 {
     mode_ = mode::dead;
@@ -45,14 +57,7 @@ void enemy::behave(
             {
                 mode_ = m;
 
-                // Pick a random corner area as a target.
-                static size_t const x[2] = {5ul, level::width - 5};
-                static size_t const y[2] = {5ul, level::width - 5};
-
-                float const c = x[utility::random(1)];
-                float const r = y[utility::random(1)];
-
-                target = {c * level::tile_size, r * level::tile_size};
+                target = random_corner();
             };
 
             behaviors[mode::frightened][mode::chase] = []{};
@@ -79,6 +84,10 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
+    if(target == sf::Vector2f{})
+    {
+        target = random_corner();
+    }
     // if(life)
     // {
     //     // Update travel.

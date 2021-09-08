@@ -17,14 +17,10 @@ public:
 
     virtual ~fireball() = default;
 
-    virtual void hit() override;
-
 private:
     void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
-
-    bool hit_;
 };
 
 }

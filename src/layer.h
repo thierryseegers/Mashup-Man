@@ -12,7 +12,8 @@ enum class id
     items,
     characters,
     projectiles,
-    pipes
+    pipes,
+    animations
 };
 
 class maze
@@ -32,6 +33,10 @@ class projectiles
 {};
 
 class pipes
+    : public scene::node
+{};
+
+class animations
     : public scene::node
 {};
 

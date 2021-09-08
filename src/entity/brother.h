@@ -42,20 +42,25 @@ public:
 private:
     using still_sprite_rect_f = sf::IntRect (*)(
                                     brother::size const,
-                                    brother::attribute const,
-                                    brother::liveness const);
+                                    brother::attribute const);
 
     using animated_sprite_rects_f = std::vector<sf::IntRect>(*)(
                                         brother::size const,
                                         brother::attribute const);
 
+    using dead_sprite_rect_f = sf::IntRect (*)(
+                                    brother::attribute const);
+
 public:
     brother(
         direction const facing_,
-        still_sprite_rect_f still_sprite_rect,
-        animated_sprite_rects_f animated_sprite_rects);
+        still_sprite_rect_f const still_sprite_rect,
+        animated_sprite_rects_f const animated_sprite_rects,
+        dead_sprite_rect_f const dead_sprite_rect);
 
     virtual ~brother() = default;
+
+    virtual void hit() override;
 
     [[nodiscard]] direction steering() const;
 
@@ -67,8 +72,6 @@ public:
     void consume_mushroom();
 
     void consume_flower();
-
-    virtual void hit() override;
 
 protected:
     virtual void update_sprite() override;
@@ -82,6 +85,7 @@ protected:
 
     still_sprite_rect_f still_sprite_rect;
     animated_sprite_rects_f animated_sprite_rects;
+    dead_sprite_rect_f dead_sprite_rect;
 
     direction steering_;
 

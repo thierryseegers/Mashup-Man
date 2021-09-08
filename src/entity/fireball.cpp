@@ -34,26 +34,18 @@ fireball::fireball(
             sprite::repeat::loop},
         *configuration::values()["brothers"]["fireball"]["speed"].value<int>(),
         heading_}
-    , hit_{false}
 {}
-
-void fireball::hit()
-{
-    hit_ = true;
-}
 
 void fireball::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(hit_)
+    if(remove)
     {
-        commands.push(make_command<layer::projectiles>([=](layer::projectiles& layer, sf::Time const&)
+        commands.push(make_command<layer::animations>([position = getPosition()](layer::animations& layer, sf::Time const&)
         {
-            layer.attach<fizzle>()->setPosition(getPosition());
+            layer.attach<fizzle>()->setPosition(position);
         }));
-
-        remove = true;
     }
     else
     {
@@ -67,9 +59,9 @@ void fireball::update_self(
         }();
 
         sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * (max_speed * throttle_) * dt.asSeconds());
-    }
 
-    sprite_.update(dt, commands);
+        sprite_.update(dt, commands);
+    }
 }
 
 }

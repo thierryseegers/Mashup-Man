@@ -21,19 +21,35 @@
 namespace entity
 {
 
+class dead
+    : public entity
+{
+public:
+    using entity::entity;
+
+    // virtual void update_self(
+    //     sf::Time const& dt,
+    //     commands_t& commands) override
+    // {
+
+    // }
+};
+
 brother::brother(
     direction const facing_,
-    still_sprite_rect_f still_sprite_rect,
-    animated_sprite_rects_f animated_sprite_rects)
+    still_sprite_rect_f const still_sprite_rect,
+    animated_sprite_rects_f const animated_sprite_rects,
+    dead_sprite_rect_f const dead_sprite_rect)
     : friendly<character>{
         sprite{
             resources::texture::brothers,
-            still_sprite_rect(size::small, attribute::plain, liveness::alive),
+            still_sprite_rect(size::small, attribute::plain),
             configuration::values()["brothers"]["scale"].value_or<float>(1.f)},
         *configuration::values()["brothers"]["speed"].value<int>(),
         facing_}
     , still_sprite_rect(still_sprite_rect)
     , animated_sprite_rects{animated_sprite_rects}
+    , dead_sprite_rect{dead_sprite_rect}
     , size_{size::small}
     , attribute_{attribute::plain}
     , motion_{motion::still}
@@ -87,22 +103,22 @@ void brother::hit()
 {
     if(size_ == size::small)
     {
-        liveness_ = liveness::dead;
+        remove = true;
     }
     else
     {
         size_ = size::small;
         attribute_ = attribute::plain;
-    }
 
-    update_sprite();
+        update_sprite();
+    }
 }
 
 void brother::update_sprite()
 {
     if(throttle_ == 0.f)
     {
-        sprite_.still(still_sprite_rect(size_, attribute_, liveness_));
+        sprite_.still(still_sprite_rect(size_, attribute_));
     }
     else
     {
@@ -140,36 +156,44 @@ void brother::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(firing && fire_countdown <= sf::Time::Zero)
+    if(remove)
     {
-        commands.push(make_command<layer::projectiles>([=](layer::projectiles& layer, sf::Time const&)
+        commands.push(make_command<layer::animations>([rect = dead_sprite_rect(attribute_), position = getPosition()](layer::animations& layer, sf::Time const&)
         {
-            shoot_fireball(layer);
+            layer.attach<dead>(sprite{resources::texture::brothers, rect})->setPosition(position);
         }));
-
-        commands.push(make_command<scene::sound_t>([](scene::sound_t& s, sf::Time const&)
-        {
-            s.play(resources::sound_effect::fireball);
-        }));
-
-        fire_countdown += fire_cooldown;
-        firing = false;
     }
-    else if(fire_countdown > sf::Time::Zero)
+    else
     {
-        fire_countdown -= dt;
-        firing = false;
-    }
+        if(firing && fire_countdown <= sf::Time::Zero)
+        {
+            commands.push(make_command<layer::projectiles>([=](layer::projectiles& layer, sf::Time const&)
+            {
+                shoot_fireball(layer);
+            }));
 
-    character::update_self(dt, commands);
+            commands.push(make_command<scene::sound_t>([](scene::sound_t& s, sf::Time const&)
+            {
+                s.play(resources::sound_effect::fireball);
+            }));
+
+            fire_countdown += fire_cooldown;
+            firing = false;
+        }
+        else if(fire_countdown > sf::Time::Zero)
+        {
+            fire_countdown -= dt;
+            firing = false;
+        }
+
+        character::update_self(dt, commands);
+    }
 }
 
 using still_sprite_rects = 
     std::array<
         std::array<
-            std::array<
-                sf::IntRect,
-                magic_enum::enum_count<brother::liveness>()>,
+            sf::IntRect,
             magic_enum::enum_count<brother::attribute>()>,
         magic_enum::enum_count<brother::size>()>;
 
@@ -182,26 +206,20 @@ using animated_sprite_rects =
 
 sf::IntRect mario_still_sprite_rect(
     brother::size const size_,
-    brother::attribute const attribute_,
-    brother::liveness const liveness_)
+    brother::attribute const attribute_)
 {
     static still_sprite_rects const rects = []{
         still_sprite_rects r;
 
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 9, 16, 16};
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::dead)] = sf::IntRect{22, 9, 16, 16};
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 140, 16, 16};
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::dead)] = sf::IntRect{22, 140, 16, 16};
-
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 26, 16, 32};
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::dead)] = r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::dead)];
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 157, 16, 32};
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::dead)] = r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::dead)];
+        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)] = sf::IntRect{1, 9, 16, 16};
+        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)] = sf::IntRect{1, 140, 16, 16};
+        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::plain)] = sf::IntRect{1, 26, 16, 32};
+        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::fiery)] = sf::IntRect{1, 157, 16, 32};
 
         return r;
     }();
 
-    return rects[magic_enum::enum_integer(size_)][magic_enum::enum_integer(attribute_)][magic_enum::enum_integer(liveness_)];
+    return rects[magic_enum::enum_integer(size_)][magic_enum::enum_integer(attribute_)];
 }
 
 std::vector<sf::IntRect> mario_animated_sprite_rects(
@@ -223,35 +241,36 @@ std::vector<sf::IntRect> mario_animated_sprite_rects(
     return rects[magic_enum::enum_integer(size_)][magic_enum::enum_integer(attribute_)];
 }
 
+sf::IntRect mario_dead_sprite_rect(
+    brother::attribute const attribute_)
+{
+    return attribute_ == brother::attribute::plain ? sf::IntRect{22, 9, 16, 16} : sf::IntRect{1, 140, 16, 16};
+}
+
 mario::mario()
     : brother{
         direction::right,
         mario_still_sprite_rect,
-        mario_animated_sprite_rects}
+        mario_animated_sprite_rects,
+        mario_dead_sprite_rect}
 {}
 
 sf::IntRect luigi_still_sprite_rect(
     brother::size const size_,
-    brother::attribute const attribute_,
-    brother::liveness const liveness_)
+    brother::attribute const attribute_)
 {
     static still_sprite_rects const rects = []{
         still_sprite_rects r;
 
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 74, 16, 16};
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::dead)] = sf::IntRect{22, 74, 16, 16};
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 140, 16, 16};
-        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::dead)] = sf::IntRect{22, 9, 16, 16};
-
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 91, 16, 32};
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::dead)] = r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)][magic_enum::enum_integer(brother::liveness::dead)];
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::alive)] = sf::IntRect{1, 157, 16, 32};
-        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::dead)] = r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)][magic_enum::enum_integer(brother::liveness::dead)];
+        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::plain)] = sf::IntRect{1, 74, 16, 16};
+        r[magic_enum::enum_integer(brother::size::small)][magic_enum::enum_integer(brother::attribute::fiery)] = sf::IntRect{1, 140, 16, 16};
+        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::plain)] = sf::IntRect{1, 91, 16, 32};
+        r[magic_enum::enum_integer(brother::size::big)][magic_enum::enum_integer(brother::attribute::fiery)] = sf::IntRect{1, 157, 16, 32};
 
         return r;
     }();
 
-    return rects[magic_enum::enum_integer(size_)][magic_enum::enum_integer(attribute_)][magic_enum::enum_integer(liveness_)];
+    return rects[magic_enum::enum_integer(size_)][magic_enum::enum_integer(attribute_)];
 }
 
 std::vector<sf::IntRect> luigi_animated_sprite_rects(
@@ -273,11 +292,18 @@ std::vector<sf::IntRect> luigi_animated_sprite_rects(
     return rects[magic_enum::enum_integer(size_)][magic_enum::enum_integer(attribute_)];
 }
 
+sf::IntRect luigi_dead_sprite_rect(
+    brother::attribute const attribute_)
+{
+    return attribute_ == brother::attribute::plain ? sf::IntRect{22, 74, 16, 16} : sf::IntRect{22, 9, 16, 16};
+}
+
 luigi::luigi()
     : brother{
         direction::left,
         luigi_still_sprite_rect,
-        luigi_animated_sprite_rects}
+        luigi_animated_sprite_rects,
+        luigi_dead_sprite_rect}
 {}
 
 }

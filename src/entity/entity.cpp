@@ -22,7 +22,9 @@ sf::FloatRect entity::collision_bounds() const
 }
 
 void entity::hit()
-{}
+{
+    remove = true;
+}
 
 direction entity::heading() const
 {

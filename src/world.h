@@ -63,6 +63,7 @@ private:
     commands_t commands_;
 
     entity::brother *mario, *luigi;
+    sf::Time mario_spawn_timer, luigi_spawn_timer;
 
     level::info level_info;
     level::grid<entity::entity*> immovables;

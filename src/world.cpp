@@ -152,6 +152,7 @@ void world::build_scene()
     layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
     layers[magic_enum::enum_integer(layer::id::projectiles)] = graph.attach<layer::projectiles>();
     layers[magic_enum::enum_integer(layer::id::pipes)] = graph.attach<layer::pipes>();
+    layers[magic_enum::enum_integer(layer::id::animations)] = graph.attach<layer::animations>();
 
     auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
     m->layout(wall_texture_offsets, wall_rotations);
@@ -275,7 +276,8 @@ void world::handle_collisions()
         {
             spdlog::info("Brother got hit by an enemy!");
 
-            brother->remove = true;
+            brother->hit();
+
             if(brother == mario)
             {
                 mario = nullptr;
@@ -528,7 +530,7 @@ void world::update_enemies(
 
                     spdlog::info("{} decided to go {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
                 }
-                // Else, if it hit a wall, follow the straightforward path.
+                // Else, if it hit a wall, follow along the path.
                 else if(paths.begin()->first != heading)
                 {
                     enemy->head(paths.begin()->first);
