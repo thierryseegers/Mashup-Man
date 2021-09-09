@@ -30,7 +30,11 @@ public:
         dead
     };
 
-    using hostile<character>::hostile;
+    enemy(
+        sf::Vector2f home,
+        sprite sprite_,
+        int const max_speed = 0,
+        direction const heading_ = direction::right);
 
     virtual ~enemy() = default;
 
@@ -46,16 +50,13 @@ public:
     virtual std::string_view name() const = 0;
 
 protected:
-    static std::function<void (enemy*)> behavior(
-        enemy::mode const before,
-        enemy::mode const after);
-
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
 
-    mode mode_ = mode::scatter;
+    mode mode_;
 
+    sf::Vector2f home;      // The ghost home.
     sf::Vector2f target;    // Target coordinates.
 };
 
@@ -63,7 +64,8 @@ class goomba
     : public enemy
 {
 public:
-    goomba();
+    goomba(
+        sf::Vector2f home);
 
     virtual direction fork(
         std::vector<sf::Vector2f> const& brother_positions,

@@ -1,10 +1,12 @@
 #include "entity/enemy.h"
 
 #include "configuration.h"
+#include "direction.h"
 #include "entity/entity.h"
 #include "level.h"
 #include "resources.h"
 #include "scene.h"
+#include "sprite.h"
 #include "tomlpp.h"
 #include "utility.h"
 
@@ -33,57 +35,46 @@ sf::Vector2f random_corner()
     return {c * level::tile_size, r * level::tile_size};
 }
 
-std::function<void (enemy*)> enemy::behavior(
-    enemy::mode const before,
-    enemy::mode const after)
-{
-    static auto const behaviors = []
-    {
-        std::map<enemy::mode, std::map<enemy::mode, std::function<void (enemy*)>>> behaviors;
-
-            behaviors[enemy::mode::chase][enemy::mode::frightened] = [](enemy*){};
-
-            behaviors[enemy::mode::chase][enemy::mode::scatter] = [](enemy* e)
-            {
-                e->mode_ = enemy::mode::scatter;
-
-                e->target = random_corner();
-            };
-
-            behaviors[enemy::mode::frightened][enemy::mode::chase] = [](enemy*){};
-
-            behaviors[enemy::mode::frightened][enemy::mode::scatter] = [](enemy*){};
-
-            behaviors[enemy::mode::scatter][enemy::mode::chase] = [&](enemy* e)
-            {
-                e->mode_ = enemy::mode::chase;
-            };
-
-            behaviors[enemy::mode::scatter][enemy::mode::frightened] = [](enemy*){};
-
-            return behaviors;
-    }();
-
-    return behaviors.at(before).at(after);
-}
+enemy::enemy(
+    sf::Vector2f home,
+    sprite sprite_,
+    int const max_speed,
+    direction const heading_)
+    : hostile<character>{sprite_, max_speed, heading_}
+    , mode_{mode::scatter}
+    , home{home}
+    , target{random_corner()}
+{}
 
 void enemy::hit()
 {
-    mode_ = mode::dead;
+    behave(mode::dead);
 }
 
 void enemy::behave(
     mode const m)
 {
-    if(mode_ == m)
+    if(mode_ != mode::dead && mode_ != m)
     {
-        return;
-    }
-    else
-    {
-        behavior(mode_, m)(this);
+        spdlog::info("{} changing mode from {} to {}.", name(), magic_enum::enum_name(mode_), magic_enum::enum_name(m));
 
-        spdlog::info("{} changed mode to {}.", name(), magic_enum::enum_name(mode_));
+        mode_ = m;
+
+        switch(mode_)
+        {
+            case mode::chase:
+                break;
+            case mode::dead:
+                target = home;
+                throttle(2.f);
+                break;
+            case mode::frightened:
+                break;
+            case mode::scatter:
+                target = random_corner();
+                throttle(1.f);
+                break;
+        }
     }
 }
 
@@ -91,9 +82,9 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(target == sf::Vector2f{})
+    if(mode_ == mode::dead && utility::length(getPosition() - home) < level::tile_size)
     {
-        target = random_corner();
+        behave(mode::scatter);
     }
     // if(life)
     // {
@@ -171,8 +162,10 @@ void enemy::update_self(
     character::update_self(dt, commands);
 }
 
-goomba::goomba()
+goomba::goomba(
+    sf::Vector2f home)
     : enemy{
+        home,
         sprite{
             resources::texture::enemies,
             std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}},
@@ -189,7 +182,7 @@ direction goomba::fork(
 {
     switch(mode_)
     {
-        case  mode::scatter:
+        case mode::scatter:
         case mode::dead:
             return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
                 {

@@ -173,7 +173,7 @@ void world::build_scene()
                     immovables[r][c] = e;
                     break;
                 case 'g':
-                    e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>();
+                    e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>(sf::Vector2f{level::width * level::tile_size / 2, level::height * level::tile_size / 2});
                     e->throttle(1.f);
                     break;
                 case 'm':
@@ -321,8 +321,6 @@ void world::handle_collisions()
         {
             if(!fireball->remove)
             {
-                enemy->remove = true;
-
                 enemy->hit();
                 fireball->hit();
 
