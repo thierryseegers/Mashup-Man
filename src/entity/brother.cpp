@@ -170,6 +170,11 @@ void brother::update_self(
         {
             layer.attach<dead>(sprite{resources::texture::brothers, rect})->setPosition(position);
         }));
+
+        commands.push(make_command<scene::sound_t>([](scene::sound_t& sound, sf::Time const&)
+        {
+            sound.play(resources::sound_effect::short_die);
+        }));
     }
     else
     {

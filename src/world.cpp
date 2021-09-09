@@ -33,6 +33,9 @@ world::world(
     , sound{sound}
     , mario{nullptr}
     , luigi{nullptr}
+    , mario_lives{3}
+    , luigi_lives{3}
+    , n_pills{0}
     , immovables{{}}
     , enemy_mode_{entity::enemy::mode::scatter}
     , enemy_mode_timer{sf::seconds(7.f)}
@@ -47,16 +50,15 @@ commands_t& world::commands()
     return commands_;
 }
 
-// bool world_t::player_alive() const
-// {
-//     return !player->remove;
-// }
+bool world::players_alive() const
+{
+    return mario_lives > 0 || luigi_lives > 0;
+}
 
-// bool world_t::player_reached_end() const
-// {
-//     return !bounds.contains(player->getPosition());
-// }
-
+bool world::players_done() const
+{
+    return !n_pills;
+}
 
 std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read_level(
     std::filesystem::path const& path)
@@ -167,6 +169,7 @@ void world::build_scene()
                 case '.':
                     e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
                     immovables[r][c] = e;
+                    ++n_pills;
                     break;
                 case 'f':
                     e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
@@ -284,15 +287,15 @@ void world::handle_collisions()
             if(brother == mario)
             {
                 mario = nullptr;
+                --mario_lives;
                 mario_spawn_timer = sf::seconds(3);
             }
             else
             {
                 luigi = nullptr;
+                --luigi_lives;
                 luigi_spawn_timer = sf::seconds(3);
             }
-
-            sound.play(resources::sound_effect::short_die);
         }
         else if(auto [brother, projectile] = match<entity::brother, entity::projectile>(collision); brother && projectile)
         {
@@ -300,21 +303,21 @@ void world::handle_collisions()
             {
                 spdlog::info("Brother got hit by a projectile!");
 
+                brother->hit();
                 projectile->hit();
 
-                brother->remove = true;
                 if(brother == mario)
                 {
                     mario = nullptr;
+                    --mario_lives;
                     mario_spawn_timer = sf::seconds(3);
                 }
                 else
                 {
                     luigi = nullptr;
+                    --luigi_lives;
                     luigi_spawn_timer = sf::seconds(3);
                 }
-
-                sound.play(resources::sound_effect::short_die);
             }
         }
         if(auto [enemy, fireball] = match<entity::enemy, entity::fireball>(collision); enemy && fireball)
@@ -336,6 +339,11 @@ void world::handle_collisions()
 
                 pickup->apply(*brother);
                 sound.play(pickup->sound_effect());
+
+                if(auto const* coin = dynamic_cast<entity::pickup::coin*>(pickup))
+                {
+                    --n_pills;
+                }
             }
         }
         else if(auto [brother, pipe] = match<entity::brother, entity::pipe>(collision); brother && pipe)
@@ -561,21 +569,22 @@ void world::update(
         commands_.pop();
     }
 
-    // Update the brothers' movements.
+    // Update the brothers' movements or respawn them if the time has come.
     if(mario)
     {
         update_brother(mario);
     }
-    else if((mario_spawn_timer -= dt) <= sf::Time::Zero)
+    else if(mario_lives > 0 && (mario_spawn_timer -= dt) <= sf::Time::Zero)
     {
         mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
         mario->setPosition(mario_spawn_x, mario_spawn_y);
     }
+
     if(luigi)
     {
         update_brother(luigi);
     }
-    else if((luigi_spawn_timer -= dt) <= sf::Time::Zero)
+    else if(luigi_lives > 0 && (luigi_spawn_timer -= dt) <= sf::Time::Zero)
     {
         luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
         luigi->setPosition(luigi_spawn_x, luigi_spawn_y);
@@ -609,7 +618,7 @@ void world::update(
     // Remove played sounds.
     sound.remove_stopped();
 
-    // Respawn brothers if need be.
+
 }
 
 void world::draw()

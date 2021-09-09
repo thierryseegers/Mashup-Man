@@ -26,16 +26,18 @@ bool game::update(
 {
     world_.update(dt);
 
-    // if(!world.player_alive())
-    // {
-    //     states.context.player.mission_status() = player::mission::failure;
-    //     states.request_push(id::game_over);
-    // }
-    // else if(world.player_reached_end())
-    // {
-    //     states.context.player.mission_status() = player::mission::success;
-    //     states.request_push(id::game_over);
-    // }
+    if(!world_.players_alive())
+    {
+        // states.context.sound.play(resources::sound_effect::die);
+
+        // states.context.player.mission_status() = player::mission::failure;
+        // states.request_push(id::game_over);
+    }
+    else if(world_.players_done())
+    {
+        // states.context.player.mission_status() = player::mission::success;
+        // states.request_push(id::game_over);
+    }
 
     states.context.player_1.handle_realtime_input(world_.commands());
     states.context.player_2.handle_realtime_input(world_.commands());

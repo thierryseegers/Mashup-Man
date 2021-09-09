@@ -28,9 +28,9 @@ public:
 
     commands_t& commands();
 
-    // [[nodiscard]] bool player_alive() const;
+    [[nodiscard]] bool players_alive() const;
 
-    // [[nodiscard]] bool player_reached_end() const;
+    [[nodiscard]] bool players_done() const;
 
     void handle_size_changed(
         sf::Event::SizeEvent const& event);
@@ -62,9 +62,14 @@ private:
 
     commands_t commands_;
 
+    // Brothers infos.
     entity::brother *mario, *luigi;
     float mario_spawn_x, mario_spawn_y, luigi_spawn_x, luigi_spawn_y;
     sf::Time mario_spawn_timer, luigi_spawn_timer;
+    int mario_lives, luigi_lives;
+
+    // Number of pills to eat on this stage.
+    int n_pills;
 
     level::info level_info;
     level::grid<entity::entity*> immovables;
