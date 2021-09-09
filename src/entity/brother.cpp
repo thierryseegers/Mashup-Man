@@ -62,7 +62,6 @@ brother::brother(
     , size_{size::small}
     , attribute_{attribute::plain}
     , motion_{motion::still}
-    , liveness_{liveness::alive}
     , fire_cooldown{sf::seconds(*configuration::values()["brothers"]["fireball"]["cooldown"].value<float>())}
     , fire_countdown{sf::Time::Zero}
     , firing{false}

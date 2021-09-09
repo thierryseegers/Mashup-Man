@@ -33,12 +33,6 @@ public:
         still
     };
 
-    enum class liveness
-    {
-        alive,
-        dead
-    };
-
 private:
     using still_sprite_rect_f = sf::IntRect (*)(
                                     brother::size const,
@@ -92,7 +86,6 @@ protected:
     size size_;
     attribute attribute_;
     motion motion_;
-    liveness liveness_;
 
     sf::Time fire_cooldown;
     sf::Time fire_countdown;
