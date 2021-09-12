@@ -129,9 +129,8 @@ void world::handle_size_changed(
     view.setSize({static_cast<float>(event.width), static_cast<float>(event.height)});
     target.setView(view);
 
-    auto const scale = std::min((static_cast<float>(event.height - 100) / (level::height * level::tile_size)),
-                                (static_cast<float>(event.width - 20) / (level::width * level::tile_size)));
-    graph.setScale(scale, scale);
+    playground.setScale(scale, scale);
+    // lifeboard.setScale(scale, scale);
 }
 
 void world::build_scene()
@@ -141,19 +140,20 @@ void world::build_scene()
     level::wall_rotations wall_rotations;
     std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
 
-    graph.setOrigin(level::width * level::tile_size / 2, level::height * level::tile_size / 2);
-    graph.setPosition((view.getSize().x / 2), (view.getSize().y / 2));
+    playground.setOrigin(level::width * level::tile_size / 2, level::height * level::tile_size / 2);
+    playground.setPosition((view.getSize().x / 2), (view.getSize().y / 2));
+    // playground.setPosition(, 50);
 
     // Create a sound player.
-    graph.attach<scene::sound_t>(sound);
+    playground.attach<scene::sound_t>(sound);
 
     // Create layers.
-    layers[magic_enum::enum_integer(layer::id::maze)] = graph.attach<layer::maze>();
-    layers[magic_enum::enum_integer(layer::id::items)] = graph.attach<layer::items>();
-    layers[magic_enum::enum_integer(layer::id::characters)] = graph.attach<layer::characters>();
-    layers[magic_enum::enum_integer(layer::id::projectiles)] = graph.attach<layer::projectiles>();
-    layers[magic_enum::enum_integer(layer::id::pipes)] = graph.attach<layer::pipes>();
-    layers[magic_enum::enum_integer(layer::id::animations)] = graph.attach<layer::animations>();
+    layers[magic_enum::enum_integer(layer::id::maze)] = playground.attach<layer::maze>();
+    layers[magic_enum::enum_integer(layer::id::items)] = playground.attach<layer::items>();
+    layers[magic_enum::enum_integer(layer::id::characters)] = playground.attach<layer::characters>();
+    layers[magic_enum::enum_integer(layer::id::projectiles)] = playground.attach<layer::projectiles>();
+    layers[magic_enum::enum_integer(layer::id::pipes)] = playground.attach<layer::pipes>();
+    layers[magic_enum::enum_integer(layer::id::animations)] = playground.attach<layer::animations>();
 
     auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
     m->layout(wall_texture_offsets, wall_rotations);
@@ -565,7 +565,7 @@ void world::update(
     // Dispatch commands.
     while(!commands_.empty())
     {
-        graph.on_command(commands_.front(), dt);
+        playground.on_command(commands_.front(), dt);
         commands_.pop();
     }
 
@@ -599,11 +599,11 @@ void world::update(
     // Deal with collision.
     handle_collisions();
 
-    // Update the entire graph.
-    graph.update(dt, commands_);
+    // Update the entire playground.
+    playground.update(dt, commands_);
 
     // Tag all unviewable animations to be removed.
-    for(auto& node : graph)
+    for(auto& node : playground)
     {
         if(node.getPosition().x > view.getSize().x ||
            node.getPosition().y > view.getSize().y)
@@ -613,7 +613,7 @@ void world::update(
     }
 
     // Remove all destroyed entities.
-    graph.sweep_removed();
+    playground.sweep_removed();
 
     // Remove played sounds.
     sound.remove_stopped();
@@ -633,7 +633,7 @@ void world::draw()
     // }
     // else
     // {
-        target.setView(view);
-        target.draw(graph);
+        target.draw(playground);
+
     // }
 }

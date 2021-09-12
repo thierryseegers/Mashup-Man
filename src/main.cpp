@@ -11,7 +11,7 @@ int main(int, char**)
         configuration::initialize("./config.toml");
 
         std::cout << configuration::values();
-        
+
         application{}.run();
     }
     catch(std::exception const& e)

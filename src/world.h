@@ -57,7 +57,7 @@ private:
     // effect::bloom bloom_effect;
     sound::player& sound;
 
-    scene::node graph;
+    scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;
 
     commands_t commands_;
