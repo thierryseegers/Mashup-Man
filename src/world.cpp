@@ -29,7 +29,6 @@ world::world(
     sf::RenderTarget& output_target,
     sound::player& sound)
     : target{output_target}
-    , view{output_target.getDefaultView()}
     , sound{sound}
     , mario{nullptr}
     , luigi{nullptr}
@@ -40,7 +39,7 @@ world::world(
     , enemy_mode_{entity::enemy::mode::scatter}
     , enemy_mode_timer{sf::seconds(7.f)}
 {
-    handle_size_changed({(unsigned int)view.getSize().x, (unsigned int)view.getSize().y});
+    handle_size_changed({(unsigned int)target.getSize().x, (unsigned int)target.getSize().y});
 
     build_scene();
 }
@@ -126,8 +125,13 @@ std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read
 void world::handle_size_changed(
     sf::Event::SizeEvent const& event)
 {
-    view.setSize({static_cast<float>(event.width), static_cast<float>(event.height)});
-    target.setView(view);
+    target.setView(sf::View{sf::FloatRect{0, 0, (float)event.width, (float)event.height}});
+
+    auto const scale = std::min((static_cast<float>(event.height - 100) / (level::height * level::tile_size)),
+                                (static_cast<float>(event.width - 40) / (level::width * level::tile_size)));
+
+    playground.setPosition(std::max(20.f, (event.width - level::width * level::tile_size * scale) / 2), 
+                           std::max(50.f, (event.height - level::height * level::tile_size * scale) / 2));
 
     playground.setScale(scale, scale);
     // lifeboard.setScale(scale, scale);
@@ -139,10 +143,6 @@ void world::build_scene()
     level::wall_texture_offsets wall_texture_offsets;
     level::wall_rotations wall_rotations;
     std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
-
-    playground.setOrigin(level::width * level::tile_size / 2, level::height * level::tile_size / 2);
-    playground.setPosition((view.getSize().x / 2), (view.getSize().y / 2));
-    // playground.setPosition(, 50);
 
     // Create a sound player.
     playground.attach<scene::sound_t>(sound);
@@ -385,21 +385,6 @@ void world::handle_collisions()
 //     enemies.clear();
 // }
 
-// sf::FloatRect world_t::view_bounds() const
-// {
-//     return sf::FloatRect(view.getCenter() - view.getSize() / 2.f, view.getSize());
-// }
-
-// sf::FloatRect world_t::battlefield_bounds() const
-// {
-//     // Return view bounds + some area at top, where enemies spawn.
-//     sf::FloatRect bounds = view_bounds();
-//     bounds.top -= level::half_tile_size0.f;
-//     bounds.height += level::half_tile_size0.f;
-
-//     return bounds;
-// }
-
 void world::update_brother(
     entity::brother *bro)
 {
@@ -605,8 +590,9 @@ void world::update(
     // Tag all unviewable animations to be removed.
     for(auto& node : playground)
     {
-        if(node.getPosition().x > view.getSize().x ||
-           node.getPosition().y > view.getSize().y)
+        auto const position = node.getInverseTransform().transformPoint(node.getPosition());
+        if(position.x > target.getSize().x ||
+           position.y > target.getSize().y)
         {
             node.remove = true;
         }

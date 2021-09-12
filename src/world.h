@@ -48,11 +48,7 @@ private:
     void update_enemies(
         sf::Time const dt);
 
-    // sf::FloatRect view_bounds() const;
-    // sf::FloatRect battlefield_bounds() const;
-
     sf::RenderTarget& target;
-    sf::View view;
 
     // effect::bloom bloom_effect;
     sound::player& sound;

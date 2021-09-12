@@ -159,8 +159,6 @@ void application::render()
     window.clear();
     states.draw();
 
-    window.setView(window.getDefaultView());
-
     // window.draw(statistics_text);
     window.display();
 }
