@@ -38,6 +38,8 @@ public:
 
     virtual ~enemy() = default;
 
+    [[nodiscard]] mode behavior() const;
+
     void behave(
         mode const m);
 

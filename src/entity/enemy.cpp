@@ -51,6 +51,11 @@ void enemy::hit()
     behave(mode::dead);
 }
 
+enemy::mode enemy::behavior() const
+{
+    return mode_;
+}
+
 void enemy::behave(
     mode const m)
 {
