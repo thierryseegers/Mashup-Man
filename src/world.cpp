@@ -30,6 +30,7 @@ world::world(
     sound::player& sound)
     : target{output_target}
     , sound{sound}
+    , lifeboard_{entity::mario::default_sprite(), entity::luigi::default_sprite()}
     , mario{nullptr}
     , luigi{nullptr}
     , mario_lives{3}
@@ -132,13 +133,18 @@ void world::handle_size_changed(
 
     playground.setPosition(std::max(20.f, (event.width - level::width * level::tile_size * scale) / 2), 
                            std::max(50.f, (event.height - level::height * level::tile_size * scale) / 2));
-
     playground.setScale(scale, scale);
-    // lifeboard.setScale(scale, scale);
+
+    lifeboard_.setPosition(std::max(20.f, (event.width - level::width * level::tile_size * scale) / 2),
+                           std::min(playground.getPosition().y + level::height * level::tile_size * scale, event.height - 50.f));
+    lifeboard_.setScale(scale, scale);
 }
 
 void world::build_scene()
 {
+    lifeboard_[0] = 3;
+    lifeboard_[1] = 3;
+
     // Read information of the first level.
     level::wall_texture_offsets wall_texture_offsets;
     level::wall_rotations wall_rotations;
@@ -287,13 +293,13 @@ void world::handle_collisions()
             if(brother == mario)
             {
                 mario = nullptr;
-                --mario_lives;
+                lifeboard_[0] = --mario_lives;
                 mario_spawn_timer = sf::seconds(3);
             }
             else
             {
                 luigi = nullptr;
-                --luigi_lives;
+                lifeboard_[1] = --luigi_lives;
                 luigi_spawn_timer = sf::seconds(3);
             }
         }
@@ -309,13 +315,13 @@ void world::handle_collisions()
                 if(brother == mario)
                 {
                     mario = nullptr;
-                    --mario_lives;
+                    lifeboard_[0] = --mario_lives;
                     mario_spawn_timer = sf::seconds(3);
                 }
                 else
                 {
                     luigi = nullptr;
-                    --luigi_lives;
+                    lifeboard_[1] = --luigi_lives;
                     luigi_spawn_timer = sf::seconds(3);
                 }
             }
@@ -613,13 +619,13 @@ void world::draw()
     // {
     //     scene_texture.clear();
     //     scene_texture.setView(view);
-    //     scene_texture.draw(graph);
+    //     scene_texture.draw(playground);
     //     scene_texture.display();
     //     bloom_effect.apply(scene_texture, target);
     // }
     // else
     // {
         target.draw(playground);
-
+        target.draw(lifeboard_);
     // }
 }

@@ -91,7 +91,7 @@ void sprite::flip()
 {
     if(!flipped)
     {
-        sprite_.setScale(-scale_factor , scale_factor);
+        sprite_.setScale(-scale_factor, scale_factor);
         flipped = true;
     }
 }

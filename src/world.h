@@ -5,6 +5,7 @@
 #include "entity/entities.h"
 #include "layer.h"
 #include "level.h"
+#include "lifeboard.h"
 #include "resources.h"
 #include "scene.h"
 #include "sound.h"
@@ -55,6 +56,7 @@ private:
 
     scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;
+    lifeboard lifeboard_;
 
     commands_t commands_;
 
