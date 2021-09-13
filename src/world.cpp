@@ -288,19 +288,24 @@ void world::handle_collisions()
         {
             spdlog::info("Brother got hit by an enemy!");
 
-            brother->hit();
-
-            if(brother == mario)
+            if(!brother->invincible() && enemy->behavior() != entity::enemy::mode::dead)
             {
-                mario = nullptr;
-                lifeboard_[0] = --mario_lives;
-                mario_spawn_timer = sf::seconds(3);
-            }
-            else
-            {
-                luigi = nullptr;
-                lifeboard_[1] = --luigi_lives;
-                luigi_spawn_timer = sf::seconds(3);
+                brother->hit();
+                if(brother->remove)
+                {
+                    if(brother == mario)
+                    {
+                        mario = nullptr;
+                        lifeboard_[0] = --mario_lives;
+                        mario_spawn_timer = sf::seconds(3);
+                    }
+                    else
+                    {
+                        luigi = nullptr;
+                        lifeboard_[1] = --luigi_lives;
+                        luigi_spawn_timer = sf::seconds(3);
+                    }
+                }
             }
         }
         else if(auto [brother, projectile] = match<entity::brother, entity::projectile>(collision); brother && projectile)
@@ -309,20 +314,26 @@ void world::handle_collisions()
             {
                 spdlog::info("Brother got hit by a projectile!");
 
-                brother->hit();
                 projectile->hit();
 
-                if(brother == mario)
+                if(!brother->invincible())
                 {
-                    mario = nullptr;
-                    lifeboard_[0] = --mario_lives;
-                    mario_spawn_timer = sf::seconds(3);
-                }
-                else
-                {
-                    luigi = nullptr;
-                    lifeboard_[1] = --luigi_lives;
-                    luigi_spawn_timer = sf::seconds(3);
+                    brother->hit();
+                    if(brother->remove)
+                    {
+                        if(brother == mario)
+                        {
+                            mario = nullptr;
+                            lifeboard_[0] = --mario_lives;
+                            mario_spawn_timer = sf::seconds(3);
+                        }
+                        else
+                        {
+                            luigi = nullptr;
+                            lifeboard_[1] = --luigi_lives;
+                            luigi_spawn_timer = sf::seconds(3);
+                        }
+                    }
                 }
             }
         }
