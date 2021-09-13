@@ -97,6 +97,8 @@ class mario
 {
 public:
     mario();
+
+    static sf::Sprite default_sprite();
 };
 
 class luigi
@@ -104,6 +106,8 @@ class luigi
 {
 public:
     luigi();
+
+    static sf::Sprite default_sprite();
 };
 
 }

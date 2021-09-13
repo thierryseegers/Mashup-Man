@@ -268,6 +268,11 @@ mario::mario()
         mario_dead_sprite_rect}
 {}
 
+sf::Sprite mario::default_sprite()
+{
+    return sf::Sprite{resources::textures().get(resources::texture::brothers), mario_still_sprite_rect(size::small, attribute::plain)};
+}
+
 sf::IntRect luigi_still_sprite_rect(
     brother::size const size_,
     brother::attribute const attribute_)
@@ -318,5 +323,10 @@ luigi::luigi()
         luigi_animated_sprite_rects,
         luigi_dead_sprite_rect}
 {}
+
+sf::Sprite luigi::default_sprite()
+{
+    return sf::Sprite{resources::textures().get(resources::texture::brothers), luigi_still_sprite_rect(size::small, attribute::plain)};
+}
 
 }
