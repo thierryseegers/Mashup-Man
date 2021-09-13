@@ -111,7 +111,13 @@ void sprite::set_rotation(
     sprite_.setRotation(angle);
 }
 
-sf::FloatRect sprite::getGlobalBounds() const
+void sprite::set_color(
+    sf::Color const color)
+{
+    sprite_.setColor(color);
+}
+
+sf::FloatRect sprite::global_bounds() const
 {
     return sprite_.getGlobalBounds();
 }

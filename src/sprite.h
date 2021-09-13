@@ -50,7 +50,10 @@ public:
     void set_rotation(
         float const angle);
 
-    sf::FloatRect getGlobalBounds() const;
+    void set_color(
+        sf::Color const color);
+
+    sf::FloatRect global_bounds() const;
 
     void draw(
         sf::RenderTarget& target,
