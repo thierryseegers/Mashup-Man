@@ -82,6 +82,8 @@ add_executable(${PROJECT_NAME}
     src/entity/projectile.h
     src/level.cpp
     src/level.h
+    src/lifeboard.cpp
+    src/lifeboard.h
     src/main.cpp
     src/maze.cpp
     src/maze.h
