@@ -65,11 +65,17 @@ brother::brother(
     , fire_cooldown{sf::seconds(*configuration::values()["brothers"]["fireball"]["cooldown"].value<float>())}
     , fire_countdown{sf::Time::Zero}
     , firing{false}
+    , hurt{sf::Time::Zero}
 {}
 
 direction brother::steering() const
 {
     return steering_;
+}
+
+bool brother::invincible() const
+{
+    return hurt > sf::Time::Zero;
 }
 
 void brother::steer(
@@ -115,9 +121,10 @@ void brother::hit()
     }
     else
     {
+        hurt = sf::seconds(3);
+
         size_ = size::small;
         attribute_ = attribute::plain;
-
         update_sprite();
     }
 }
@@ -178,6 +185,37 @@ void brother::update_self(
     }
     else
     {
+        // If we just got hurt, play the sound.
+        if(hurt == sf::seconds(3))
+        {
+            commands.push(make_command<scene::sound_t>([](scene::sound_t& sound, sf::Time const&)
+            {
+                sound.play(resources::sound_effect::warp);
+            }));
+        }
+
+        // Set transparancy to denote temporary invincibility.
+        hurt = std::max(sf::Time::Zero, hurt - dt);
+        if(hurt > sf::Time::Zero)
+        {
+            if(hurt > sf::seconds(1.5f) && (int)(hurt.asSeconds() * 10) % 2)
+            {
+                size_ = (size_ == size::small) ? size::big : size::small;
+                update_sprite();
+            }
+            else if(size_ == size::big)
+            {
+                size_ = size::small;
+                update_sprite();
+            }
+
+            sprite_.set_color({255, 255, 255, (255 * 3) / 4});
+        }
+        else
+        {
+            sprite_.set_color(sf::Color::White);
+        }
+
         if(firing && fire_countdown <= sf::Time::Zero)
         {
             commands.push(make_command<layer::projectiles>([=](layer::projectiles& layer, sf::Time const&)
