@@ -137,7 +137,7 @@ void brother::update_sprite()
     }
     else
     {
-        sprite_.animate(animated_sprite_rects(size_, attribute_), sf::seconds(0.5f), sprite::repeat::loop);
+        sprite_.animate(animated_sprite_rects(size_, attribute_), sf::seconds(0.25f), sprite::repeat::loop);
     }
 }
 
