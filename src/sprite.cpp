@@ -14,6 +14,8 @@ sprite::sprite(
     : sprite_{resources::textures().get(texture)}
     , scale_factor{scale_factor}
     , flipped{false}
+    , current_frame{0}
+    , elapsed{sf::Time::Zero}
 {
     sprite_.setScale(scale_factor, scale_factor);
 }
@@ -44,7 +46,7 @@ void sprite::still(
     sprite_.setTextureRect(texture_rect);
     utility::center_origin(sprite_);
 
-    updater = [](sf::Time const&, commands_t&, sf::Sprite&){};
+    updater = [](sf::Time const&, commands_t&, sprite&){};
 }
 
 void sprite::animate(
@@ -55,37 +57,30 @@ void sprite::animate(
     sprite_.setTextureRect(texture_rects[0]);
     utility::center_origin(sprite_);
 
-    // As expressed in the header file, this ought to just capture and manipulate 
-    // 'this->sprite_' rather than be passed a reference to it. Clue: it actually 
-    // works when calling 'animate' after the object is constructed but it doesn't 
-    // when called from the constructor.
     updater = [=,
-               current_frame = std::size_t{0},
-               elapsed = sf::Time::Zero,
                n_frames = texture_rects.size(),
-               time_per_frame = duration / static_cast<float>(texture_rects.size())]
-               (
+               time_per_frame = duration / static_cast<float>(texture_rects.size())](
                 sf::Time const& dt,
                 commands_t&,
-                sf::Sprite& sprite) mutable
+                sprite& sprite_) mutable
     {
-        elapsed += dt;
+        sprite_.elapsed += dt;
 
-        while(elapsed >= time_per_frame && (current_frame <= n_frames || repeat_ != repeat::none))
+        while(sprite_.elapsed >= time_per_frame && (sprite_.current_frame <= n_frames || repeat_ != repeat::none))
         {
-            elapsed -= time_per_frame;
+            sprite_.elapsed -= time_per_frame;
 
             if(repeat_ == repeat::loop)
             {
-                current_frame = (current_frame + 1) % n_frames;
+                sprite_.current_frame = (sprite_.current_frame + 1) % n_frames;
             }
             else
             {
-                ++current_frame;
+                ++sprite_.current_frame;
             }
         }
 
-        sprite.setTextureRect(texture_rects[current_frame]);
+        sprite_.sprite_.setTextureRect(texture_rects[sprite_.current_frame]);
     };
 }
 
@@ -135,5 +130,5 @@ void sprite::update(
         sf::Time const& dt,
         commands_t& commands)
 {
-    updater(dt, commands, sprite_);
+    updater(dt, commands, *this);
 }

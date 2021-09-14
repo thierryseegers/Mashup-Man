@@ -70,12 +70,15 @@ protected:
 
     sf::Sprite sprite_;
 
-    // TODO: figure out why the workaround of this function getting passed 'this->sprite_' is required 
-    // as opposed to to just referring to 'this->sprite_' within the lambda given.
-    // The answer: it's because if the sprite instance gets copied, the 'this' pointer copied by the 
-    // lambda is invalidated (because the copied object has a different address).
-    std::function<void (sf::Time const&, commands_t&, sf::Sprite&)> updater;
+    // Because this obejct can be copied/moved, `updater` must not capture the `this` 
+    // pointer but rather be given an instance of `sprite` to work with.
+    std::function<void (sf::Time const&, commands_t&, sprite&)> updater;
 
     float scale_factor;
     bool flipped;
+
+    // These two pieces of information are used to keep an animation `flowing` when 
+    // calling `animate` with a different texture_rect.
+    size_t current_frame;
+    sf::Time elapsed;
 };
