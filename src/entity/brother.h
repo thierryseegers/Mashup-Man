@@ -58,7 +58,7 @@ public:
 
     [[nodiscard]] direction steering() const;
 
-    [[nodiscard]] bool invincible() const;
+    [[nodiscard]] bool untouchable() const;
 
     void steer(
         direction const d);
@@ -93,7 +93,8 @@ protected:
     sf::Time fire_countdown;
     bool firing;
 
-    sf::Time hurt;
+    sf::Time shrinking;
+    sf::Time untouchable_;
 };
 
 class mario

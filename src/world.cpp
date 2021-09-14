@@ -288,7 +288,7 @@ void world::handle_collisions()
         {
             spdlog::info("Brother got hit by an enemy!");
 
-            if(!brother->invincible() && enemy->behavior() != entity::enemy::mode::dead)
+            if(!brother->untouchable() && enemy->behavior() != entity::enemy::mode::dead)
             {
                 brother->hit();
                 if(brother->remove)
@@ -316,7 +316,7 @@ void world::handle_collisions()
 
                 projectile->hit();
 
-                if(!brother->invincible())
+                if(!brother->untouchable())
                 {
                     brother->hit();
                     if(brother->remove)

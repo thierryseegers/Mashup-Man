@@ -65,7 +65,8 @@ brother::brother(
     , fire_cooldown{sf::seconds(*configuration::values()["brothers"]["fireball"]["cooldown"].value<float>())}
     , fire_countdown{sf::Time::Zero}
     , firing{false}
-    , hurt{sf::Time::Zero}
+    , shrinking{sf::Time::Zero}
+    , untouchable_{sf::seconds(3)}
 {}
 
 direction brother::steering() const
@@ -73,9 +74,9 @@ direction brother::steering() const
     return steering_;
 }
 
-bool brother::invincible() const
+bool brother::untouchable() const
 {
-    return hurt > sf::Time::Zero;
+    return untouchable_ > sf::Time::Zero;
 }
 
 void brother::steer(
@@ -121,11 +122,11 @@ void brother::hit()
     }
     else
     {
-        hurt = sf::seconds(3);
-
         size_ = size::small;
         attribute_ = attribute::plain;
         update_sprite();
+
+        untouchable_ = shrinking = sf::seconds(3);
     }
 }
 
@@ -185,20 +186,21 @@ void brother::update_self(
     }
     else
     {
-        // If we just got hurt, play the sound.
-        if(hurt == sf::seconds(3))
-        {
-            commands.push(make_command<scene::sound_t>([](scene::sound_t& sound, sf::Time const&)
-            {
-                sound.play(resources::sound_effect::warp);
-            }));
-        }
 
-        // Set transparancy to denote temporary invincibility.
-        hurt = std::max(sf::Time::Zero, hurt - dt);
-        if(hurt > sf::Time::Zero)
+        if(shrinking > sf::Time::Zero)
         {
-            if(hurt > sf::seconds(1.5f) && (int)(hurt.asSeconds() * 10) % 2)
+            // If we just got hurt, play the sound.
+            if(shrinking == sf::seconds(3))
+            {
+                commands.push(make_command<scene::sound_t>([](scene::sound_t& sound, sf::Time const&)
+                {
+                    sound.play(resources::sound_effect::warp);
+                }));
+            }
+
+            shrinking = std::max(sf::Time::Zero, shrinking - dt);
+
+            if(shrinking > sf::seconds(1.5f) && (int)(shrinking.asSeconds() * 10) % 2)
             {
                 size_ = (size_ == size::small) ? size::big : size::small;
                 update_sprite();
@@ -208,8 +210,21 @@ void brother::update_self(
                 size_ = size::small;
                 update_sprite();
             }
+        }
 
-            sprite_.set_color({255, 255, 255, (255 * 3) / 4});
+        // Flash transparency to denote untouchability.
+        if(untouchable_ > sf::Time::Zero)
+        {
+            untouchable_ = std::max(sf::Time::Zero, untouchable_ - dt);
+
+            if((int)(untouchable_.asSeconds() * 30) % 2)
+            {
+                sprite_.set_color(sf::Color::Black);
+            }
+            else
+            {
+                sprite_.set_color({255, 255, 255, (255 * 3) / 4});
+            }
         }
         else
         {
