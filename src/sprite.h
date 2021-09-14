@@ -64,6 +64,10 @@ public:
         commands_t&);
 
 protected:
+    sprite(
+        resources::texture const& texture_sheet,
+        float const scale_factor = 1.f);
+
     sf::Sprite sprite_;
 
     // TODO: figure out why the workaround of this function getting passed 'this->sprite_' is required 

@@ -10,15 +10,21 @@
 
 sprite::sprite(
     resources::texture const& texture,
-    sf::IntRect const& texture_rect,
     float const scale_factor)
     : sprite_{resources::textures().get(texture)}
     , scale_factor{scale_factor}
     , flipped{false}
 {
-    still(texture_rect);
-
     sprite_.setScale(scale_factor, scale_factor);
+}
+
+sprite::sprite(
+    resources::texture const& texture,
+    sf::IntRect const& texture_rect,
+    float const scale_factor)
+    : sprite(texture, scale_factor)
+{
+    still(texture_rect);
 }
 
 sprite::sprite(
@@ -27,13 +33,9 @@ sprite::sprite(
     sf::Time const duration,
     repeat const repeat_,
     float const scale_factor)
-    : sprite_{resources::textures().get(texture)}
-    , scale_factor{scale_factor}
-    , flipped{false}
+    : sprite(texture, scale_factor)
 {
     animate(texture_rects, duration, repeat_);
-
-    sprite_.setScale(scale_factor, scale_factor);
 }
 
 void sprite::still(
