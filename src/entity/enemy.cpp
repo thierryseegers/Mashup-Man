@@ -36,11 +36,24 @@ sf::Vector2f random_corner()
 }
 
 enemy::enemy(
+    animated_sprite_rects_f const animated_sprite_rects,
+    dead_sprite_rect_f const dead_sprite_rect,
+    float const scale_factor,
     sf::Vector2f home,
-    sprite sprite_,
     int const max_speed,
     direction const heading_)
-    : hostile<character>{sprite_, max_speed, heading_}
+    : hostile<character>{
+        sprite{
+            resources::texture::enemies,
+            animated_sprite_rects(mode::scatter),
+            sf::seconds(0.25f),
+            sprite::repeat::loop,
+            scale_factor
+            }
+        , max_speed
+        , heading_}
+    , animated_sprite_rects{animated_sprite_rects}
+    , dead_sprite_rect{dead_sprite_rect}
     , mode_{mode::scatter}
     , home{home}
     , target{random_corner()}
@@ -83,6 +96,18 @@ void enemy::behave(
     }
 }
 
+void enemy::update_sprite()
+{
+    if(mode_ == mode::dead)
+    {
+        sprite_.still(dead_sprite_rect());
+    }
+    else
+    {
+        sprite_.animate(animated_sprite_rects(mode_), sf::seconds(0.25f), sprite::repeat::loop);
+    }
+}
+
 void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
@@ -91,94 +116,46 @@ void enemy::update_self(
     {
         behave(mode::scatter);
     }
-    // if(life)
-    // {
-    //     // Update travel.
-    //     if(travelled > current->distance)
-    //     {
-    //         ++current;
-    //         travelled = 0;
-    //     }
-
-    //     float const rad = utility::to_radian(current->angle + 90.f);
-    //     velocity = {speed * std::cos(rad), speed * std::sin(rad)};
-
-    //     travelled += speed * dt.asSeconds();
-
-    //     // Update attack.
-    //     if(attack_countdown <= sf::Time::Zero)
-    //     {
-    //         commands.push(make_command<scene::projectiles>([=](scene::projectiles& layer, sf::Time const&)
-    //         {
-    //             attack(layer);
-    //         }));
-
-    //         play_local_sound(commands, resources::sound_effect::enemy_gunfire);
-
-    //         attack_countdown += sf::seconds(1.f / attack_rate);
-    //     }
-    //     else
-    //     {
-    //         attack_countdown -= dt;
-    //     }
-    // }
-    // else    // We dead.
-    // {
-    //     // Show an explosion.
-    //     commands.push(make_command<scene::aircrafts>([=](scene::aircrafts& layer, sf::Time const&)
-    //     {
-    //         layer.attach<explosion>(world_position());
-    //     }));
-
-    //     // Sound an explosion.
-    //     play_local_sound(commands, utility::random(1) ? resources::sound_effect::explosion_1 : resources::sound_effect::explosion_2);
-
-    //     // Possibly drop loot.
-    //     if(utility::random(2) == 0)
-    //     {
-    //         spdlog::info("Loot dropped.");
-
-    //         commands.push(make_command<scene::projectiles>([=](scene::projectiles& layer, sf::Time const&)
-    //         {
-    //             std::unique_ptr<pickup::pickup> pickup;
-    //             switch(utility::random(3))
-    //             {
-    //                 case 0:
-    //                     pickup = std::make_unique<pickup::health>();
-    //                     break;
-    //                 case 1:
-    //                     pickup = std::make_unique<pickup::missile_refill>();
-    //                     break;
-    //                 case 2:
-    //                     pickup = std::make_unique<pickup::increase_spread>();
-    //                     break;
-    //                 case 3:
-    //                     pickup = std::make_unique<pickup::increase_fire_rate>();
-    //                     break;
-    //             }
-
-    //             pickup->setPosition(world_position());
-    //             pickup->velocity = {0.f, 1.f};
-    //             layer.attach(std::move(pickup));
-    //         }));
-    //     }
-    // }
 
     character::update_self(dt, commands);
+}
+
+using animated_sprite_rects =
+    std::array<
+        std::vector<sf::IntRect>,
+        magic_enum::enum_count<enemy::mode>()>;
+
+std::vector<sf::IntRect> goomba_animated_sprite_rects(
+    enemy::mode const mode_)
+{
+    static animated_sprite_rects const rects = []{
+        animated_sprite_rects r;
+
+        r[magic_enum::enum_integer(enemy::mode::chase)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+        r[magic_enum::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
+        r[magic_enum::enum_integer(enemy::mode::scatter)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+
+        return r;
+    }();
+
+    return rects[magic_enum::enum_integer(mode_)];
+}
+
+sf::IntRect goomba_dead_sprite_rect()
+{
+    return sf::IntRect{39, 28, 16, 16};
 }
 
 goomba::goomba(
     sf::Vector2f home)
     : enemy{
+        goomba_animated_sprite_rects,
+        goomba_dead_sprite_rect,
+        configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
         home,
-        sprite{
-            resources::texture::enemies,
-            std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}},
-            sf::seconds(1.f),
-            sprite::repeat::loop,
-            configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f)},
         *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
-        direction::left}
+        direction::left
+        }
 {}
 
 direction goomba::fork(
@@ -224,25 +201,5 @@ std::string_view goomba::name() const
 
     return name_;
 }
-// void avenger::attack(
-//     scene::projectiles& layer) const
-// {
-//     add_projectile<bullet<hostile>>(layer, {0.f, 0.5f}, projectile::downward);
-// }
-
-// raptor::raptor()
-//     : enemy{*configuration::values()["aircraft"]["raptor"]["starting_health"].value<int>(),
-//             *configuration::values()["aircraft"]["raptor"]["speed"].value<int>(),
-//             *configuration::values()["aircraft"]["raptor"]["attack_rate"].value<float>(),
-//             to_flight_pattern(*configuration::values()["aircraft"]["raptor"]["flight_pattern"].as_array()),
-//             *magic_enum::enum_cast<resources::texture>(*configuration::values()["aircraft"]["texture"].value<std::string_view>()),
-//             utility::to_intrect(*configuration::values()["aircraft"]["raptor"]["texture_rect"].as_array())}
-// {}
-
-// void raptor::attack(
-//     scene::projectiles& layer) const
-// {
-//     add_projectile<missile<hostile>>(layer, {0.f, 0.5f}, projectile::downward);
-// }
 
 }
