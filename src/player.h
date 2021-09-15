@@ -14,18 +14,17 @@
 class player
 {
 public:
-    // enum class mission
-    // {
-    //     failure,
-    //     running,
-    //     success,
-    // };
+    enum class outcome
+    {
+        failure,
+        success,
+    };
 
     template<typename Brother>
     player(std::type_identity<Brother>)
-    // : status{mission::running}
         : name{std::is_same_v<Brother, entity::mario> ? "mario" : "luigi"}
         , joystick_id{std::is_same_v<Brother, entity::mario> ? 0 : 1}
+        , outcome_{outcome::failure}
     {
         action_bindings[action::cruise] = make_command<Brother>([=](Brother& bro, sf::Time const&)
             {
@@ -61,22 +60,17 @@ public:
     void handle_realtime_input(
         commands_t& commands);
 
-    // mission& mission_status()
-    // {
-    //     return status;
-    // }
+    outcome& level_outcome();
 
-    // [[nodiscard]] mission mission_status() const
-    // {
-    //     return status;
-    // }
+    [[nodiscard]] outcome level_outcome() const;
 
 private:
     [[nodiscard]] static bool is_realtime_action(action const a);
 
     std::map<action, command_t> action_bindings;
 
-    // mission status;
     std::string name;
     unsigned int joystick_id;
+
+    outcome outcome_;
 };
