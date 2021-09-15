@@ -126,8 +126,6 @@ std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read
 void world::handle_size_changed(
     sf::Event::SizeEvent const& event)
 {
-    target.setView(sf::View{sf::FloatRect{0, 0, (float)event.width, (float)event.height}});
-
     auto const scale = std::min((static_cast<float>(event.height - 100) / (level::height * level::tile_size)),
                                 (static_cast<float>(event.width - 40) / (level::width * level::tile_size)));
 

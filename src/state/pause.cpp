@@ -25,7 +25,7 @@ pause::pause(
     instructions.setFont(resources::fonts().get(resources::font::label));
     instructions.setString("(Press Backspace or Left + Right to quit)");	
     utility::center_origin(instructions);
-    instructions.setPosition(0.5f * view_size.x, word.getPosition().y + word.getCharacterSize());
+    instructions.setPosition(view_size.x / 2, word.getPosition().y + word.getCharacterSize());
 
     // states.context.music.pause(true);
     states.context.sound.play(resources::sound_effect::pause);
@@ -59,6 +59,16 @@ bool pause::update(
 bool pause::handle_event(
     sf::Event const& event)
 {
+    if(event.type == sf::Event::Resized)
+    {
+        auto const view_size = states.context.window.getView().getSize();
+
+        word.setPosition(view_size.x / 2, view_size.y / 2);
+        instructions.setPosition(view_size.x / 2, word.getPosition().y + word.getCharacterSize());
+
+        return true;
+    }
+
     // Escape key or Start button pressed, remove itself to return to the game.
     if(event.type == sf::Event::KeyReleased &&
        event.key.code == sf::Keyboard::Escape)

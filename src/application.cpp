@@ -122,6 +122,11 @@ void application::process_input()
     sf::Event event;
     while(window.pollEvent(event))
     {
+        if(event.type == sf::Event::Resized)
+        {
+            window.setView(sf::View{sf::FloatRect{0, 0, (float)event.size.width, (float)event.size.height}});
+        }
+
         states.handle_event(event);
 
         if(event.type == sf::Event::Closed)
