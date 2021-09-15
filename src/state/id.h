@@ -10,7 +10,7 @@ enum class id
     // loading,
     // menu,
     // none,
-    // pause,
+    pause,
     // settings,
     // title,
 };

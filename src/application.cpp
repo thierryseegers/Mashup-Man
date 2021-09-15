@@ -6,7 +6,7 @@
 #include "state/game.h"
 // #include "state/id.h"
 // #include "state/menu.h"
-// #include "state/pause.h"
+#include "state/pause.h"
 // #include "state/settings.h"
 // #include "state/title.h"
 #include "utility.h"
@@ -81,7 +81,7 @@ application::application()
     // states.register_state<state::title>(state::id::title);
 	// states.register_state<state::menu>(state::id::menu);
 	states.register_state<state::game>(state::id::game);
-	// states.register_state<state::pause>(state::id::pause);
+	states.register_state<state::pause>(state::id::pause);
     // states.register_state<state::settings>(state::id::settings);
     // states.register_state<state::game_over>(state::id::game_over);
 

@@ -103,6 +103,8 @@ add_executable(${PROJECT_NAME}
     src/state/game.cpp
     src/state/game.h
     src/state/id.h
+    src/state/pause.cpp
+    src/state/pause.h
     src/state/stack.cpp
     src/state/stack.h
     src/state/state.cpp

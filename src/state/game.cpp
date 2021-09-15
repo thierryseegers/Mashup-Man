@@ -56,17 +56,18 @@ bool game::handle_event(
     {
         world_.handle_size_changed(event.size);
     }
-    // // Escape key or Start button pressed, trigger the pause screen.
-    // if(event.type == sf::Event::KeyReleased &&
-    //    event.key.code == sf::Keyboard::Escape)
-    // {
-    //     states.request_push(id::pause);
-    // }
-    // else if(event.type == sf::Event::JoystickButtonReleased &&
-    //         event.joystickButton.button == 6)
-    // {
-    //     states.request_push(id::pause);
-    // }
+
+    // Escape key or Start button pressed, trigger the pause screen.
+    if(event.type == sf::Event::KeyReleased &&
+       event.key.code == sf::Keyboard::Escape)
+    {
+        states.request_push(id::pause);
+    }
+    else if(event.type == sf::Event::JoystickButtonReleased &&
+            event.joystickButton.button == 6)
+    {
+        states.request_push(id::pause);
+    }
 
     return true;
 }

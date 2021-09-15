@@ -18,7 +18,9 @@ public:
     virtual ~state() = default;
 
     virtual void draw() = 0;
+
     virtual bool update(sf::Time const& dt) = 0;
+
     virtual bool handle_event(sf::Event const& event) = 0;
 
 protected:
