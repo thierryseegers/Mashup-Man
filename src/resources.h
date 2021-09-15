@@ -47,6 +47,7 @@ enum class sound_effect
     die,
     fireball,
     kick,
+    pause,
     short_die,
     warp
     // button
