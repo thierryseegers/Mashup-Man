@@ -204,7 +204,7 @@ void world::build_scene()
                     immovables[r][c] = e;
                     break;
                 case 'g':
-                    e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>(sf::Vector2f{level::width * level::tile_size / 2, level::height * level::tile_size / 2});
+                    e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>(ghost_house);
                     e->throttle(1.f);
                     break;
                 case 'm':

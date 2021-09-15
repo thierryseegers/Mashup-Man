@@ -41,7 +41,7 @@ public:
         animated_sprite_rects_f const animated_sprite_rects,
         dead_sprite_rect_f const dead_sprite_rect,
         float const scale_factor,
-        sf::Vector2f home,
+        sf::IntRect const& home,
         int const max_speed = 0,
         direction const heading_ = direction::right);
 
@@ -72,7 +72,7 @@ protected:
 
     mode mode_;
 
-    sf::Vector2f home;      // The ghost home.
+    sf::IntRect home;       // The ghost home.
     sf::Vector2f target;    // Target coordinates.
 };
 
@@ -81,7 +81,7 @@ class goomba
 {
 public:
     goomba(
-        sf::Vector2f home);
+        sf::IntRect const& home);
 
     virtual direction fork(
         std::vector<sf::Vector2f> const& brother_positions,

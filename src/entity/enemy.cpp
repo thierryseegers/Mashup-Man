@@ -39,7 +39,7 @@ enemy::enemy(
     animated_sprite_rects_f const animated_sprite_rects,
     dead_sprite_rect_f const dead_sprite_rect,
     float const scale_factor,
-    sf::Vector2f home,
+    sf::IntRect const& home,
     int const max_speed,
     direction const heading_)
     : hostile<character>{
@@ -83,7 +83,7 @@ void enemy::behave(
             case mode::chase:
                 break;
             case mode::dead:
-                target = home;
+                target = {home.left + home.width / 2.f, home.top + home.height / 2.f};
                 throttle(2.f);
                 break;
             case mode::frightened:
@@ -147,7 +147,7 @@ sf::IntRect goomba_dead_sprite_rect()
 }
 
 goomba::goomba(
-    sf::Vector2f home)
+    sf::IntRect const& home)
     : enemy{
         goomba_animated_sprite_rects,
         goomba_dead_sprite_rect,
