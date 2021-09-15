@@ -311,6 +311,8 @@ void world::handle_collisions()
             if(!brother->untouchable() && enemy->behavior() != entity::enemy::mode::dead)
             {
                 brother->hit();
+                sound.play(resources::sound_effect::short_die);
+
                 if(brother->remove)
                 {
                     if(brother == mario)
@@ -339,6 +341,8 @@ void world::handle_collisions()
                 if(!brother->untouchable())
                 {
                     brother->hit();
+                    sound.play(resources::sound_effect::short_die);
+
                     if(brother->remove)
                     {
                         if(brother == mario)
@@ -397,30 +401,6 @@ void world::handle_collisions()
         }
     }
 }
-
-// void world_t::guide_missiles()
-// {
-//     // Setup command that stores all enemies in container.
-//     commands_.push(make_command<entity::enemy>([=](entity::enemy& e, sf::Time const&)
-//         {
-//             enemies.push_back(&e);
-//         }));
-
-//     commands_.push(make_command<entity::guided_missile<entity::friendly>>([=](entity::guided_missile<entity::friendly>& gm, sf::Time const&)
-//         {
-//             if(!enemies.empty())
-//             {
-//                 auto e =std::min_element(enemies.begin(), enemies.end(), [&](entity::enemy* e1, entity::enemy* e2)
-//                     {
-//                         return scene::distance(gm, *e1) < scene::distance(gm, *e2);
-//                     });
-
-//                 gm.guide((*e)->world_position());
-//             }
-//         }));
-
-//     enemies.clear();
-// }
 
 void world::update_brother(
     entity::brother *bro)
