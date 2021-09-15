@@ -5,7 +5,7 @@
 #include "utility.h"
 
 maze::maze()
-    : texture_strip{utility::single::instance<resources::textures_t>().get(resources::texture::walls)}
+    : texture_strip{resources::textures().get(resources::texture::walls)}
 {
     vertices.setPrimitiveType(sf::Quads);
 

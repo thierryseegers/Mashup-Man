@@ -48,7 +48,7 @@ void player::play(
     resources::sound_effect const e,
     sf::Vector2f const position)
 {
-    sounds.push_back((sf::Sound{utility::single::instance<resources::sound_buffers_t>().get(e)}));
+    sounds.push_back((sf::Sound{resources::sound_buffers().get(e)}));
     auto& sound = sounds.back();
 
     sound.setPosition(position.x, -position.y, 0.f);
