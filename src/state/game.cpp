@@ -30,8 +30,8 @@ bool game::update(
     {
         // states.context.sound.play(resources::sound_effect::die);
 
-        // states.context.player.mission_status() = player::mission::failure;
-        // states.request_push(id::game_over);
+        states.context.player_1.level_outcome() = player::outcome::failure;
+        states.request_push(id::game_over);
     }
     else if(world_.players_done())
     {

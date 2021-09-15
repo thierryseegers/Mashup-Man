@@ -26,6 +26,7 @@ player::player()
     sound_buffers.load(resources::sound_effect::collect_powerup, "assets/sounds/Super Mario Bros 1 and 2(JP)/Powerup.wav");
     sound_buffers.load(resources::sound_effect::die, "assets/sounds/Super Mario Bros 1 and 2(JP)/Die.wav");
     sound_buffers.load(resources::sound_effect::fireball, "assets/sounds/Super Mario Bros 1 and 2(JP)/Fire ball.wav");
+    sound_buffers.load(resources::sound_effect::game_over, "assets/sounds/Super Mario Bros 1 and 2(JP)/Game Over.wav");
     sound_buffers.load(resources::sound_effect::kick, "assets/sounds/Super Mario Bros 1 and 2(JP)/Kick.wav");
     sound_buffers.load(resources::sound_effect::pause, "assets/sounds/Super Mario Bros 1 and 2(JP)/Pause.wav");
     sound_buffers.load(resources::sound_effect::warp, "assets/sounds/Super Mario Bros 1 and 2(JP)/Warp.wav");
