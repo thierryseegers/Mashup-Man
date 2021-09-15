@@ -164,6 +164,28 @@ void world::build_scene()
     auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
     m->layout(wall_texture_offsets, wall_rotations);
 
+    // Get the rectangle coordinates of the ghost house.
+    sf::IntRect ghost_house{};
+    for(size_t r = 0; r != level::height; ++r)
+    {
+        for(size_t c = 0; c != level::width; ++c)
+        {
+            if(level_info[r][c] == 'h')
+            {
+                if(ghost_house.left == 0)
+                {
+                    ghost_house.left = c * level::tile_size;
+                    ghost_house.top = r * level::tile_size;
+                }
+                else
+                {
+                    ghost_house.width = (c + 1) * level::tile_size - ghost_house.left;
+                    ghost_house.height = (r + 1) * level::tile_size - ghost_house.top;
+                }
+            }
+        }
+    }
+
     // Create entities as the level dictates.
     for(size_t r = 0; r != level::height; ++r)
     {
