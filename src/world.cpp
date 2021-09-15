@@ -39,6 +39,7 @@ world::world(
     , immovables{{}}
     , enemy_mode_{entity::enemy::mode::scatter}
     , enemy_mode_timer{sf::seconds(7.f)}
+    , done_timer{sf::seconds(3)}
 {
     handle_size_changed({(unsigned int)target.getSize().x, (unsigned int)target.getSize().y});
 
@@ -57,7 +58,7 @@ bool world::players_alive() const
 
 bool world::players_done() const
 {
-    return !n_pills;
+    return n_pills == 0 || done_timer <= sf::Time::Zero;
 }
 
 std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read_level(
@@ -140,8 +141,8 @@ void world::handle_size_changed(
 
 void world::build_scene()
 {
-    lifeboard_[0] = 3;
-    lifeboard_[1] = 3;
+    lifeboard_[0] = mario_lives;
+    lifeboard_[1] = luigi_lives;
 
     // Read information of the first level.
     level::wall_texture_offsets wall_texture_offsets;
@@ -621,7 +622,16 @@ void world::update(
     // Remove played sounds.
     sound.remove_stopped();
 
+    if(!players_alive())
+    {
+        if(done_timer == sf::seconds(3))
+        {
+            sound.play(resources::sound_effect::die);
+        }
+        done_timer -= dt;
 
+        return;
+    }
 }
 
 void world::draw()

@@ -26,17 +26,20 @@ bool game::update(
 {
     world_.update(dt);
 
-    if(!world_.players_alive())
+    if(world_.players_done())
     {
-        // states.context.sound.play(resources::sound_effect::die);
+        if(world_.players_alive())
+        {
+            // states.context.player.mission_status() = player::mission::success;
+            // states.request_push(id::game_over);
+        }
+        else 
+        {
+            states.context.sound.play(resources::sound_effect::game_over);
 
-        states.context.player_1.level_outcome() = player::outcome::failure;
-        states.request_push(id::game_over);
-    }
-    else if(world_.players_done())
-    {
-        // states.context.player.mission_status() = player::mission::success;
-        // states.request_push(id::game_over);
+            states.context.player_1.level_outcome() = player::outcome::failure;
+            states.request_push(id::game_over);
+        }
     }
 
     states.context.player_1.handle_realtime_input(world_.commands());

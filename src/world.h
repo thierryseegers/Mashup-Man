@@ -74,4 +74,6 @@ private:
 
     entity::enemy::mode enemy_mode_;
     sf::Time enemy_mode_timer; // Time left in current mode.
+
+    sf::Time done_timer; // Time to show an empty world after both brothers are dead.
 };
