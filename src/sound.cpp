@@ -21,15 +21,15 @@ player::player()
 {
     auto& sound_buffers = utility::single::mutable_instance<resources::sound_buffers_t>();
 
-    sound_buffers.load(resources::sound_effect::bump, "assets/sounds/Super Mario Bros 1 and 2(JP)/Bump.wav");
-    sound_buffers.load(resources::sound_effect::collect_coin, "assets/sounds/Super Mario Bros 1 and 2(JP)/Coin.wav");
-    sound_buffers.load(resources::sound_effect::collect_powerup, "assets/sounds/Super Mario Bros 1 and 2(JP)/Powerup.wav");
-    sound_buffers.load(resources::sound_effect::die, "assets/sounds/Super Mario Bros 1 and 2(JP)/Die.wav");
-    sound_buffers.load(resources::sound_effect::fireball, "assets/sounds/Super Mario Bros 1 and 2(JP)/Fire ball.wav");
-    sound_buffers.load(resources::sound_effect::game_over, "assets/sounds/Super Mario Bros 1 and 2(JP)/Game Over.wav");
-    sound_buffers.load(resources::sound_effect::kick, "assets/sounds/Super Mario Bros 1 and 2(JP)/Kick.wav");
-    sound_buffers.load(resources::sound_effect::pause, "assets/sounds/Super Mario Bros 1 and 2(JP)/Pause.wav");
-    sound_buffers.load(resources::sound_effect::warp, "assets/sounds/Super Mario Bros 1 and 2(JP)/Warp.wav");
+    sound_buffers.load(resources::sound_effect::bump, "assets/sounds/Bump.wav");
+    sound_buffers.load(resources::sound_effect::collect_coin, "assets/sounds/Coin.wav");
+    sound_buffers.load(resources::sound_effect::collect_powerup, "assets/sounds/Powerup.wav");
+    sound_buffers.load(resources::sound_effect::die, "assets/sounds/Die.wav");
+    sound_buffers.load(resources::sound_effect::fireball, "assets/sounds/Fire ball.wav");
+    sound_buffers.load(resources::sound_effect::game_over, "assets/sounds/Game Over.wav");
+    sound_buffers.load(resources::sound_effect::kick, "assets/sounds/Kick.wav");
+    sound_buffers.load(resources::sound_effect::pause, "assets/sounds/Pause.wav");
+    sound_buffers.load(resources::sound_effect::warp, "assets/sounds/Warp.wav");
 
     auto const& die_buffer = sound_buffers.get(resources::sound_effect::die);
     auto const* die_samples = sound_buffers.get(resources::sound_effect::die).getSamples();
