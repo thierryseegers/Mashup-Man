@@ -67,9 +67,17 @@ float entity::speed() const
 void entity::throttle(
     float const t)
 {
-    throttle_ = t;
+    if((t == 0.f && throttle_ > 0.f) ||
+       (t > 0.f && throttle_ == 0.f))
+    {
+        throttle_ = t;
 
-    update_sprite();
+        update_sprite();
+    }
+    else if(t != throttle_)
+    {
+        throttle_ = t;
+    }
 }
 
 void entity::nudge(
