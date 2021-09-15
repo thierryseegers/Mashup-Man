@@ -73,6 +73,8 @@ protected:
     mode mode_;
 
     sf::IntRect home;       // The ghost home.
+    bool healed;            // Whether a hurt ghost has reached home.
+
     sf::Vector2f target;    // Target coordinates.
 };
 

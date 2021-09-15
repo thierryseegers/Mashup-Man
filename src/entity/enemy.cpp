@@ -56,12 +56,15 @@ enemy::enemy(
     , dead_sprite_rect{dead_sprite_rect}
     , mode_{mode::scatter}
     , home{home}
+    , healed{true}
     , target{random_corner()}
 {}
 
 void enemy::hit()
 {
     behave(mode::dead);
+
+    update_sprite();
 }
 
 enemy::mode enemy::behavior() const
@@ -72,7 +75,7 @@ enemy::mode enemy::behavior() const
 void enemy::behave(
     mode const m)
 {
-    if(mode_ != mode::dead && mode_ != m)
+    if(mode_ != m && healed)
     {
         spdlog::info("{} changing mode from {} to {}.", name(), magic_enum::enum_name(mode_), magic_enum::enum_name(m));
 
@@ -83,6 +86,7 @@ void enemy::behave(
             case mode::chase:
                 break;
             case mode::dead:
+                healed = false;
                 target = {home.left + home.width / 2.f, home.top + home.height / 2.f};
                 throttle(2.f);
                 break;
@@ -112,9 +116,13 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(mode_ == mode::dead && utility::length(getPosition() - home) < level::tile_size)
+    if(mode_ == mode::dead && utility::length(getPosition() - target) < level::tile_size)
     {
+        healed = true;
+
         behave(mode::scatter);
+
+        update_sprite();
     }
 
     character::update_self(dt, commands);
