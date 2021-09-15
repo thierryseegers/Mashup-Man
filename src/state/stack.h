@@ -47,13 +47,17 @@ public:
 
     void update(
         sf::Time const& dt);
+
     void draw();
+
     void handle_event(
         sf::Event const& event);
 
     void request_push(
         id const id);
+
     void request_pop();
+    
     void request_clear();
 
     [[nodiscard]] bool empty() const;

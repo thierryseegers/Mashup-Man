@@ -2,7 +2,7 @@
 
 #include "entity/brother.h"
 #include "resources.h"
-// #include "state/game_over.h"
+#include "state/game_over.h"
 #include "state/game.h"
 // #include "state/id.h"
 // #include "state/menu.h"
@@ -83,7 +83,7 @@ application::application()
 	states.register_state<state::game>(state::id::game);
 	states.register_state<state::pause>(state::id::pause);
     // states.register_state<state::settings>(state::id::settings);
-    // states.register_state<state::game_over>(state::id::game_over);
+    states.register_state<state::game_over>(state::id::game_over);
 
     states.request_push(state::id::game);
 

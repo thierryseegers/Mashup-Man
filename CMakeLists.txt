@@ -102,6 +102,8 @@ add_executable(${PROJECT_NAME}
     src/utility.h
     src/state/game.cpp
     src/state/game.h
+    src/state/game_over.cpp
+    src/state/game_over.h
     src/state/id.h
     src/state/pause.cpp
     src/state/pause.h
