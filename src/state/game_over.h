@@ -25,6 +25,7 @@ public:
 
 private:
     sf::Text text;
+    sf::Time duration;
     sf::Time elapsed;
 };
 

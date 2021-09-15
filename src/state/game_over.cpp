@@ -15,11 +15,13 @@ namespace state
 game_over::game_over(
     stack& states)
     : state{states}
+    , duration{resources::sound_buffers().get(resources::sound_effect::game_over).getDuration() + sf::seconds(3)}
+    , elapsed{sf::Time::Zero}
 {
     text.setFont(resources::fonts().get(resources::font::main));
 
     if(states.context.player_1.level_outcome() == player::outcome::failure)
-        text.setString("Game over!");	
+        text.setString("Game over!");
     else
         text.setString("Get ready for the next level!");
 
@@ -46,9 +48,9 @@ void game_over::draw()
 bool game_over::update(
     sf::Time const& dt)
 {
-    // Show state for 3 seconds, after return to menu
+    // Show state for 7 seconds, after return to menu
     elapsed += dt;
-    if(elapsed > sf::seconds(3))
+    if(elapsed > duration)
     {
         states.request_clear();
         // states.request_push(id::menu);
