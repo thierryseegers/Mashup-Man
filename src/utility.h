@@ -15,14 +15,21 @@ namespace utility
 {
 
 // Change origin of object to be its center rather than its top-left corner.
+template<typename T>
 void center_origin(
-    sf::Sprite& sprite);
+    T& t)
+{
+    auto const& bounds = t.getLocalBounds();
+    t.setOrigin(std::floor(bounds.left + bounds.width / 2.f), std::floor(bounds.top + bounds.height / 2.f));
 
+}
+
+template<typename... Args>
 void center_origin(
-    sf::Text& text);
-    
-void center_origin(
-    sf::Shape& shape);
+    Args&&... args)
+{
+    (center_origin(args), ...);
+}
 
 // Blends two color together by a given ratio [0., 1.].
 sf::Color blend(
