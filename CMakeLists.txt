@@ -111,6 +111,8 @@ add_executable(${PROJECT_NAME}
     src/state/stack.h
     src/state/state.cpp
     src/state/state.h
+    src/state/title.cpp
+    src/state/title.h
     src/world.cpp
     src/world.h
 )
