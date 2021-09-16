@@ -8,7 +8,7 @@
 // #include "state/menu.h"
 #include "state/pause.h"
 // #include "state/settings.h"
-// #include "state/title.h"
+#include "state/title.h"
 #include "utility.h"
 
 #include <SFML/Graphics.hpp>
@@ -78,14 +78,14 @@ application::application()
     statistics_text.setPosition(5.f, 5.f);
     statistics_text.setCharacterSize(24);
 
-    // states.register_state<state::title>(state::id::title);
 	// states.register_state<state::menu>(state::id::menu);
 	states.register_state<state::game>(state::id::game);
 	states.register_state<state::pause>(state::id::pause);
     // states.register_state<state::settings>(state::id::settings);
     states.register_state<state::game_over>(state::id::game_over);
+    states.register_state<state::title>(state::id::title);
 
-    states.request_push(state::id::game);
+    states.request_push(state::id::title);
 
     // music.volume(25.f);
 }

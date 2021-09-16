@@ -12,7 +12,7 @@ enum class id
     // none,
     pause,
     // settings,
-    // title,
+    title,
 };
 
 }
