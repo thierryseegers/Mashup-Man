@@ -48,12 +48,12 @@ void game_over::draw()
 bool game_over::update(
     sf::Time const& dt)
 {
-    // Show state for 7 seconds, after return to menu
+    // Show state for a set time before returning to title screen.
     elapsed += dt;
     if(elapsed > duration)
     {
         states.request_clear();
-        // states.request_push(id::menu);
+        states.request_push(id::title);
     }
 
     return false;
