@@ -15,8 +15,8 @@ namespace resources
 
 enum class font
 {
-    label,
     main,
+    retro,
 };
 
 enum class texture

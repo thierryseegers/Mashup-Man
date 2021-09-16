@@ -13,18 +13,13 @@ namespace state
 pause::pause(
     stack& states)
     : state{states}
+    , word{"Game Paused", resources::fonts().get(resources::font::main), 100}
+    , instructions{"(Press Backspace or Left + Right to quit)", resources::fonts().get(resources::font::retro)}
 {
+    utility::center_origin(word, instructions);
+
     auto const view_size = states.context.window.getView().getSize();
-
-    word.setFont(resources::fonts().get(resources::font::main));
-    word.setString("Game Paused");	
-    word.setCharacterSize(100);
-    utility::center_origin(word);
-    word.setPosition(view_size.x / 2, view_size.y / 2);
-
-    instructions.setFont(resources::fonts().get(resources::font::label));
-    instructions.setString("(Press Backspace or Left + Right to quit)");	
-    utility::center_origin(instructions);
+    word.setPosition(view_size / 2.f);
     instructions.setPosition(view_size.x / 2, word.getPosition().y + word.getCharacterSize());
 
     // states.context.music.pause(true);

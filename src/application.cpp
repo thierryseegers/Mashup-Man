@@ -30,7 +30,7 @@ application::application()
 
     auto& fonts = utility::single::mutable_instance<resources::fonts_t>();
     fonts.load(resources::font::main, "assets/fonts/crackman.ttf");
-    fonts.load(resources::font::label, "assets/fonts/Sansation.ttf");
+    fonts.load(resources::font::retro, "assets/fonts/Retro Gaming.ttf");
 
     auto& textures = utility::single::mutable_instance<resources::textures_t>();
     for(auto const& p : std::map<resources::texture, std::string>{
