@@ -26,14 +26,14 @@ public:
     struct context_t
     {
         // music::player& music;
-        player& player_1;
-        player& player_2;
+        std::unique_ptr<player> player_1;
+        std::unique_ptr<player> player_2;
         sound::player& sound;
         sf::RenderWindow& window;
     } context;
 
     explicit stack(
-        stack::context_t context);
+        stack::context_t&& context);
 
     template<class State>
     void register_state(

@@ -20,9 +20,7 @@
 
 application::application()
     : window{sf::VideoMode(/*1024*/sf::VideoMode::getDesktopMode().width, /*768*/sf::VideoMode::getDesktopMode().height), "Mashup-Man", sf::Style::Default}
-    , player_1{std::type_identity<entity::mario>{}}
-    , player_2{std::type_identity<entity::luigi>{}}
-    , states{{/*music, */player_1, player_2, sound, window}}
+    , states{{/*music, */nullptr, nullptr, sound, window}}
     , statistics_num_frames{0}
 {
     window.setKeyRepeatEnabled(false);

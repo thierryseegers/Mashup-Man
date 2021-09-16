@@ -27,14 +27,15 @@
 
 world::world(
     sf::RenderTarget& output_target,
-    sound::player& sound)
+    sound::player& sound,
+    int const num_players)
     : target{output_target}
     , sound{sound}
     , lifeboard_{entity::mario::default_sprite(), entity::luigi::default_sprite()}
     , mario{nullptr}
     , luigi{nullptr}
     , mario_lives{3}
-    , luigi_lives{3}
+    , luigi_lives{num_players >= 2 ? 3 : 0}
     , n_pills{0}
     , immovables{{}}
     , enemy_mode_{entity::enemy::mode::scatter}
@@ -43,7 +44,7 @@ world::world(
 {
     handle_size_changed({(unsigned int)target.getSize().x, (unsigned int)target.getSize().y});
 
-    build_scene();
+    build_scene(num_players);
 }
 
 commands_t& world::commands()
@@ -139,7 +140,8 @@ void world::handle_size_changed(
     lifeboard_.setScale(scale, scale);
 }
 
-void world::build_scene()
+void world::build_scene(
+    int const num_players)
 {
     lifeboard_[0] = mario_lives;
     lifeboard_[1] = luigi_lives;
@@ -225,9 +227,12 @@ void world::build_scene()
                     mario_spawn_y = r * level::tile_size + level::half_tile_size;
                     break;
                 case 'y':
-                    e = luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
-                    luigi_spawn_x = c * level::tile_size + level::half_tile_size;
-                    luigi_spawn_y = r * level::tile_size + level::half_tile_size;
+                    if(num_players >= 2)
+                    {
+                        e = luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
+                        luigi_spawn_x = c * level::tile_size + level::half_tile_size;
+                        luigi_spawn_y = r * level::tile_size + level::half_tile_size;
+                    }
                     break;
             }
 

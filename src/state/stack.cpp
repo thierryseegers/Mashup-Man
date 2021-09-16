@@ -9,8 +9,8 @@ namespace state
 {
 
 stack::stack(
-    stack::context_t context)
-    : context{context}
+    stack::context_t&& context)
+    : context{std::move(context)}
 {}
 
 void stack::update(

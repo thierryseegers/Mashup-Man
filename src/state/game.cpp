@@ -11,7 +11,7 @@ namespace state
 game::game(
     stack& states)
     : state{states}
-    , world_{states.context.window, states.context.sound}
+    , world_{states.context.window, states.context.sound, states.context.player_2 ? 2 : 1}
 {
     // states.context.music.play(music::theme::mission);
 }
@@ -37,13 +37,16 @@ bool game::update(
         {
             states.context.sound.play(resources::sound_effect::game_over);
 
-            states.context.player_1.level_outcome() = player::outcome::failure;
+            states.context.player_1->level_outcome() = player::outcome::failure;
             states.request_push(id::game_over);
         }
     }
 
-    states.context.player_1.handle_realtime_input(world_.commands());
-    states.context.player_2.handle_realtime_input(world_.commands());
+    states.context.player_1->handle_realtime_input(world_.commands());
+    if(states.context.player_2)
+    {
+        states.context.player_2->handle_realtime_input(world_.commands());
+    }
 
     return true;
 }
@@ -52,8 +55,11 @@ bool game::handle_event(
     sf::Event const& event)
 {
     // Game input handling.
-    states.context.player_1.handle_event(event, world_.commands());
-    states.context.player_2.handle_event(event, world_.commands());
+    states.context.player_1->handle_event(event, world_.commands());
+    if(states.context.player_2)
+    {
+        states.context.player_2->handle_event(event, world_.commands());
+    }
 
     if(event.type == sf::Event::Resized)
     {

@@ -28,8 +28,6 @@ private:
 
     // music::player music;
     sf::RenderWindow window;
-    player player_1;
-    player player_2;
     sound::player sound;
 
     state::stack states;

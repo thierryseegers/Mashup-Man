@@ -13,14 +13,13 @@
 #include <magic_enum.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <list>
-
 class world
 {
 public:
     explicit world(
         sf::RenderTarget& output_target,
-        sound::player& sound);
+        sound::player& sound,
+        int const num_players);
 
     void update(
         sf::Time const dt);
@@ -37,7 +36,8 @@ public:
         sf::Event::SizeEvent const& event);
 
 private:
-    void build_scene();
+    void build_scene(
+        int const num_players);
 
     void handle_collisions();
 
