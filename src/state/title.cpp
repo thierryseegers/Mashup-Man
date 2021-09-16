@@ -13,6 +13,7 @@ namespace state
 title::title(
     stack& states)
     : state{states}
+    , view{states.context.window.getView()}
     , title_{"Mashup-Man", resources::fonts().get(resources::font::main), 150}
     , choices{"1 PLAYER\n2 PLAYERS", resources::fonts().get(resources::font::retro), 75}
     , arrow{">", resources::fonts().get(resources::font::retro), 75}
@@ -26,11 +27,15 @@ title::title(
     title_.setPosition(view_size.x * 0.5f, view_size.y * 0.3f);
     choices.setPosition(view_size.x * 0.5f, title_.getGlobalBounds().top + title_.getGlobalBounds().height + choices.getLocalBounds().height / 2 + 100.f);
     arrow.setPosition(choices.getGlobalBounds().left - 2 * arrow.getFont()->getGlyph('>', 75, false).bounds.width, choices.getGlobalBounds().top - 25);
+
+    to_scroll = view_size.y;
+    view.move(0, -to_scroll);
 }
 
 void title::draw()
 {
     auto& window = states.context.window;
+    window.setView(view);
 
     window.draw(title_);
     window.draw(choices);
@@ -38,8 +43,13 @@ void title::draw()
 }
 
 bool title::update(
-    sf::Time const& /*dt*/)
+    sf::Time const&)
 {
+    if(to_scroll -= std::min(to_scroll, 20.f); to_scroll > 0.f)
+    {
+        view.move(0, 20.f);
+    }
+
     return true;
 }
 
@@ -51,6 +61,9 @@ bool title::handle_event(
        (event.type == sf::Event::JoystickButtonReleased && 
         event.joystickButton.button == 6))
     {
+
+        states.context.window.setView(sf::View{sf::FloatRect{0, 0, (float)states.context.window.getSize().x, (float)states.context.window.getSize().y}});
+
         states.request_pop();
         states.request_push(id::game);
     }

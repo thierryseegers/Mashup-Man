@@ -24,6 +24,9 @@ public:
         sf::Event const& event) override;
 
 private:
+    sf::View view;
+    float to_scroll;
+
     sf::Text title_;
     sf::Text choices;
     sf::Text arrow;
