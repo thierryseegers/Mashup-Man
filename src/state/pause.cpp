@@ -76,22 +76,22 @@ bool pause::handle_event(
         states.request_pop();
     }
 
-    // // Backspace key pressed or Left and Right button pressed, clear stack and push main menu.
-    // if(event.type == sf::Event::KeyReleased &&
-    //    event.key.code == sf::Keyboard::BackSpace)
-    // {
-    //     states.request_clear();
-    //     states.request_push(id::menu);
-    // }
-    // else if(event.type == sf::Event::JoystickButtonReleased)
-    // {
-    //     if((event.joystickButton.button == 5 && sf::Joystick::isButtonPressed(0, 7)) ||
-    //        (event.joystickButton.button == 7 && sf::Joystick::isButtonPressed(0, 5)))
-    //     {
-    //         states.request_clear();
-    //         states.request_push(id::menu);
-    //     }
-    // }
+    // Backspace key pressed or Left and Right button pressed, clear stack and push main menu.
+    if(event.type == sf::Event::KeyReleased &&
+       event.key.code == sf::Keyboard::BackSpace)
+    {
+        states.request_clear();
+        states.request_push(id::title);
+    }
+    else if(event.type == sf::Event::JoystickButtonReleased)
+    {
+        if((event.joystickButton.button == 5 && sf::Joystick::isButtonPressed(0, 7)) ||
+           (event.joystickButton.button == 7 && sf::Joystick::isButtonPressed(0, 5)))
+        {
+            states.request_clear();
+            states.request_push(id::title);
+        }
+    }
 
     return false;
 }
