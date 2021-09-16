@@ -29,7 +29,7 @@ application::application()
     window.setFramerateLimit(60);
 
     auto& fonts = utility::single::mutable_instance<resources::fonts_t>();
-    fonts.load(resources::font::main, "assets/fonts/DeLarge.ttf");
+    fonts.load(resources::font::main, "assets/fonts/crackman.ttf");
     fonts.load(resources::font::label, "assets/fonts/Sansation.ttf");
 
     auto& textures = utility::single::mutable_instance<resources::textures_t>();
