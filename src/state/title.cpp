@@ -77,7 +77,7 @@ bool title::handle_event(
     else if((event.type == sf::Event::KeyReleased &&
              (event.key.code == sf::Keyboard::Up || event.key.code == sf::Keyboard::Down)) ||
             (event.type == sf::Event::JoystickButtonReleased && 
-             event.joystickButton.button == 5))
+             event.joystickButton.button == 4))
     {
         num_players = num_players % 2 + 1;
 
