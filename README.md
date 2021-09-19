@@ -6,7 +6,7 @@ This contraint is what made me think of "Mashup-Man", a re-imagining of Pac-Man 
 
 Here's what combining Pac-Man and Super Mario looks like :
 
-![]([https://user-images.githubusercontent.com/1580647/133932979-dbcae733-c3d9-4cc0-ac57-42fa50cf7c5e.png)
+<img width="752" alt="Mashup-Man screenshot" src="https://user-images.githubusercontent.com/1580647/133933250-8f637c78-62ff-46bf-8f27-c0bab87f4144.png">
 
 ## Demo
 
@@ -39,10 +39,10 @@ As of this writing, the larger parts of the game exist.
 Remains to refine them all.
 In rough order:
 
-[] Prettier menus
-[] More levels
-[] Configuration/Key bindings menu
-[] Read game assets like sprites and sound effects from ROMs
-[] A variety of enemies that use the original (or novel) chasing strategies
-[] Character select screen
-[] Coop/Competitive mode
+[ ] Prettier menus
+[ ] More levels
+[ ] Configuration/Key bindings menu
+[ ] Read game assets like sprites and sound effects from ROMs
+[ ] A variety of enemies that use the original (or novel) chasing strategies
+[ ] Character select screen
+[ ] Coop/Competitive mode
