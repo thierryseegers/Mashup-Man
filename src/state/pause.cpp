@@ -14,7 +14,7 @@ pause::pause(
     stack& states)
     : state{states}
     , word{"Game Paused", resources::fonts().get(resources::font::main), 100}
-    , instructions{"(Press Backspace or Left + Right to quit)", resources::fonts().get(resources::font::retro)}
+    , instructions{"(Press Backspace or L + R to quit)", resources::fonts().get(resources::font::retro)}
 {
     utility::center_origin(word, instructions);
 
@@ -83,7 +83,7 @@ bool pause::handle_event(
         states.request_clear();
         states.request_push(id::title);
     }
-    else if(event.type == sf::Event::JoystickButtonReleased)
+    else if(event.type == sf::Event::JoystickButtonPressed)
     {
         if((event.joystickButton.button == 5 && sf::Joystick::isButtonPressed(0, 7)) ||
            (event.joystickButton.button == 7 && sf::Joystick::isButtonPressed(0, 5)))
