@@ -1,13 +1,16 @@
-# MASHUP-MAN
+# Mashup-Man
 
 This project started from a desire of writing an original game using the knowledge I learned from my [previous experience with SFML](https://github.com/thierryseegers/Shooty).
 That being said, I'm not an artist nor a composer (yet) so that means that when it comes to game assets I must make do with what I can scrounge.
-This contraint is what made me think of "Mashup-Man", a re-imagining of Pac-Man with the main characters borrowed from other games around that era.
+This contraint is what made me think of "Mashup-Man", a re-imagining of Pac-Man with the main characters borrowed from other video games from around that era.
 
+Here's what combining Pac-Man and Super Mario looks like :
+
+![]([https://user-images.githubusercontent.com/1580647/133932979-dbcae733-c3d9-4cc0-ac57-42fa50cf7c5e.png)
 
 ## Demo
 
-What me play my game [here]()!
+Whatch a short demo of this game in [English](https://youtu.be/NF7veV5yCsI)... ou en [français](https://youtu.be/4ZGo7nx7lvU)!
 
 
 ## Can you really do that, legally?
@@ -23,7 +26,7 @@ Interestingly, though they archive sprites and sound effects, they do not archiv
 They also respect video game makers' wishes to remove assests when requested.
 
 The reason I'm saying all this is that, though they are easily available online, I have not committed in this codebase neither the sprites nor the sound effects that I'm using.
-Yes, it's a "fangame" but I don't necessarily agree that because something is a fan-thing you can do what you want with the author's material and contents. Same with the "non-profit" argument. One can't copy and redistribute the Harry Potter stories regardless of whether you ask for money in return.
+Yes, it's a "fangame" but I don't necessarily agree that because something is a fan-thing you can do what you want with the author's material and contents. Same with the "non-profit" argument. One can't copy and redistribute the Harry Potter novels regardless of whether you ask for money in return.
 
 That said, should you copy the assets yourself in the expected folder, you will have a functioning game like shown in the video.
 Further, I plan to use a different approach to reusing game assets in the future and that is to read them directly from ROMs.
