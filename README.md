@@ -39,10 +39,10 @@ As of this writing, the larger parts of the game exist.
 Remains to refine them all.
 In rough order:
 
-[ ] Prettier menus
-[ ] More levels
-[ ] Configuration/Key bindings menu
-[ ] Read game assets like sprites and sound effects from ROMs
-[ ] A variety of enemies that use the original (or novel) chasing strategies
-[ ] Character select screen
-[ ] Coop/Competitive mode
+- [ ] Prettier menus
+- [ ] More levels
+- [ ] Configuration/Key bindings menu
+- [ ] Read game assets like sprites and sound effects from ROMs
+- [ ] A variety of enemies that use the original (or novel) chasing strategies
+- [ ] Character select screen
+- [ ] Coop/Competitive mode
