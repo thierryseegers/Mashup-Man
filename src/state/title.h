@@ -25,6 +25,8 @@ public:
         sf::Event const& event) override;
 
 private:
+    static bool scroll; // Whether to scrool the title screen or not. Only the first one ever will.
+
     sf::View view;
     float to_scroll;
 

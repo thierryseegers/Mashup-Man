@@ -12,6 +12,8 @@
 namespace state
 {
 
+bool title::scroll = true;
+
 title::title(
     stack& states)
     : state{states}
@@ -39,8 +41,17 @@ title::title(
     choices.setPosition(view_size.x * 0.5f, title_.getGlobalBounds().top + title_.getGlobalBounds().height + choices.getLocalBounds().height / 2 + 100.f);
     arrow.setPosition(choices.getGlobalBounds().left - 2 * arrow.getFont()->getGlyph('>', 75, false).bounds.width, choices.getGlobalBounds().top - 25);
 
-    to_scroll = view_size.y;
-    view.move(0, -to_scroll);
+    if(scroll)
+    {
+        scroll = false;
+
+        to_scroll = view_size.y;
+        view.move(0, -to_scroll);
+    }
+    else
+    {
+        to_scroll = 0;
+    }
 }
 
 void title::draw()
