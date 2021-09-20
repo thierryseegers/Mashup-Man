@@ -3,6 +3,7 @@
 #include "state/stack.h"
 #include "state/state.h"
 
+#include <SFML/Graphics/RoundedRectangleShape.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
@@ -28,6 +29,8 @@ private:
     float to_scroll;
 
     sf::Text title_;
+    sf::RoundedRectangleShape frame;
+    sf::RoundedRectangleShape outer_frame;
     sf::Text choices;
     sf::Text arrow;
 

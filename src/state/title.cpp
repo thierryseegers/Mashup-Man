@@ -17,16 +17,25 @@ title::title(
     : state{states}
     , view{states.context.window.getView()}
     , title_{"Mashup-Man", resources::fonts().get(resources::font::main), 150}
+    , frame{{title_.getLocalBounds().width + 100, title_.getLocalBounds().height + 40}, 20, 8}
+    , outer_frame{{frame.getSize().x + 40, frame.getSize().y + 40}, 28, 12}
     , choices{"1 PLAYER\n2 PLAYERS", resources::fonts().get(resources::font::retro), 75}
     , arrow{">", resources::fonts().get(resources::font::retro), 75}
     , num_players{1}
 {
-    utility::center_origin(title_, choices);
+    utility::center_origin(title_, frame, outer_frame, choices);
+
+    frame.setFillColor(sf::Color::Blue);
+    frame.setOutlineColor(sf::Color::Black);
+    frame.setOutlineThickness(5.f);
+    outer_frame.setFillColor(sf::Color::Magenta);
 
     title_.setFillColor(sf::Color::Yellow);
 
     auto const view_size = states.context.window.getView().getSize();
     title_.setPosition(view_size.x * 0.5f, view_size.y * 0.3f);
+    frame.setPosition(title_.getPosition());
+    outer_frame.setPosition(frame.getPosition());
     choices.setPosition(view_size.x * 0.5f, title_.getGlobalBounds().top + title_.getGlobalBounds().height + choices.getLocalBounds().height / 2 + 100.f);
     arrow.setPosition(choices.getGlobalBounds().left - 2 * arrow.getFont()->getGlyph('>', 75, false).bounds.width, choices.getGlobalBounds().top - 25);
 
@@ -39,6 +48,8 @@ void title::draw()
     auto& window = states.context.window;
     window.setView(view);
 
+    window.draw(outer_frame);
+    window.draw(frame);
     window.draw(title_);
     window.draw(choices);
     window.draw(arrow);
