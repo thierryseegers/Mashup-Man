@@ -53,6 +53,8 @@ find_package(tomlplusplus 2.3.0 MODULE
 )
 
 add_executable(${PROJECT_NAME}
+    3rdparty/SFML/Graphics/RoundedRectangleShape.cpp
+    3rdparty/SFML/Graphics/RoundedRectangleShape.hpp
     src/action.h
     src/application.cpp
     src/application.h
@@ -127,6 +129,7 @@ target_compile_options(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
+        ${CMAKE_SOURCE_DIR}/3rdparty
         ${CMAKE_SOURCE_DIR}/src
 )
 
