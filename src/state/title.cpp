@@ -38,7 +38,8 @@ title::title(
     title_.setPosition(view_size.x * 0.5f, view_size.y * 0.3f);
     frame.setPosition(title_.getPosition());
     outer_frame.setPosition(frame.getPosition());
-    choices.setPosition(view_size.x * 0.5f, title_.getGlobalBounds().top + title_.getGlobalBounds().height + choices.getLocalBounds().height / 2 + 100.f);
+
+    choices.setPosition(view_size.x * 0.5f, title_.getGlobalBounds().top + title_.getGlobalBounds().height + choices.getLocalBounds().height / 2 + 200.f);
     arrow.setPosition(choices.getGlobalBounds().left - 2 * arrow.getFont()->getGlyph('>', 75, false).bounds.width, choices.getGlobalBounds().top - 25);
 
     if(scroll)
