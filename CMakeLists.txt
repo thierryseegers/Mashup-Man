@@ -16,7 +16,7 @@ include(
     ${CMAKE_BINARY_DIR}/conan.cmake
 )
 
-# Request Conan to install Find*.cmake modules for the dependencies.
+# Request Conan to generate *-config.cmake modules for the dependencies.
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 conan_cmake_run(REQUIRES
                     magic_enum/0.7.2
@@ -29,28 +29,33 @@ conan_cmake_run(REQUIRES
                 BUILD
                     missing
                 GENERATORS
-                    cmake_find_package
+                    cmake_find_package_multi
                 INSTALL_FOLDER
                     ${CONAN_INSTALL_FOLDER}
                 NO_OUTPUT_DIRS
 )
-list(APPEND CMAKE_MODULE_PATH ${CONAN_INSTALL_FOLDER})
+set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
 
-find_package(magic_enum 0.7.2 MODULE
+find_package(magic_enum 0.7.2
+    CONFIG
     REQUIRED
 )
 
-find_package(SFML 2.5.1 MODULE
+find_package(SFML 2.5.1
+    CONFIG
     COMPONENTS audio graphics system window
     REQUIRED
 )
-add_library(sfml::sfml ALIAS SFML::SFML)
+add_library(sfml::sfml
+    ALIAS SFML::SFML)
 
-find_package(spdlog 1.9.2 MODULE
+find_package(spdlog 1.9.2
+    CONFIG
     REQUIRED
 )
 
-find_package(tomlplusplus 2.3.0 MODULE
+find_package(tomlplusplus 2.3.0
+    CONFIG
     REQUIRED
 )
 
