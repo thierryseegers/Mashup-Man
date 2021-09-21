@@ -8,8 +8,6 @@ lifeboard::lifeboard(
     : player_1{sprite_1, 0}
     , player_2{sprite_2, 0}
 {
-    // auto const sprite_2_rect = player_2.sprite.getTextureRect();
-    // player_2.sprite.setTextureRect(sf::IntRect{sprite_2_rect.width, 0, -sprite_2_rect.width, sprite_2_rect.height});
     player_2.sprite.setScale(-1, 1);
 }
 
