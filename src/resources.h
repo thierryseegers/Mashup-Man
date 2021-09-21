@@ -5,6 +5,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Shader.hpp>
 
+#include <cassert>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -63,7 +64,7 @@ public:
         std::filesystem::path const& path)
     {
         auto resource = std::make_unique<Resource>();
-        if(!resource->loadFromFile(path.native()))
+        if(!resource->loadFromFile(path.string()))
         {
             throw std::runtime_error("resources::holder::load failed to load " + path.string());
         }
@@ -77,7 +78,7 @@ public:
         std::filesystem::path const& path, Parameter const& parameter)
     {
         auto resource = std::make_unique<Resource>();
-        if(!resource->loadFromFile(path.native(), parameter))
+        if(!resource->loadFromFile(path.string(), parameter))
         {
             throw std::runtime_error("resources::holder::load failed to load " + path.string());
         }

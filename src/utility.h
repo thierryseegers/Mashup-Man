@@ -245,7 +245,7 @@ namespace single
 template<typename T>
 T& mutable_instance()
 {
-    static T t;
+    static T t{};
     return t;
 }
 

@@ -35,7 +35,7 @@ public:
         sf::Time const& dt,
         commands_t&) override
     {
-        velocity.y += 9.8 * dt.asSeconds();
+        velocity.y += 9.8f * dt.asSeconds();
 
         sf::Transformable::move(velocity);
     }
@@ -145,7 +145,7 @@ void brother::update_sprite()
 void brother::shoot_fireball(
     layer::projectiles& layer) const
 {
-    auto position = getPosition();
+    sf::Vector2f position = getPosition();
 
     switch(heading_)
     {

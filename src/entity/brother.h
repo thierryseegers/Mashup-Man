@@ -8,6 +8,10 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 
+#if defined(WIN32)
+    #undef small
+#endif
+
 namespace entity
 {
 
