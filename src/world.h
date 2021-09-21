@@ -8,6 +8,7 @@
 #include "lifeboard.h"
 #include "resources.h"
 #include "scene.h"
+#include "scoreboard.h"
 #include "sound.h"
 
 #include <magic_enum.hpp>
@@ -56,6 +57,7 @@ private:
 
     scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;
+    scoreboard scoreboard_;
     lifeboard lifeboard_;
 
     commands_t commands_;

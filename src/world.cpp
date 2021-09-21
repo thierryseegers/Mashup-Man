@@ -128,15 +128,22 @@ std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read
 void world::handle_size_changed(
     sf::Event::SizeEvent const& event)
 {
-    auto const scale = std::min((static_cast<float>(event.height - 100) / (level::height * level::tile_size)),
-                                (static_cast<float>(event.width - 40) / (level::width * level::tile_size)));
+    unsigned int const scoreboard_height = event.height * 0.05f;  // 5% of the window height.
+    unsigned int const lifeboard_height = scoreboard_height;
+    unsigned int const clearance = 20;
 
-    playground.setPosition(std::max(20.f, (event.width - level::width * level::tile_size * scale) / 2), 
-                           std::max(50.f, (event.height - level::height * level::tile_size * scale) / 2));
+    auto const scale = std::min((static_cast<float>(event.height - scoreboard_height - lifeboard_height - clearance * 4) / (level::height * level::tile_size)),
+                                (static_cast<float>(event.width - clearance * 2) / (level::width * level::tile_size)));
+
+    auto const center_x = std::max(20.f, (event.width - level::width * level::tile_size * scale) / 2);
+
+    scoreboard_.setPosition(center_x, clearance);
+    scoreboard_.set_size(scoreboard_height, scale * level::width * level::tile_size);
+
+    playground.setPosition(center_x, scoreboard_height + clearance);
     playground.setScale(scale, scale);
 
-    lifeboard_.setPosition(std::max(20.f, (event.width - level::width * level::tile_size * scale) / 2),
-                           std::min(playground.getPosition().y + level::height * level::tile_size * scale, event.height - 50.f));
+    lifeboard_.setPosition(center_x, event.height - lifeboard_height - clearance);
     lifeboard_.setScale(scale, scale);
 }
 
@@ -385,11 +392,21 @@ void world::handle_collisions()
                 immovables[pickup->getPosition().y / level::tile_size][pickup->getPosition().x / level::tile_size] = nullptr;
 
                 pickup->apply(*brother);
+
                 sound.play(pickup->sound_effect());
 
                 if(auto const* coin = dynamic_cast<entity::pickup::coin*>(pickup))
                 {
                     --n_pills;
+
+                    if(brother == mario)
+                    {
+                        scoreboard_.increase_score(1, 10);
+                    }
+                    else
+                    {
+                        scoreboard_.increase_score(2, 10);
+                    }
                 }
             }
         }
@@ -651,6 +668,7 @@ void world::draw()
     // }
     // else
     // {
+        target.draw(scoreboard_);
         target.draw(playground);
         target.draw(lifeboard_);
     // }
