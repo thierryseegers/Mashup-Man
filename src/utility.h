@@ -14,6 +14,12 @@
 namespace utility
 {
 
+template<typename F, typename... Args>
+void invoke_on(F f, Args&&... args)
+{
+    (f(args), ...);
+}
+
 // Change origin of object to be its center rather than its top-left corner.
 template<typename T>
 void center_origin(
