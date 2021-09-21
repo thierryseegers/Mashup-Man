@@ -24,15 +24,12 @@ conan_cmake_run(REQUIRES
                     sfml/2.5.1
                     spdlog/1.9.2
                 OPTIONS
-                    sfml:shared=True
                     sfml:network=False
                 BASIC_SETUP
                 BUILD
                     missing
                 GENERATORS
                     cmake_find_package
-                IMPORTS "bin, *.dll -> ${CMAKE_BINARY_DIR}"
-                IMPORTS "lib, *.dylib* -> ${CMAKE_BINARY_DIR}"
                 INSTALL_FOLDER
                     ${CONAN_INSTALL_FOLDER}
                 NO_OUTPUT_DIRS
@@ -147,6 +144,13 @@ target_link_libraries(${PROJECT_NAME}
         spdlog::spdlog
         tomlplusplus::tomlplusplus
 )
+
+if(APPLE)
+    target_link_options(${PROJECT_NAME}
+        PRIVATE
+            -ObjC
+    )
+endif()
 
 set_property(
     TARGET ${PROJECT_NAME}
