@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(Mashup-Man VERSION 1.0.0)
 
+set(CMAKE_BUILD_TYPES "Debug;MinSizeRel;Release;RelWithDebInfo")
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
@@ -26,6 +28,8 @@ conan_cmake_run(REQUIRES
                 OPTIONS
                     sfml:network=False
                 BASIC_SETUP
+                CONFIGURATION_TYPES
+                    ${CMAKE_BUILD_TYPES}
                 BUILD
                     missing
                 GENERATORS
@@ -33,6 +37,7 @@ conan_cmake_run(REQUIRES
                 INSTALL_FOLDER
                     ${CONAN_INSTALL_FOLDER}
                 NO_OUTPUT_DIRS
+                OUTPUT_QUIET
 )
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
 
