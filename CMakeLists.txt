@@ -23,11 +23,16 @@ conan_cmake_run(REQUIRES
                     tomlplusplus/2.3.0
                     sfml/2.5.1
                     spdlog/1.9.2
+                OPTIONS
+                    sfml:shared=True
+                    sfml:network=False
                 BASIC_SETUP
                 BUILD
                     missing
                 GENERATORS
                     cmake_find_package
+                IMPORTS "bin, *.dll -> ${CMAKE_BINARY_DIR}"
+                IMPORTS "lib, *.dylib* -> ${CMAKE_BINARY_DIR}"
                 INSTALL_FOLDER
                     ${CONAN_INSTALL_FOLDER}
                 NO_OUTPUT_DIRS
@@ -39,7 +44,7 @@ find_package(magic_enum 0.7.2 MODULE
 )
 
 find_package(SFML 2.5.1 MODULE
-    COMPONENTS audio graphics network system window
+    COMPONENTS audio graphics system window
     REQUIRED
 )
 add_library(sfml::sfml ALIAS SFML::SFML)
@@ -134,7 +139,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE 
+    PRIVATE
         magic_enum::magic_enum
         sfml::sfml
         spdlog::spdlog
