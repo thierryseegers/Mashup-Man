@@ -100,6 +100,8 @@ add_executable(${PROJECT_NAME}
     src/resources.h
     src/scene.cpp
     src/scene.h
+    src/scoreboard.cpp
+    src/scoreboard.h
     src/sound.cpp
     src/sound.h
     src/sprite.cpp
