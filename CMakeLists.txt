@@ -21,8 +21,8 @@ set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 conan_cmake_run(REQUIRES
                     magic_enum/0.7.2
                     tomlplusplus/2.3.0
-                    sfml/2.5.1@bincrafters/stable
-                    spdlog/1.8.2
+                    sfml/2.5.1
+                    spdlog/1.9.2
                 BASIC_SETUP
                 BUILD
                     missing
@@ -44,7 +44,7 @@ find_package(SFML 2.5.1 MODULE
 )
 add_library(sfml::sfml ALIAS SFML::SFML)
 
-find_package(spdlog 1.8.2 MODULE
+find_package(spdlog 1.9.2 MODULE
     REQUIRED
 )
 
