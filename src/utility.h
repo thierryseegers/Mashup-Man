@@ -7,6 +7,7 @@
 #include <array>
 #include <cmath>
 #include <iterator>
+#include <numbers>
 #include <random>
 #include <string>
 #include <type_traits>
@@ -51,14 +52,14 @@ template<typename T>
 T to_degree(
     T const radian)
 {
-	return 180. / M_PI * radian;
+	return 180. / std::numbers::pi * radian;
 }
 
 template<typename T>
 T to_radian(
     T const degree)
 {
-	return M_PI / 180. * degree;
+	return std::numbers::pi / 180. * degree;
 }
 
 float length(
