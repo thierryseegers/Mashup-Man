@@ -123,13 +123,27 @@ add_executable(${PROJECT_NAME}
     src/world.h
 )
 
-target_compile_options(${PROJECT_NAME}
-    PRIVATE
-        -Wall
-        -Wextra
-        -Werror
-        -pedantic
-)
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE
+            -Wall
+            -Wextra
+            -Werror
+            -pedantic
+    )
+endif()
+
+if(MSVC)
+    target_compile_options(${PROJECT_NAME}
+        PRIVATE
+            /MP
+    )
+
+    target_compile_definitions(${PROJECT_NAME}
+        PRIVATE
+            NOMINMAX
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
