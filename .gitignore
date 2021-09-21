@@ -1,3 +1,4 @@
 .vscode
 assets/images/**
 assets/sounds/**
+build/**
