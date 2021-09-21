@@ -176,6 +176,12 @@ set_property(
     PROPERTY CXX_STANDARD 20
 )
 
+get_target_property(PROJECT_SOURCES ${PROJECT_NAME} SOURCES)
+
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR}
+    FILES ${PROJECT_SOURCES}
+)
+
 add_custom_target(copy-assets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
 )
