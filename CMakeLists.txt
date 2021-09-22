@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(Mashup-Man VERSION 1.0.0)
 
-set(CMAKE_BUILD_TYPES "Debug;MinSizeRel;Release;RelWithDebInfo")
+if(GENERATOR_IS_MULTI_CONFIG)
+    set(CMAKE_BUILD_TYPES "Debug;MinSizeRel;Release;RelWithDebInfo")
+endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
