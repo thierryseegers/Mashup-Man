@@ -152,6 +152,7 @@ if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE
             NOMINMAX
+            _USE_MATH_DEFINES
     )
 endif()
 
