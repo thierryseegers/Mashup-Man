@@ -1,3 +1,5 @@
+![](https://github.com/thierryseegers/Mashup-Man/workflows/build/badge.svg)
+
 # Mashup-Man
 
 This project started from a desire of writing an original game using the knowledge I learned from my [previous experience with SFML](https://github.com/thierryseegers/Shooty).
