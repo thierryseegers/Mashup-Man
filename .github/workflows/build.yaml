@@ -15,7 +15,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
       - name: Configure
-        run: cmake . -D${{ matrix.configuration }}
+        run: cmake . -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
       - uses: SimenB/github-actions-cpu-cores@v1
       - name: Build
         run: cmake --build . --parallel ${{ steps.cpu-cores.outputs.count }}
