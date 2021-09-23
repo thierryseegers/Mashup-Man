@@ -9,10 +9,10 @@
 
 #include <memory>
 
-namespace entity::pickup
+namespace entity::power_up
 {
 
-class pickup
+class power_up
     : public entity
 {
 public:
@@ -25,7 +25,7 @@ public:
 };
 
 class coin
-    : public pickup
+    : public power_up
 {
 public:
     coin();
@@ -37,7 +37,7 @@ public:
 };
 
 class mushroom
-    : public pickup
+    : public power_up
 {
 public:
     mushroom();
@@ -49,7 +49,7 @@ public:
 };
 
 class flower
-    : public pickup
+    : public power_up
 {
 public:
     flower();

@@ -203,12 +203,12 @@ void world::build_scene(
             switch(level_info[r][c])
             {
                 case '.':
-                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::coin>();
+                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::power_up::coin>();
                     immovables[r][c] = e;
                     ++n_pills;
                     break;
                 case 'f':
-                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::flower>();
+                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::power_up::flower>();
                     immovables[r][c] = e;
                     break;
                 case 'g':
@@ -223,7 +223,7 @@ void world::build_scene(
                     }
                     break;
                 case 'm':
-                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
+                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::power_up::mushroom>();
                     immovables[r][c] = e;
                     break;
                 case 'p':
@@ -287,7 +287,7 @@ void world::handle_collisions()
 {
     std::set<std::pair<scene::node*, scene::node*>> collisions;
 
-    // Detect collisions between the heroes and pickups and pipes.
+    // Detect collisions between the heroes and power-ups and pipes.
     for(auto* const hero : std::initializer_list<entity::hero*>{mario, luigi})
     {
         if(hero)
@@ -391,18 +391,18 @@ void world::handle_collisions()
                 sound.play(resources::sound_effect::kick);
             }
         }
-        else if(auto [hero, pickup] = match<entity::hero, entity::pickup::pickup>(collision); hero && pickup)
+        else if(auto [hero, power_up] = match<entity::hero, entity::power_up::power_up>(collision); hero && power_up)
         {
-            if(!pickup->remove)
+            if(!power_up->remove)
             {
-                pickup->remove = true;
-                immovables[pickup->getPosition().y / level::tile_size][pickup->getPosition().x / level::tile_size] = nullptr;
+                power_up->remove = true;
+                immovables[power_up->getPosition().y / level::tile_size][power_up->getPosition().x / level::tile_size] = nullptr;
 
-                pickup->apply(*hero);
+                power_up->apply(*hero);
 
-                sound.play(pickup->sound_effect());
+                sound.play(power_up->sound_effect());
 
-                if(auto const* coin = dynamic_cast<entity::pickup::coin*>(pickup))
+                if(auto const* coin = dynamic_cast<entity::power_up::coin*>(power_up))
                 {
                     --n_pills;
 

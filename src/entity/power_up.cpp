@@ -1,4 +1,4 @@
-#include "entity/pickup.h"
+#include "entity/power_up.h"
 
 #include "configuration.h"
 #include "entity/hero.h"
@@ -12,11 +12,11 @@
 #include <memory>
 #include <string>
 
-namespace entity::pickup
+namespace entity::power_up
 {
 
 coin::coin()
-    : pickup{
+    : power_up{
         sprite{
             resources::texture::items,
             std::vector<sf::IntRect>{{0, 96, 16, 16}, {16, 96, 16, 16}, {32, 96, 16, 16}, {48, 96, 16, 16}},
@@ -37,7 +37,7 @@ void coin::apply(
 }
 
 mushroom::mushroom()
-    : pickup{
+    : power_up{
         sprite{
             resources::texture::items,
             sf::IntRect{0, 0, 16, 16},
@@ -56,7 +56,7 @@ void mushroom::apply(
 }
 
 flower::flower()
-    : pickup{
+    : power_up{
         sprite{
             resources::texture::items,
             std::vector<sf::IntRect>{{0, 32, 16, 16}, {16, 32, 16, 16}, {32, 32, 16, 16}, {48, 32, 16, 16}},

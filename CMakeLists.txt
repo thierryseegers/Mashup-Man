@@ -79,6 +79,8 @@ add_executable(${PROJECT_NAME}
     src/configuration.h
     src/entity/animation.cpp
     src/entity/animation.h
+    src/entity/brothers.cpp
+    src/entity/brothers.h
     src/entity/character.cpp
     src/entity/character.h
     src/entity/enemy.cpp
@@ -90,8 +92,8 @@ add_executable(${PROJECT_NAME}
     src/entity/fireball.h
     src/entity/hero.cpp
     src/entity/hero.h
-    src/entity/pickup.cpp
-    src/entity/pickup.h
+    src/entity/power_up.cpp
+    src/entity/power_up.h
     src/entity/pipe.cpp
     src/entity/pipe.h
     src/entity/projectile.cpp
