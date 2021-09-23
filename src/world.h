@@ -42,8 +42,8 @@ private:
 
     void handle_collisions();
 
-    void update_brother(
-        entity::brother *bro);
+    void update_hero(
+        entity::hero *hero);
 
     void update_fireballs();
 
@@ -62,8 +62,8 @@ private:
 
     commands_t commands_;
 
-    // Brothers infos.
-    entity::brother *mario, *luigi;
+    // Heroes infos.
+    entity::hero *mario, *luigi;
     float mario_spawn_x, mario_spawn_y, luigi_spawn_x, luigi_spawn_y;
     sf::Time mario_spawn_timer, luigi_spawn_timer;
     int mario_lives, luigi_lives;
@@ -77,5 +77,5 @@ private:
     entity::enemy::mode enemy_mode_;
     sf::Time enemy_mode_timer; // Time left in current mode.
 
-    sf::Time done_timer; // Time to show an empty world after both brothers are dead.
+    sf::Time done_timer; // Time to show an empty world after all heroes are dead.
 };

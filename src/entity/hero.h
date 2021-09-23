@@ -15,7 +15,7 @@
 namespace entity
 {
 
-class brother
+class hero
     : public friendly<character>
 {
 public:
@@ -39,24 +39,24 @@ public:
 
 private:
     using still_sprite_rect_f = sf::IntRect (*)(
-                                    brother::size const,
-                                    brother::attribute const);
+                                    hero::size const,
+                                    hero::attribute const);
 
     using animated_sprite_rects_f = std::vector<sf::IntRect>(*)(
-                                        brother::size const,
-                                        brother::attribute const);
+                                        hero::size const,
+                                        hero::attribute const);
 
     using dead_sprite_rect_f = sf::IntRect (*)(
-                                    brother::attribute const);
+                                    hero::attribute const);
 
 public:
-    brother(
+    hero(
         direction const facing_,
         still_sprite_rect_f const still_sprite_rect,
         animated_sprite_rects_f const animated_sprite_rects,
         dead_sprite_rect_f const dead_sprite_rect);
 
-    virtual ~brother() = default;
+    virtual ~hero() = default;
 
     virtual void hit() override;
 
@@ -102,7 +102,7 @@ protected:
 };
 
 class mario
-    : public brother
+    : public hero
 {
 public:
     mario();
@@ -111,7 +111,7 @@ public:
 };
 
 class luigi
-    : public brother
+    : public hero
 {
 public:
     luigi();

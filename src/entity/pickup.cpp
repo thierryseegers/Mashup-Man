@@ -1,7 +1,7 @@
 #include "entity/pickup.h"
 
 #include "configuration.h"
-#include "entity/brother.h"
+#include "entity/hero.h"
 #include "resources.h"
 #include "sprite.h"
 #include "utility.h"
@@ -31,7 +31,7 @@ resources::sound_effect coin::sound_effect() const
 }
 
 void coin::apply(
-    brother& /*b*/) const
+    hero& /*b*/) const
 {
     // leader.repair(25);
 }
@@ -50,9 +50,9 @@ resources::sound_effect mushroom::sound_effect() const
 }
 
 void mushroom::apply(
-    brother& brother_) const
+    hero& hero_) const
 {
-    brother_.consume_mushroom();
+    hero_.consume_mushroom();
 }
 
 flower::flower()
@@ -71,9 +71,9 @@ resources::sound_effect flower::sound_effect() const
 }
 
 void flower::apply(
-    brother& brother_) const
+    hero& hero_) const
 {
-    brother_.consume_flower();
+    hero_.consume_flower();
 }
 
 }

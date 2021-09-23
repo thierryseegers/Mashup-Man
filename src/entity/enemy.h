@@ -54,7 +54,7 @@ public:
         mode const m);
 
     virtual direction fork(
-        std::vector<sf::Vector2f> const& brother_positions,
+        std::vector<sf::Vector2f> const& heroes_positions,
         std::map<direction, sf::Vector2f> const& choices) = 0;
 
     virtual void hit() override;
@@ -89,7 +89,7 @@ public:
         sf::IntRect const& home);
 
     virtual direction fork(
-        std::vector<sf::Vector2f> const& brother_positions,
+        std::vector<sf::Vector2f> const& heroes_positions,
         std::map<direction, sf::Vector2f> const& choices) override;
 
     virtual std::string_view name() const override;

@@ -5,7 +5,7 @@
 #include "command.h"
 #include "direction.h"
 #include "entity/entity.h"
-#include "entity/brother.h"
+#include "entity/hero.h"
 #include "utility.h"
 
 #include <SFML/Window.hpp>

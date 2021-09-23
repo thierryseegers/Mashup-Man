@@ -287,15 +287,15 @@ void world::handle_collisions()
 {
     std::set<std::pair<scene::node*, scene::node*>> collisions;
 
-    // Detect collisions between the brothers and pickups and pipes.
-    for(auto* const bro : std::initializer_list<entity::brother*>{mario, luigi})
+    // Detect collisions between the heroes and pickups and pipes.
+    for(auto* const hero : std::initializer_list<entity::hero*>{mario, luigi})
     {
-        if(bro)
+        if(hero)
         {
-            size_t const r = bro->getPosition().y / level::tile_size, c = bro->getPosition().x / level::tile_size;
-            if(auto* const immovable = immovables[r][c]; immovable && bro->collides(immovable))
+            size_t const r = hero->getPosition().y / level::tile_size, c = hero->getPosition().x / level::tile_size;
+            if(auto* const immovable = immovables[r][c]; immovable && hero->collides(immovable))
             {
-                collisions.insert(std::minmax<scene::node*>(bro, immovable));
+                collisions.insert(std::minmax<scene::node*>(hero, immovable));
             }
         }
     }
@@ -324,18 +324,18 @@ void world::handle_collisions()
 
     for(auto const& collision : collisions)
     {
-        if(auto [brother, enemy] = match<entity::brother, entity::enemy>(collision); brother && enemy)
+        if(auto [hero, enemy] = match<entity::hero, entity::enemy>(collision); hero && enemy)
         {
-            spdlog::info("Brother got hit by an enemy!");
+            spdlog::info("Hero got hit by an enemy!");
 
-            if(!brother->untouchable() && enemy->behavior() != entity::enemy::mode::dead)
+            if(!hero->untouchable() && enemy->behavior() != entity::enemy::mode::dead)
             {
-                brother->hit();
+                hero->hit();
                 sound.play(resources::sound_effect::short_die);
 
-                if(brother->remove)
+                if(hero->remove)
                 {
-                    if(brother == mario)
+                    if(hero == mario)
                     {
                         mario = nullptr;
                         lifeboard_[0] = --mario_lives;
@@ -350,22 +350,22 @@ void world::handle_collisions()
                 }
             }
         }
-        else if(auto [brother, projectile] = match<entity::brother, entity::projectile>(collision); brother && projectile)
+        else if(auto [hero, projectile] = match<entity::hero, entity::projectile>(collision); hero && projectile)
         {
             if(!projectile->remove)
             {
-                spdlog::info("Brother got hit by a projectile!");
+                spdlog::info("Hero got hit by a projectile!");
 
                 projectile->hit();
 
-                if(!brother->untouchable())
+                if(!hero->untouchable())
                 {
-                    brother->hit();
+                    hero->hit();
                     sound.play(resources::sound_effect::short_die);
 
-                    if(brother->remove)
+                    if(hero->remove)
                     {
-                        if(brother == mario)
+                        if(hero == mario)
                         {
                             mario = nullptr;
                             lifeboard_[0] = --mario_lives;
@@ -391,14 +391,14 @@ void world::handle_collisions()
                 sound.play(resources::sound_effect::kick);
             }
         }
-        else if(auto [brother, pickup] = match<entity::brother, entity::pickup::pickup>(collision); brother && pickup)
+        else if(auto [hero, pickup] = match<entity::hero, entity::pickup::pickup>(collision); hero && pickup)
         {
             if(!pickup->remove)
             {
                 pickup->remove = true;
                 immovables[pickup->getPosition().y / level::tile_size][pickup->getPosition().x / level::tile_size] = nullptr;
 
-                pickup->apply(*brother);
+                pickup->apply(*hero);
 
                 sound.play(pickup->sound_effect());
 
@@ -406,7 +406,7 @@ void world::handle_collisions()
                 {
                     --n_pills;
 
-                    if(brother == mario)
+                    if(hero == mario)
                     {
                         scoreboard_.increase_score(1, 10);
                     }
@@ -417,45 +417,45 @@ void world::handle_collisions()
                 }
             }
         }
-        else if(auto [brother, pipe] = match<entity::brother, entity::pipe>(collision); brother && pipe)
+        else if(auto [hero, pipe] = match<entity::hero, entity::pipe>(collision); hero && pipe)
         {
             sound.play(resources::sound_effect::warp);
             if(pipe->getPosition().x == level::half_tile_size)
             {
-                brother->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, brother->getPosition().y);
+                hero->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, hero->getPosition().y);
             }
             else
             {
-                brother->setPosition(1 * level::tile_size + level::half_tile_size, brother->getPosition().y);
+                hero->setPosition(1 * level::tile_size + level::half_tile_size, hero->getPosition().y);
             }
         }
     }
 }
 
-void world::update_brother(
-    entity::brother *bro)
+void world::update_hero(
+    entity::hero *hero)
 {
-    // Control a brother's direction given his desired direction (steering), current direction (heading) and any close by walls.
-    sf::Vector2i const position{(int)bro->getPosition().x, (int)bro->getPosition().y};
-    auto const heading = bro->heading();
-    auto const steering = bro->steering();
+    // Control a hero's direction given his desired direction (steering), current direction (heading) and any close by walls.
+    sf::Vector2i const position{(int)hero->getPosition().x, (int)hero->getPosition().y};
+    auto const heading = hero->heading();
+    auto const steering = hero->steering();
 
     if(position.x % level::tile_size >= 8 && position.x % level::tile_size <= 12 && position.y % level::tile_size >= 8 && position.y % level::tile_size <= 12)
     {
-        // If the brother wants to change direction and he can, let him.
-        if((steering != heading || bro->speed() == 0.f) &&
+        // If the hero wants to change direction and he can, let him.
+        if((steering != heading || hero->speed() == 0.f) &&
            ((steering == direction::right  && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'd')) ||
             (steering == direction::left   && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3', 'd')) ||
             (steering == direction::down   && !utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'd')) ||
             (steering == direction::up     && !utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'd'))))
         {
             spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(steering));
-            bro->head(steering);
-            bro->throttle(1.f);
-            bro->setPosition((position.x / level::tile_size) * level::tile_size + level::half_tile_size, (position.y / level::tile_size) * level::tile_size + level::half_tile_size);
+            hero->head(steering);
+            hero->throttle(1.f);
+            hero->setPosition((position.x / level::tile_size) * level::tile_size + level::half_tile_size, (position.y / level::tile_size) * level::tile_size + level::half_tile_size);
         }
-        // Else if the brother is crusing along and he's about to face a wall, stop him.
-        else if(bro->speed() != 0.f &&
+        // Else if the hero is crusing along and he's about to face a wall, stop him.
+        else if(hero->speed() != 0.f &&
                 !((heading == direction::left || heading == direction::right) && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size], 'p')) &&
                 ((heading == direction::right    && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'd')) ||
                  (heading == direction::left     && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3', 'd')) ||
@@ -463,7 +463,7 @@ void world::update_brother(
                  (heading == direction::up       && utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'd'))))
         {
             spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, magic_enum::enum_name(heading));
-            bro->throttle(0.f);
+            hero->throttle(0.f);
         }
         // Else we let him cruise along.
     }
@@ -557,18 +557,18 @@ void world::update_enemies(
                 // If it is at an intersection, ask it for a direction.
                 if(paths.size() >= 2)
                 {
-                    std::vector<sf::Vector2f> brothers_positions;
+                    std::vector<sf::Vector2f> heroes_positions;
                     if(mario)
                     {
-                        brothers_positions.push_back(mario->getPosition());
+                        heroes_positions.push_back(mario->getPosition());
                     }
                     if(luigi)
                     {
-                        brothers_positions.push_back(luigi->getPosition());
+                        heroes_positions.push_back(luigi->getPosition());
                     }
 
                     // Change heading given chasing strategy.
-                    enemy->head(enemy->fork(brothers_positions, paths));
+                    enemy->head(enemy->fork(heroes_positions, paths));
 
                     // Nudge it along so it doesn't get to redecide immediately...
                     enemy->nudge(2.f);
@@ -601,10 +601,10 @@ void world::update(
         commands_.pop();
     }
 
-    // Update the brothers' movements or respawn them if the time has come.
+    // Update the heroes' movements or respawn them if the time has come.
     if(mario)
     {
-        update_brother(mario);
+        update_hero(mario);
     }
     else if(mario_lives > 0 && (mario_spawn_timer -= dt) <= sf::Time::Zero)
     {
@@ -614,7 +614,7 @@ void world::update(
 
     if(luigi)
     {
-        update_brother(luigi);
+        update_hero(luigi);
     }
     else if(luigi_lives > 0 && (luigi_spawn_timer -= dt) <= sf::Time::Zero)
     {

@@ -79,17 +79,17 @@ add_executable(${PROJECT_NAME}
     src/configuration.h
     src/entity/animation.cpp
     src/entity/animation.h
-    src/entity/brother.cpp
-    src/entity/brother.h
     src/entity/character.cpp
     src/entity/character.h
     src/entity/enemy.cpp
     src/entity/enemy.h
-    src/entity/fireball.cpp
-    src/entity/fireball.h
     src/entity/entities.h
     src/entity/entity.cpp
     src/entity/entity.h
+    src/entity/fireball.cpp
+    src/entity/fireball.h
+    src/entity/hero.cpp
+    src/entity/hero.h
     src/entity/pickup.cpp
     src/entity/pickup.h
     src/entity/pipe.cpp

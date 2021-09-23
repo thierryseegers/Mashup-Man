@@ -183,7 +183,7 @@ goomba::goomba(
 {}
 
 direction goomba::fork(
-    std::vector<sf::Vector2f> const& brother_positions,
+    std::vector<sf::Vector2f> const& heroes_positions,
     std::map<direction, sf::Vector2f> const& choices)
 {
     switch(mode_)
@@ -203,9 +203,9 @@ direction goomba::fork(
             break;
         case mode::chase:
             {
-                assert(brother_positions.size());
+                assert(heroes_positions.size());
 
-                auto const closest = std::min_element(brother_positions.begin(), brother_positions.end(), [=](auto const& p1, auto const& p2)
+                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [=](auto const& p1, auto const& p2)
                 {
                     return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
                 });

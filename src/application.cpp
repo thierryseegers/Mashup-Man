@@ -1,6 +1,6 @@
 #include "application.h"
 
-#include "entity/brother.h"
+#include "entity/hero.h"
 #include "resources.h"
 #include "state/game_over.h"
 #include "state/game.h"

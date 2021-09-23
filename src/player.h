@@ -3,7 +3,7 @@
 #include "action.h"
 #include "command.h"
 #include "direction.h"
-#include "entity/brother.h"
+#include "entity/hero.h"
 
 #include <SFML/Window.hpp>
 
@@ -20,36 +20,36 @@ public:
         success,
     };
 
-    template<typename Brother>
-    player(std::type_identity<Brother>)
-        : name{std::is_same_v<Brother, entity::mario> ? "mario" : "luigi"}
-        , joystick_id{std::is_same_v<Brother, entity::mario> ? 0 : 1}
+    template<typename Hero>
+    player(std::type_identity<Hero>)
+        : name{std::is_same_v<Hero, entity::mario> ? "mario" : "luigi"}
+        , joystick_id{std::is_same_v<Hero, entity::mario> ? 0 : 1}
         , outcome_{outcome::failure}
     {
-        action_bindings[action::cruise] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+        action_bindings[action::cruise] = make_command<Hero>([=](Hero& hero, sf::Time const&)
             {
-                bro.steer(direction::none);
+                hero.steer(direction::none);
             });
-        action_bindings[action::head_down] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+        action_bindings[action::head_down] = make_command<Hero>([=](Hero& hero, sf::Time const&)
             {
-                bro.steer(direction::down);
+                hero.steer(direction::down);
             });
-        action_bindings[action::head_left] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+        action_bindings[action::head_left] = make_command<Hero>([=](Hero& hero, sf::Time const&)
             {
-                bro.steer(direction::left);
+                hero.steer(direction::left);
             });
-        action_bindings[action::head_right] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+        action_bindings[action::head_right] = make_command<Hero>([=](Hero& hero, sf::Time const&)
             {
-                bro.steer(direction::right);
+                hero.steer(direction::right);
             });
-        action_bindings[action::head_up] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+        action_bindings[action::head_up] = make_command<Hero>([=](Hero& hero, sf::Time const&)
             {
-                bro.steer(direction::up);
+                hero.steer(direction::up);
             });
 
-        action_bindings[action::fire] = make_command<Brother>([=](Brother& bro, sf::Time const&)
+        action_bindings[action::fire] = make_command<Hero>([=](Hero& hero, sf::Time const&)
             {
-                bro.fire();
+                hero.fire();
             });
     }
 

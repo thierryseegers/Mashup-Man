@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity/entity.h"
-#include "entity/brother.h"
+#include "entity/hero.h"
 #include "resources.h"
 #include "sprite.h"
 
@@ -21,7 +21,7 @@ public:
     virtual resources::sound_effect sound_effect() const = 0;
 
     virtual void apply(
-        brother& b) const = 0;
+        hero& b) const = 0;
 };
 
 class coin
@@ -33,7 +33,7 @@ public:
     virtual resources::sound_effect sound_effect() const override;
 
     virtual void apply(
-        brother& b) const override;
+        hero& b) const override;
 };
 
 class mushroom
@@ -45,7 +45,7 @@ public:
     virtual resources::sound_effect sound_effect() const override;
 
     virtual void apply(
-        brother& b) const override;
+        hero& b) const override;
 };
 
 class flower
@@ -57,7 +57,7 @@ public:
     virtual resources::sound_effect sound_effect() const override;
 
     virtual void apply(
-        brother& b) const override;
+        hero& b) const override;
 };
 
 }
