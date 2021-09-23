@@ -24,6 +24,7 @@ class enemy
 public:
     enum class mode
     {
+        confined,
         scatter,
         chase,
         frightened,
@@ -54,7 +55,7 @@ public:
 
     virtual direction fork(
         std::vector<sf::Vector2f> const& brother_positions,
-        std::map<direction, sf::Vector2f> const& choices) const = 0;
+        std::map<direction, sf::Vector2f> const& choices) = 0;
 
     virtual void hit() override;
 
@@ -76,6 +77,8 @@ protected:
     bool healed;            // Whether a hurt ghost has reached home.
 
     sf::Vector2f target;    // Target coordinates.
+
+    sf::Time confinement;
 };
 
 class goomba
@@ -87,7 +90,7 @@ public:
 
     virtual direction fork(
         std::vector<sf::Vector2f> const& brother_positions,
-        std::map<direction, sf::Vector2f> const& choices) const override;
+        std::map<direction, sf::Vector2f> const& choices) override;
 
     virtual std::string_view name() const override;
 };

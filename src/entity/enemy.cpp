@@ -23,7 +23,7 @@
 namespace entity
 {
 
-sf::Vector2f random_corner()
+sf::Vector2f random_level_corner()
 {
     // Pick a random corner area as a target.
     static size_t const x[2] = {5ul, level::width - 5};
@@ -33,6 +33,13 @@ sf::Vector2f random_corner()
     float const r = y[utility::random(1)];
 
     return {c * level::tile_size, r * level::tile_size};
+}
+
+sf::Vector2f random_home_corner(
+    sf::IntRect const& home)
+{
+    return {(float)home.left + utility::random(1) * (home.width - level::tile_size) + level::half_tile_size,
+            (float)home.top + utility::random(1) * (home.height - level::tile_size) + level::half_tile_size};
 }
 
 enemy::enemy(
@@ -45,7 +52,7 @@ enemy::enemy(
     : hostile<character>{
         sprite{
             resources::texture::enemies,
-            animated_sprite_rects(mode::scatter),
+            animated_sprite_rects(mode::confined),
             sf::seconds(0.25f),
             sprite::repeat::loop,
             scale_factor
@@ -54,10 +61,11 @@ enemy::enemy(
         , heading_}
     , animated_sprite_rects{animated_sprite_rects}
     , dead_sprite_rect{dead_sprite_rect}
-    , mode_{mode::scatter}
+    , mode_{mode::confined}
     , home{home}
     , healed{true}
-    , target{random_corner()}
+    , target{random_home_corner(home)}
+    , confinement{sf::seconds(10)}
 {}
 
 void enemy::hit()
@@ -83,6 +91,9 @@ void enemy::behave(
 
         switch(mode_)
         {
+            case mode::confined:
+                assert(!"Do not manually change behavior to 'confined'. This mode is set form the start and never reoccurs.");
+                break;
             case mode::chase:
                 break;
             case mode::dead:
@@ -93,10 +104,12 @@ void enemy::behave(
             case mode::frightened:
                 break;
             case mode::scatter:
-                target = random_corner();
+                target = random_level_corner();
                 throttle(1.f);
                 break;
         }
+
+        update_sprite();
     }
 }
 
@@ -116,13 +129,15 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(mode_ == mode::dead && utility::length(getPosition() - target) < level::tile_size)
+    if(mode_ == mode::confined && ((confinement -= dt) <= sf::Time::Zero))
+    {
+        behave(mode::scatter);
+    }
+    else if(mode_ == mode::dead && utility::length(getPosition() - target) < level::tile_size)
     {
         healed = true;
 
         behave(mode::scatter);
-
-        update_sprite();
     }
 
     character::update_self(dt, commands);
@@ -139,9 +154,10 @@ std::vector<sf::IntRect> goomba_animated_sprite_rects(
     static animated_sprite_rects const rects = []{
         animated_sprite_rects r;
 
-        r[magic_enum::enum_integer(enemy::mode::chase)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+        r[magic_enum::enum_integer(enemy::mode::confined)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+        r[magic_enum::enum_integer(enemy::mode::chase)] = r[magic_enum::enum_integer(enemy::mode::confined)];
         r[magic_enum::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
-        r[magic_enum::enum_integer(enemy::mode::scatter)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+        r[magic_enum::enum_integer(enemy::mode::scatter)] = r[magic_enum::enum_integer(enemy::mode::confined)];
 
         return r;
     }();
@@ -168,10 +184,16 @@ goomba::goomba(
 
 direction goomba::fork(
     std::vector<sf::Vector2f> const& brother_positions,
-    std::map<direction, sf::Vector2f> const& choices) const
+    std::map<direction, sf::Vector2f> const& choices)
 {
     switch(mode_)
     {
+        case mode::confined:
+            if(utility::length(target - getPosition()) < level::tile_size)
+            {
+                target = random_home_corner(home);
+            }
+            [[fallthrough]];
         case mode::scatter:
         case mode::dead:
             return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)

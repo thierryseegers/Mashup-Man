@@ -212,8 +212,15 @@ void world::build_scene(
                     immovables[r][c] = e;
                     break;
                 case 'g':
-                    e = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>(ghost_house);
-                    e->throttle(1.f);
+                    {
+                        auto *g = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>(ghost_house);
+                        if(!ghost_house.contains(c * level::tile_size, r * level::tile_size))
+                        {
+                            g->behave(entity::enemy::mode::scatter);
+                        }
+                        e = g;
+                        e->throttle(1.f);
+                    }
                     break;
                 case 'm':
                     e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::pickup::mushroom>();
@@ -512,7 +519,7 @@ void world::update_enemies(
     {
         if(auto* enemy = dynamic_cast<entity::enemy*>(character))
         {
-            enemy->behave(enemy_mode_);
+            // enemy->behave(enemy_mode_);
 
             sf::Vector2i const position{(int)enemy->getPosition().x, (int)enemy->getPosition().y};
             if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
