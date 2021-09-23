@@ -4,7 +4,7 @@ jobs:
   build:
     strategy:
       matrix:
-        configuration: [Debug, MinSizeRel]
+        configuration: [Debug, Release]
         platform: [macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -17,5 +17,6 @@ jobs:
       - name: Configure
         run: cmake . -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
       - uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-count
       - name: Build
-        run: cmake --build . --parallel ${{ steps.cpu-cores.outputs.count }}
+        run: cmake --build . --parallel ${{ steps.cpu-count.outputs.count }}
