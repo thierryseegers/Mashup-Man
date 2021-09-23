@@ -16,6 +16,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Configure
         run: cmake . -D${{ matrix.configuration }}
+      - uses: SimenB/github-actions-cpu-cores@v1
       - name: Build
-        uses: SimenB/github-actions-cpu-cores@v1
         run: cmake --build . --parallel ${{ steps.cpu-cores.outputs.count }}
