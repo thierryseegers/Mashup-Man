@@ -7,7 +7,9 @@
 
 #include <SFML/Window.hpp>
 
+#include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -20,38 +22,13 @@ public:
         success,
     };
 
-    template<typename Hero>
-    player(std::type_identity<Hero>)
-        : name{std::is_same_v<Hero, entity::mario> ? "mario" : "luigi"}
-        , joystick_id{std::is_same_v<Hero, entity::mario> ? 0 : 1}
-        , outcome_{outcome::failure}
-    {
-        action_bindings[action::cruise] = make_command<Hero>([=](Hero& hero, sf::Time const&)
-            {
-                hero.steer(direction::none);
-            });
-        action_bindings[action::head_down] = make_command<Hero>([=](Hero& hero, sf::Time const&)
-            {
-                hero.steer(direction::down);
-            });
-        action_bindings[action::head_left] = make_command<Hero>([=](Hero& hero, sf::Time const&)
-            {
-                hero.steer(direction::left);
-            });
-        action_bindings[action::head_right] = make_command<Hero>([=](Hero& hero, sf::Time const&)
-            {
-                hero.steer(direction::right);
-            });
-        action_bindings[action::head_up] = make_command<Hero>([=](Hero& hero, sf::Time const&)
-            {
-                hero.steer(direction::up);
-            });
+    using hero_maker_f = std::function<std::unique_ptr<entity::hero>()>;
 
-        action_bindings[action::fire] = make_command<Hero>([=](Hero& hero, sf::Time const&)
-            {
-                hero.fire();
-            });
-    }
+    player(
+        unsigned int const id,
+        hero_maker_f const hero_maker_);
+
+    hero_maker_f hero_maker() const;
 
     void handle_event(
         sf::Event const& event,
@@ -69,8 +46,9 @@ private:
 
     std::map<action, command_t> action_bindings;
 
-    std::string name;
-    unsigned int joystick_id;
+    // 
+    unsigned int id;
+    hero_maker_f hero_maker_;
 
     outcome outcome_;
 };

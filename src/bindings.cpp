@@ -24,22 +24,22 @@ toml::table read()
         static constexpr std::string_view default_bindings = R"(
             [keyboard]
 
-            [keyboard.mario]
+            [keyboard.player_1]
             head_up = 22
             head_down = 18
             head_left = 0
             head_right = 3
-            fire = 57
+            attack = 57
 
-            [keyboard.luigi]
+            [keyboard.player_2]
             head_up = 73
             head_down = 74
             head_left = 71
             head_right = 72
-            fire = 58
+            attack = 58
 
             [joystick]
-            fire = 0
+            attack = 0
         )"sv;
 
         return toml::parse(default_bindings);
@@ -47,27 +47,27 @@ toml::table read()
 }
 
 keyboard_bindings_t& keyboard(
-    std::string const& name)
+    unsigned int const player_id)
 {
-    static std::unordered_map<std::string, keyboard_bindings_t> keyboard_bindings = []
+    static std::unordered_map<unsigned int, keyboard_bindings_t> keyboard_bindings = []
     {
-        std::unordered_map<std::string, keyboard_bindings_t> kb;
+        std::unordered_map<unsigned int, keyboard_bindings_t> kb;
 
         auto const& bindings = read();
-        for(auto const& binding : *bindings["keyboard"]["mario"].as_table())
+        for(auto const& binding : *bindings["keyboard"]["player_1"].as_table())
         {
-            kb["mario"][static_cast<sf::Keyboard::Key>(*binding.second.value<int64_t>())] = magic_enum::enum_cast<action>(binding.first).value();
+            kb[0][static_cast<sf::Keyboard::Key>(*binding.second.value<int64_t>())] = magic_enum::enum_cast<action>(binding.first).value();
         }
 
-        for(auto const& binding : *bindings["keyboard"]["luigi"].as_table())
+        for(auto const& binding : *bindings["keyboard"]["player_2"].as_table())
         {
-            kb["luigi"][static_cast<sf::Keyboard::Key>(*binding.second.value<int64_t>())] = magic_enum::enum_cast<action>(binding.first).value();
+            kb[1][static_cast<sf::Keyboard::Key>(*binding.second.value<int64_t>())] = magic_enum::enum_cast<action>(binding.first).value();
         }
 
         return kb;
     }();
 
-    return keyboard_bindings[name];
+    return keyboard_bindings[player_id];
 }
 
 joystick_bindings_t& joystick()
@@ -108,12 +108,12 @@ void save()
 }
 
 void bind_key(
-    std::string const& name,
+    unsigned int const player_id,
     sf::Keyboard::Key const key,
     action const what)
 {
-    keyboard(name).erase(bindings::bound_key(name, what));
-    keyboard(name)[key] = what;
+    keyboard(player_id).erase(bindings::bound_key(player_id, what));
+    keyboard(player_id)[key] = what;
 }
 
 void bind_button(
@@ -126,10 +126,10 @@ void bind_button(
 
 
 sf::Keyboard::Key bound_key(
-    std::string const& name,
+    unsigned int const player_id,
     action const what)
 {
-    for(auto const& [key, a] : bindings::keyboard(name))
+    for(auto const& [key, a] : bindings::keyboard(player_id))
     {
         if(a == what)
         {

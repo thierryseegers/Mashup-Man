@@ -2,27 +2,28 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <vector>
+
 class lifeboard
     : public sf::Drawable
     , public sf::Transformable
 {
 public:
-    lifeboard(
-        sf::Sprite player_1,
-        sf::Sprite player_2);
+    struct info
+    {
+        sf::Sprite sprite;
+        int lives;
+    };
 
     virtual ~lifeboard() = default;
 
-    int& operator[](int i);
+    info& operator[](
+        size_t const i);
 
     virtual void draw(
         sf::RenderTarget& target,
         sf::RenderStates states) const override;
 
 private:
-    mutable struct info
-    {
-        sf::Sprite sprite;
-        int lives;
-    } player_1, player_2;
+    mutable std::vector<info> infos;
 };

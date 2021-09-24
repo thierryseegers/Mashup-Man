@@ -2,7 +2,7 @@
 
 enum class action
 {
-    fire,
+    attack,
     head_down,
     head_left,
     head_right,

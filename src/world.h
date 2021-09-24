@@ -9,18 +9,20 @@
 #include "resources.h"
 #include "scene.h"
 #include "scoreboard.h"
+#include "state/stack.h"
 #include "sound.h"
 
 #include <magic_enum.hpp>
 #include <SFML/Graphics.hpp>
 
+#include <functional>
+#include <memory>
+
 class world
 {
 public:
     explicit world(
-        sf::RenderTarget& output_target,
-        sound::player& sound,
-        int const num_players);
+        state::stack::context_t& context);
 
     void update(
         sf::Time const dt);
@@ -37,8 +39,7 @@ public:
         sf::Event::SizeEvent const& event);
 
 private:
-    void build_scene(
-        int const num_players);
+    void build_scene();
 
     void handle_collisions();
 
@@ -63,10 +64,17 @@ private:
     commands_t commands_;
 
     // Heroes infos.
-    entity::hero *mario, *luigi;
-    float mario_spawn_x, mario_spawn_y, luigi_spawn_x, luigi_spawn_y;
-    sf::Time mario_spawn_timer, luigi_spawn_timer;
-    int mario_lives, luigi_lives;
+    struct hero
+    {
+        entity::hero *hero_;
+        int lives;
+
+        sf::Vector2f spawn_point;
+        sf::Time spawn_timer;
+
+        std::function<std::unique_ptr<entity::hero> ()> maker;
+    };
+    std::vector<hero> heroes;
 
     // Number of pills to eat on this stage.
     int n_pills;

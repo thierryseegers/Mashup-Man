@@ -26,16 +26,10 @@
 #include <vector>
 
 world::world(
-    sf::RenderTarget& output_target,
-    sound::player& sound,
-    int const num_players)
-    : target{output_target}
-    , sound{sound}
-    , lifeboard_{entity::mario::default_sprite(), entity::luigi::default_sprite()}
-    , mario{nullptr}
-    , luigi{nullptr}
-    , mario_lives{3}
-    , luigi_lives{num_players >= 2 ? 3 : 0}
+    state::stack::context_t& context)
+    : target{context.window}
+    , sound{context.sound}
+    , heroes{context.players.size(), hero{nullptr, 3}}
     , n_pills{0}
     , immovables{{}}
     , enemy_mode_{entity::enemy::mode::scatter}
@@ -44,7 +38,12 @@ world::world(
 {
     handle_size_changed({(unsigned int)target.getSize().x, (unsigned int)target.getSize().y});
 
-    build_scene(num_players);
+    for(size_t i = 0; i != context.players.size(); ++i)
+    {
+        heroes[i].maker = context.players[i]->hero_maker();
+    }
+
+    build_scene();
 }
 
 commands_t& world::commands()
@@ -54,7 +53,7 @@ commands_t& world::commands()
 
 bool world::players_alive() const
 {
-    return mario_lives > 0 || luigi_lives > 0;
+    return std::any_of(heroes.begin(), heroes.end(), [](auto const& h){ return h.lives > 0; });
 }
 
 bool world::players_done() const
@@ -147,12 +146,8 @@ void world::handle_size_changed(
     lifeboard_.setScale(scale, scale);
 }
 
-void world::build_scene(
-    int const num_players)
+void world::build_scene()
 {
-    lifeboard_[0] = mario_lives;
-    lifeboard_[1] = luigi_lives;
-
     // Read information of the first level.
     level::wall_texture_offsets wall_texture_offsets;
     level::wall_rotations wall_rotations;
@@ -236,16 +231,15 @@ void world::build_scene(
                     }
                     break;
                 case 'x':
-                    e = mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
-                    mario_spawn_x = c * level::tile_size + level::half_tile_size;
-                    mario_spawn_y = r * level::tile_size + level::half_tile_size;
+                    e = heroes[0].hero_ = layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(heroes[0].maker()));
+                    heroes[0].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
                     break;
                 case 'y':
-                    if(num_players >= 2)
+                    if(heroes.size() >= 2)
                     {
-                        e = luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
-                        luigi_spawn_x = c * level::tile_size + level::half_tile_size;
-                        luigi_spawn_y = r * level::tile_size + level::half_tile_size;
+                        e = heroes[1].hero_ = layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(heroes[1].maker()));
+                        heroes[1].hero_->head(direction::left);
+                        heroes[1].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
                     }
                     break;
             }
@@ -254,6 +248,18 @@ void world::build_scene(
             {
                 e->setPosition(c * level::tile_size + level::half_tile_size, r * level::tile_size + level::half_tile_size);
             }
+        }
+    }
+
+    // Pass information to the lifeboard.
+    for(int i = 0; i != heroes.size(); ++i)
+    {
+        lifeboard_[i].lives = heroes[i].lives;
+        lifeboard_[i].sprite = heroes[i].hero_->default_sprite();
+
+        if(i % 2)
+        {
+            lifeboard_[i].sprite.setScale(-1, 1);
         }
     }
 
@@ -288,14 +294,14 @@ void world::handle_collisions()
     std::set<std::pair<scene::node*, scene::node*>> collisions;
 
     // Detect collisions between the heroes and power-ups and pipes.
-    for(auto* const hero : std::initializer_list<entity::hero*>{mario, luigi})
+    for(auto const& hero : heroes)
     {
-        if(hero)
+        if(hero.hero_)
         {
-            size_t const r = hero->getPosition().y / level::tile_size, c = hero->getPosition().x / level::tile_size;
-            if(auto* const immovable = immovables[r][c]; immovable && hero->collides(immovable))
+            size_t const r = hero.hero_->getPosition().y / level::tile_size, c = hero.hero_->getPosition().x / level::tile_size;
+            if(auto* const immovable = immovables[r][c]; immovable && hero.hero_->collides(immovable))
             {
-                collisions.insert(std::minmax<scene::node*>(hero, immovable));
+                collisions.insert(std::minmax<scene::node*>(hero.hero_, immovable));
             }
         }
     }
@@ -328,24 +334,24 @@ void world::handle_collisions()
         {
             spdlog::info("Hero got hit by an enemy!");
 
-            if(!hero->untouchable() && enemy->behavior() != entity::enemy::mode::dead)
+            if(!hero->immune() && enemy->behavior() != entity::enemy::mode::dead)
             {
                 hero->hit();
                 sound.play(resources::sound_effect::short_die);
 
                 if(hero->remove)
                 {
-                    if(hero == mario)
+                    if(hero == heroes[0].hero_)
                     {
-                        mario = nullptr;
-                        lifeboard_[0] = --mario_lives;
-                        mario_spawn_timer = sf::seconds(3);
+                        heroes[0].hero_ = nullptr;
+                        lifeboard_[0].lives = --heroes[0].lives;
+                        heroes[0].spawn_timer = sf::seconds(3);
                     }
-                    else
+                    else if(heroes.size() >= 2 && hero == heroes[1].hero_)
                     {
-                        luigi = nullptr;
-                        lifeboard_[1] = --luigi_lives;
-                        luigi_spawn_timer = sf::seconds(3);
+                        heroes[1].hero_ = nullptr;
+                        lifeboard_[1].lives = --heroes[1].lives;
+                        heroes[1].spawn_timer = sf::seconds(3);
                     }
                 }
             }
@@ -358,24 +364,24 @@ void world::handle_collisions()
 
                 projectile->hit();
 
-                if(!hero->untouchable())
+                if(!hero->immune())
                 {
                     hero->hit();
                     sound.play(resources::sound_effect::short_die);
 
                     if(hero->remove)
                     {
-                        if(hero == mario)
+                        if(hero == heroes[0].hero_)
                         {
-                            mario = nullptr;
-                            lifeboard_[0] = --mario_lives;
-                            mario_spawn_timer = sf::seconds(3);
+                            heroes[0].hero_ = nullptr;
+                            lifeboard_[0].lives = --heroes[0].lives;
+                            heroes[0].spawn_timer = sf::seconds(3);
                         }
-                        else
+                        else if(heroes.size() >= 2 && hero == heroes[1].hero_)
                         {
-                            luigi = nullptr;
-                            lifeboard_[1] = --luigi_lives;
-                            luigi_spawn_timer = sf::seconds(3);
+                            heroes[1].hero_ = nullptr;
+                            lifeboard_[1].lives = --heroes[1].lives;
+                            heroes[1].spawn_timer = sf::seconds(3);
                         }
                     }
                 }
@@ -398,7 +404,7 @@ void world::handle_collisions()
                 power_up->remove = true;
                 immovables[power_up->getPosition().y / level::tile_size][power_up->getPosition().x / level::tile_size] = nullptr;
 
-                power_up->apply(*hero);
+                hero->pick_up(power_up);
 
                 sound.play(power_up->sound_effect());
 
@@ -406,11 +412,11 @@ void world::handle_collisions()
                 {
                     --n_pills;
 
-                    if(hero == mario)
+                    if(hero == heroes[0].hero_)
                     {
                         scoreboard_.increase_score(1, 10);
                     }
-                    else
+                    else if(heroes.size() >= 2 && hero == heroes[1].hero_)
                     {
                         scoreboard_.increase_score(2, 10);
                     }
@@ -493,7 +499,7 @@ void world::update_fireballs()
 void world::update_enemies(
     sf::Time const dt)
 {
-    if(!mario && !luigi)
+    if(std::all_of(heroes.begin(), heroes.end(), [](auto const& h){ return h.hero_ == nullptr; }))
     {
         enemy_mode_ = entity::enemy::mode::scatter;
         enemy_mode_timer = sf::seconds(7.f);
@@ -558,13 +564,13 @@ void world::update_enemies(
                 if(paths.size() >= 2)
                 {
                     std::vector<sf::Vector2f> heroes_positions;
-                    if(mario)
+                    if(heroes[0].hero_)
                     {
-                        heroes_positions.push_back(mario->getPosition());
+                        heroes_positions.push_back(heroes[0].hero_->getPosition());
                     }
-                    if(luigi)
+                    if(heroes.size() > 1 && heroes[1].hero_)
                     {
-                        heroes_positions.push_back(luigi->getPosition());
+                        heroes_positions.push_back(heroes[1].hero_->getPosition());
                     }
 
                     // Change heading given chasing strategy.
@@ -602,24 +608,20 @@ void world::update(
     }
 
     // Update the heroes' movements or respawn them if the time has come.
-    if(mario)
+    for(auto& hero : heroes)
     {
-        update_hero(mario);
-    }
-    else if(mario_lives > 0 && (mario_spawn_timer -= dt) <= sf::Time::Zero)
-    {
-        mario = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::mario>();
-        mario->setPosition(mario_spawn_x, mario_spawn_y);
-    }
+        if(hero.hero_)
+        {
+            update_hero(hero.hero_);
+        }
+        else if(hero.lives > 0 && (hero.spawn_timer -= dt) <= sf::Time::Zero)
+        {
+            auto h = hero.maker();
+            hero.hero_ = h.get();
+            hero.hero_->setPosition(hero.spawn_point);
 
-    if(luigi)
-    {
-        update_hero(luigi);
-    }
-    else if(luigi_lives > 0 && (luigi_spawn_timer -= dt) <= sf::Time::Zero)
-    {
-        luigi = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::luigi>();
-        luigi->setPosition(luigi_spawn_x, luigi_spawn_y);
+            layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(h));
+        }
     }
 
     // Update fireballs' movements.

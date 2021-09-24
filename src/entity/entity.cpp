@@ -96,16 +96,6 @@ void entity::nudge(
                 position.y + (d == direction::down ? distance : d == direction::up ? -distance : 0.f));
 }
 
-void entity::play_local_sound(
-    commands_t& commands,
-    resources::sound_effect const se) const
-{
-    commands.push(make_command<scene::sound_t>([=](scene::sound_t& s, sf::Time const&)
-    {
-        s.play(se, world_position());
-    }));
-}
-
 void entity::update_sprite()
 {}
 

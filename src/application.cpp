@@ -20,7 +20,7 @@
 
 application::application()
     : window{sf::VideoMode(/*1024*/sf::VideoMode::getDesktopMode().width, /*768*/sf::VideoMode::getDesktopMode().height), "Mashup-Man", sf::Style::Default}
-    , states{{/*music, */nullptr, nullptr, sound, window}}
+    , states{{/*music, */{}, sound, window}}
     , statistics_num_frames{0}
 {
     window.setKeyRepeatEnabled(false);

@@ -1,16 +1,12 @@
 #pragma once
 
 #include "entity/entity.h"
-#include "entity/hero.h"
 #include "resources.h"
-#include "sprite.h"
-
-#include <SFML/Graphics/Rect.hpp>
-
-#include <memory>
 
 namespace entity::power_up
 {
+
+struct power_up_picker;
 
 class power_up
     : public entity
@@ -18,10 +14,9 @@ class power_up
 public:
     using entity::entity;
 
-    virtual resources::sound_effect sound_effect() const = 0;
+    virtual void pick_up(power_up_picker*) const = 0;
 
-    virtual void apply(
-        hero& b) const = 0;
+    virtual resources::sound_effect sound_effect() const = 0;
 };
 
 class coin
@@ -30,10 +25,9 @@ class coin
 public:
     coin();
 
-    virtual resources::sound_effect sound_effect() const override;
+    virtual void pick_up(power_up_picker*) const override;
 
-    virtual void apply(
-        hero& b) const override;
+    virtual resources::sound_effect sound_effect() const override;
 };
 
 class mushroom
@@ -42,10 +36,9 @@ class mushroom
 public:
     mushroom();
 
-    virtual resources::sound_effect sound_effect() const override;
+    virtual void pick_up(power_up_picker*) const override;
 
-    virtual void apply(
-        hero& b) const override;
+    virtual resources::sound_effect sound_effect() const override;
 };
 
 class flower
@@ -54,10 +47,18 @@ class flower
 public:
     flower();
 
-    virtual resources::sound_effect sound_effect() const override;
+    virtual void pick_up(power_up_picker*) const override;
 
-    virtual void apply(
-        hero& b) const override;
+    virtual resources::sound_effect sound_effect() const override;
+};
+
+struct power_up_picker
+{
+    virtual void pick_up(coin const*) {}
+
+    virtual void pick_up(mushroom const*) {}
+
+    virtual void pick_up(flower const*) {}
 };
 
 }

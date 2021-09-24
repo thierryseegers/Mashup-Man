@@ -26,8 +26,7 @@ public:
     struct context_t
     {
         // music::player& music;
-        std::unique_ptr<player> player_1;
-        std::unique_ptr<player> player_2;
+        std::vector<std::unique_ptr<player>> players;
         sound::player& sound;
         sf::RenderWindow& window;
     } context;

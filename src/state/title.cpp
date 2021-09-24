@@ -1,5 +1,6 @@
 #include "state/title.h"
 
+#include "entity/brothers.h"
 #include "resources.h"
 #include "state/stack.h"
 #include "utility.h"
@@ -86,10 +87,10 @@ bool title::handle_event(
        (event.type == sf::Event::JoystickButtonReleased && 
         event.joystickButton.button == 6))
     {
-        states.context.player_1 = std::make_unique<player>(std::type_identity<entity::mario>{});
-        if(num_players == 2)
+        states.context.players.push_back(std::make_unique<player>(0, []{ return std::make_unique<entity::mario>(); }));
+        if(num_players >= 2)
         {
-            states.context.player_2 = std::make_unique<player>(std::type_identity<entity::luigi>{});
+            states.context.players.push_back(std::make_unique<player>(1, []{ return std::make_unique<entity::luigi>(); }));
         }
 
         states.context.window.setView(sf::View{sf::FloatRect{0, 0, (float)states.context.window.getSize().x, (float)states.context.window.getSize().y}});

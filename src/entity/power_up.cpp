@@ -1,6 +1,7 @@
 #include "entity/power_up.h"
 
 #include "configuration.h"
+#include "entity/brothers.h"
 #include "entity/hero.h"
 #include "resources.h"
 #include "sprite.h"
@@ -8,9 +9,6 @@
 
 #include <magic_enum.hpp>
 #include <SFML/Graphics/Rect.hpp>
-
-#include <memory>
-#include <string>
 
 namespace entity::power_up
 {
@@ -25,15 +23,14 @@ coin::coin()
             configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f)}}
 {}
 
+void coin::pick_up(power_up_picker* picker) const
+{
+    picker->pick_up(this);
+}
+
 resources::sound_effect coin::sound_effect() const
 {
     return resources::sound_effect::collect_coin;
-}
-
-void coin::apply(
-    hero& /*b*/) const
-{
-    // leader.repair(25);
 }
 
 mushroom::mushroom()
@@ -49,10 +46,9 @@ resources::sound_effect mushroom::sound_effect() const
     return resources::sound_effect::collect_powerup;
 }
 
-void mushroom::apply(
-    hero& hero_) const
+void mushroom::pick_up(power_up_picker* picker) const
 {
-    hero_.consume_mushroom();
+    picker->pick_up(this);
 }
 
 flower::flower()
@@ -65,15 +61,14 @@ flower::flower()
             configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f)}}
 {}
 
+void flower::pick_up(power_up_picker* picker) const
+{
+    picker->pick_up(this);
+}
+
 resources::sound_effect flower::sound_effect() const
 {
     return resources::sound_effect::collect_powerup;
-}
-
-void flower::apply(
-    hero& hero_) const
-{
-    hero_.consume_flower();
 }
 
 }

@@ -1,9 +1,10 @@
 #pragma once
 
+#include "command.h"
 #include "entity/animation.h"
 #include "entity/projectile.h"
 
-#include <array>
+#include <SFML/System.hpp>
 
 namespace entity
 {

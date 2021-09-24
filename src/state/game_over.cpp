@@ -20,7 +20,7 @@ game_over::game_over(
 {
     text.setFont(resources::fonts().get(resources::font::main));
 
-    if(states.context.player_1->level_outcome() == player::outcome::failure)
+    if(states.context.players[0]->level_outcome() == player::outcome::failure)
         text.setString("Game over!");
     else
         text.setString("Get ready for the next level!");

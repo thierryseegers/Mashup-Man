@@ -62,19 +62,7 @@ public:
         direction const d,
         float const distance);
 
-    void play_local_sound(
-        commands_t& commands,
-        resources::sound_effect const se) const;
-
 protected:
-    sprite sprite_;
-
-    direction heading_;
-    int max_speed;
-    float throttle_;
-
-    virtual void update_sprite();
-
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -82,6 +70,16 @@ protected:
     virtual void draw_self(
         sf::RenderTarget& target,
         sf::RenderStates states) const override;
+
+    // Sprite update information (e.g. because of a change in throttle).
+    virtual void update_sprite();
+
+    // This sprite for this entity.
+    sprite sprite_;
+
+    direction heading_;
+    int max_speed;
+    float throttle_;
 };
 
 }
