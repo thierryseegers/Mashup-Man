@@ -87,6 +87,8 @@ bool title::handle_event(
        (event.type == sf::Event::JoystickButtonReleased && 
         event.joystickButton.button == 6))
     {
+        states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
+
         states.context.players.push_back(std::make_unique<player>(0, []{ return std::make_unique<entity::mario>(); }));
         if(num_players >= 2)
         {
