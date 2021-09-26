@@ -42,10 +42,10 @@ void fireball::update_self(
 {
     if(remove)
     {
-        commands.push(make_command<layer::animations>([position = getPosition()](layer::animations& layer, sf::Time const&)
+        commands.push(make_command(std::function{[position = getPosition()](layer::animations& layer, sf::Time const&)
         {
             layer.attach<fizzle>()->setPosition(position);
-        }));
+        }}));
     }
     else
     {

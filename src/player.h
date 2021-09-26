@@ -31,28 +31,28 @@ public:
         , hero_maker_{[]{ return std::make_unique<Hero>(); }}
         , outcome_{outcome::failure}
     {
-        action_bindings[action::cruise] = make_command<Hero>([](Hero& hero, sf::Time const&)
+        action_bindings[action::cruise] = make_command(+[](Hero& hero, sf::Time const&)
             {
                 hero.steer(direction::none);
             });
-        action_bindings[action::head_down] = make_command<Hero>([](Hero& hero, sf::Time const&)
+        action_bindings[action::head_down] = make_command(+[](Hero& hero, sf::Time const&)
             {
                 hero.steer(direction::down);
             });
-        action_bindings[action::head_left] = make_command<Hero>([](Hero& hero, sf::Time const&)
+        action_bindings[action::head_left] = make_command(+[](Hero& hero, sf::Time const&)
             {
                 hero.steer(direction::left);
             });
-        action_bindings[action::head_right] = make_command<Hero>([](Hero& hero, sf::Time const&)
+        action_bindings[action::head_right] = make_command(+[](Hero& hero, sf::Time const&)
             {
                 hero.steer(direction::right);
             });
-        action_bindings[action::head_up] = make_command<Hero>([](Hero& hero, sf::Time const&)
+        action_bindings[action::head_up] = make_command(+[](Hero& hero, sf::Time const&)
             {
                 hero.steer(direction::up);
             });
 
-        action_bindings[action::attack] = make_command<Hero>([](Hero& hero, sf::Time const&)
+        action_bindings[action::attack] = make_command(+[](Hero& hero, sf::Time const&)
             {
                 hero.attack();
             });

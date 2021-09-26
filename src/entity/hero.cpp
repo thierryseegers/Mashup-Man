@@ -62,11 +62,11 @@ void hero::update_self(
         auto d = dead();
         d->setPosition(getPosition());
 
-        commands.push(make_command<layer::animations>([d](layer::animations& layer, sf::Time const&)
+        commands.push(make_command(std::function{[d](layer::animations& layer, sf::Time const&)
         {
             std::unique_ptr<scene::node> u{d};
             layer.attach(std::move(u));
-        }));
+        }}));
     }
     else
     {
