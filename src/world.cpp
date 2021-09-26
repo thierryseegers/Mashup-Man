@@ -349,18 +349,11 @@ void world::handle_collisions()
 
                 if(hero->remove)
                 {
-                    if(hero == heroes[0].hero_)
-                    {
-                        heroes[0].hero_ = nullptr;
-                        lifeboard_[0].lives = --heroes[0].lives;
-                        heroes[0].spawn_timer = sf::seconds(3);
-                    }
-                    else if(heroes.size() >= 2 && hero == heroes[1].hero_)
-                    {
-                        heroes[1].hero_ = nullptr;
-                        lifeboard_[1].lives = --heroes[1].lives;
-                        heroes[1].spawn_timer = sf::seconds(3);
-                    }
+                    size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
+
+                    heroes[h].hero_ = nullptr;
+                    heroes[h].spawn_timer = sf::seconds(3);
+                    lifeboard_[h].lives = --heroes[h].lives;
                 }
             }
         }
@@ -379,18 +372,11 @@ void world::handle_collisions()
 
                     if(hero->remove)
                     {
-                        if(hero == heroes[0].hero_)
-                        {
-                            heroes[0].hero_ = nullptr;
-                            lifeboard_[0].lives = --heroes[0].lives;
-                            heroes[0].spawn_timer = sf::seconds(3);
-                        }
-                        else if(heroes.size() >= 2 && hero == heroes[1].hero_)
-                        {
-                            heroes[1].hero_ = nullptr;
-                            lifeboard_[1].lives = --heroes[1].lives;
-                            heroes[1].spawn_timer = sf::seconds(3);
-                        }
+                        size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
+
+                        heroes[h].hero_ = nullptr;
+                        heroes[h].spawn_timer = sf::seconds(3);
+                        lifeboard_[h].lives = --heroes[h].lives;
                     }
                 }
             }
@@ -420,14 +406,9 @@ void world::handle_collisions()
                 {
                     --n_pills;
 
-                    if(hero == heroes[0].hero_)
-                    {
-                        scoreboard_.increase_score(1, 10);
-                    }
-                    else if(heroes.size() >= 2 && hero == heroes[1].hero_)
-                    {
-                        scoreboard_.increase_score(2, 10);
-                    }
+                    size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
+
+                    scoreboard_.increase_score(h, 10);
                 }
             }
         }
