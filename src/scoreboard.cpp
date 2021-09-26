@@ -42,7 +42,7 @@ void scoreboard::increase_score(
     auto const s_1 = std::stoi(score_1.getString().toAnsiString());
     auto const s_2 = std::stoi(score_2.getString().toAnsiString());
 
-    if(player == 1)
+    if(player == 0)
     {
         score_1.setString(std::to_string(s_1 + amount));
     }
