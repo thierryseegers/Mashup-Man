@@ -24,9 +24,39 @@ public:
 
     using hero_maker_f = std::function<std::unique_ptr<entity::hero>()>;
 
+    template<typename Hero>
     player(
-        unsigned int const id,
-        hero_maker_f const hero_maker_);
+        std::type_identity<Hero>)
+        : id{Hero::id()}
+        , hero_maker_{[]{ return std::make_unique<Hero>(); }}
+        , outcome_{outcome::failure}
+    {
+        action_bindings[action::cruise] = make_command<Hero>([](Hero& hero, sf::Time const&)
+            {
+                hero.steer(direction::none);
+            });
+        action_bindings[action::head_down] = make_command<Hero>([](Hero& hero, sf::Time const&)
+            {
+                hero.steer(direction::down);
+            });
+        action_bindings[action::head_left] = make_command<Hero>([](Hero& hero, sf::Time const&)
+            {
+                hero.steer(direction::left);
+            });
+        action_bindings[action::head_right] = make_command<Hero>([](Hero& hero, sf::Time const&)
+            {
+                hero.steer(direction::right);
+            });
+        action_bindings[action::head_up] = make_command<Hero>([](Hero& hero, sf::Time const&)
+            {
+                hero.steer(direction::up);
+            });
+
+        action_bindings[action::attack] = make_command<Hero>([](Hero& hero, sf::Time const&)
+            {
+                hero.attack();
+            });
+    }
 
     hero_maker_f hero_maker() const;
 

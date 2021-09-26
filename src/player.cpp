@@ -12,40 +12,6 @@
 
 #include <map>
 
-player::player(
-    unsigned int const id,
-    hero_maker_f const hero_maker_)
-    : id{id}
-    , hero_maker_{hero_maker_}
-    , outcome_{outcome::failure}
-{
-    action_bindings[action::cruise] = make_command<entity::hero>([](entity::hero& hero, sf::Time const&)
-        {
-            hero.steer(direction::none);
-        });
-    action_bindings[action::head_down] = make_command<entity::hero>([](entity::hero& hero, sf::Time const&)
-        {
-            hero.steer(direction::down);
-        });
-    action_bindings[action::head_left] = make_command<entity::hero>([](entity::hero& hero, sf::Time const&)
-        {
-            hero.steer(direction::left);
-        });
-    action_bindings[action::head_right] = make_command<entity::hero>([](entity::hero& hero, sf::Time const&)
-        {
-            hero.steer(direction::right);
-        });
-    action_bindings[action::head_up] = make_command<entity::hero>([](entity::hero& hero, sf::Time const&)
-        {
-            hero.steer(direction::up);
-        });
-
-    action_bindings[action::attack] = make_command<entity::hero>([](entity::hero& hero, sf::Time const&)
-        {
-            hero.attack();
-        });
-}
-
 player::hero_maker_f player::hero_maker() const
 {
     return hero_maker_;

@@ -10,6 +10,7 @@
 #include <SFML/System/Time.hpp>
 
 #include <memory>
+#include <type_traits>
 
 #if defined(WIN32)
     #undef small
@@ -62,6 +63,42 @@ protected:
     direction steering_;
 
     sf::Time immunity;  // Immunity timer.
+};
+
+template<typename T>
+class hero_1
+    : public T
+{
+public:
+    static_assert(
+        std::is_base_of<hero, T>::value, 
+        "T must be a descendant of hero"
+    );
+
+    using T::T;
+
+    static unsigned int id()
+    {
+        return 0;
+    }
+};
+
+template<typename T>
+class hero_2
+    : public T
+{
+public:
+    static_assert(
+        std::is_base_of<hero, T>::value, 
+        "T must be a descendant of hero"
+    );
+
+    using T::T;
+
+    static unsigned int id()
+    {
+        return 1;
+    }
 };
 
 }

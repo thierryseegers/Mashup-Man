@@ -110,8 +110,9 @@ struct brother_power_up_picker
     brother *brother_;
 };
 
+template<template<typename> class Hero_N>
 class mario
-    : public brother
+    : public Hero_N<brother>
 {
 public:
     mario();
@@ -119,8 +120,9 @@ public:
     virtual sf::Sprite default_sprite() override;
 };
 
+template<template<typename> class Hero_N>
 class luigi
-    : public brother
+    : public Hero_N<brother>
 {
 public:
     luigi();
