@@ -231,13 +231,21 @@ void world::build_scene()
                     }
                     break;
                 case 'x':
-                    e = heroes[0].hero_ = layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(heroes[0].maker()));
-                    heroes[0].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
+                    {
+                        auto h = heroes[0].maker();
+                        e = heroes[0].hero_ = h.get();
+                        layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(h));
+
+                        heroes[0].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
+                    }
                     break;
                 case 'y':
                     if(heroes.size() >= 2)
                     {
-                        e = heroes[1].hero_ = layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(heroes[1].maker()));
+                        auto h = heroes[1].maker();
+                        e = heroes[1].hero_ = h.get();
+                        layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(h));
+
                         heroes[1].hero_->head(direction::left);
                         heroes[1].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
                     }
