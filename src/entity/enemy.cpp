@@ -75,6 +75,11 @@ void enemy::hit()
     update_sprite();
 }
 
+bool enemy::immune() const
+{
+    return mode_ == mode::dead;
+}
+
 enemy::mode enemy::behavior() const
 {
     return mode_;

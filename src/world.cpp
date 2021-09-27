@@ -342,18 +342,20 @@ void world::handle_collisions()
         {
             spdlog::info("Hero got hit by an enemy!");
 
-            if(!hero->immune() && enemy->behavior() != entity::enemy::mode::dead)
+            if(!hero->immune() && !enemy->immune())
             {
                 hero->hit();
-                sound.play(resources::sound_effect::short_die);
-
                 if(hero->remove)
                 {
+                    sound.play(resources::sound_effect::short_die);
+
                     size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
                     heroes[h].hero_ = nullptr;
-                    heroes[h].spawn_timer = sf::seconds(3);
-                    lifeboard_[h].lives = --heroes[h].lives;
+                    if((lifeboard_[h].lives = --heroes[h].lives))
+                    {
+                        heroes[h].spawn_timer = sf::seconds(3);
+                    }
                 }
             }
         }
@@ -368,22 +370,25 @@ void world::handle_collisions()
                 if(!hero->immune())
                 {
                     hero->hit();
-                    sound.play(resources::sound_effect::short_die);
 
                     if(hero->remove)
                     {
+                        sound.play(resources::sound_effect::short_die);
+
                         size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
                         heroes[h].hero_ = nullptr;
-                        heroes[h].spawn_timer = sf::seconds(3);
-                        lifeboard_[h].lives = --heroes[h].lives;
+                        if((lifeboard_[h].lives = --heroes[h].lives))
+                        {
+                            heroes[h].spawn_timer = sf::seconds(3);
+                        }
                     }
                 }
             }
         }
         if(auto [enemy, fireball] = match<entity::enemy, entity::fireball>(collision); enemy && fireball)
         {
-            if(!fireball->remove)
+            if(!enemy->immune() && !fireball->remove)
             {
                 enemy->hit();
                 fireball->hit();

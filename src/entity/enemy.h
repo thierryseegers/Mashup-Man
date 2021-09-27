@@ -48,6 +48,9 @@ public:
 
     virtual ~enemy() = default;
 
+    // An enemy is impervious to damage when it is dead and going to the ghost house.
+    [[nodiscard]] bool immune() const override;
+
     [[nodiscard]] mode behavior() const;
 
     void behave(

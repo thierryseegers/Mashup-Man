@@ -23,6 +23,9 @@ public:
 
     virtual ~character() = default;
 
+    // A character may be impervious to damage (e.g. recently spawned hero, dead enemy going home).
+    [[nodiscard]] virtual bool immune() const = 0;
+
 protected:
     virtual void update_self(
         sf::Time const& dt,

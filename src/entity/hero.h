@@ -29,8 +29,8 @@ public:
 
     virtual ~hero() = default;
 
-    // The hero may be immune to damage when recently spawned.
-    [[nodiscard]] bool immune() const;
+    // The hero may be impervious to damage when recently spawned.
+    [[nodiscard]] bool immune() const override;
 
     // The direction towards which the hero is steered by the player.
     [[nodiscard]] direction steering() const;
