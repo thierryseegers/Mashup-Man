@@ -30,14 +30,12 @@ bool game::update(
     {
         if(world_.players_alive())
         {
-            // states.context.player.mission_status() = player::mission::success;
-            // states.request_push(id::game_over);
+            // states.request_push(id::next_level);
         }
         else 
         {
             states.context.sound.play(resources::sound_effect::game_over);
 
-            states.context.players[0]->level_outcome() = player::outcome::failure;
             states.request_push(id::game_over);
         }
     }

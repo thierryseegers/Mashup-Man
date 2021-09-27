@@ -16,12 +16,6 @@
 class player
 {
 public:
-    enum class outcome
-    {
-        failure,
-        success,
-    };
-
     using hero_maker_f = std::function<std::unique_ptr<entity::hero>()>;
 
     template<typename Hero>
@@ -29,7 +23,6 @@ public:
         std::type_identity<Hero>)
         : id{Hero::id()}
         , hero_maker_{[]{ return std::make_unique<Hero>(); }}
-        , outcome_{outcome::failure}
     {
         action_bindings[action::cruise] = make_command(+[](Hero& hero, sf::Time const&)
             {
@@ -67,18 +60,11 @@ public:
     void handle_realtime_input(
         commands_t& commands);
 
-    outcome& level_outcome();
-
-    [[nodiscard]] outcome level_outcome() const;
-
 private:
     [[nodiscard]] static bool is_realtime_action(action const a);
 
     std::map<action, command_t> action_bindings;
 
-    // 
     unsigned int id;
     hero_maker_f hero_maker_;
-
-    outcome outcome_;
 };

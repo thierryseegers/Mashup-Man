@@ -15,17 +15,10 @@ namespace state
 game_over::game_over(
     stack& states)
     : state{states}
+    , text{"Game over!", resources::fonts().get(resources::font::main), 100}
     , duration{resources::sound_buffers().get(resources::sound_effect::game_over).getDuration() + sf::seconds(3)}
     , elapsed{sf::Time::Zero}
 {
-    text.setFont(resources::fonts().get(resources::font::main));
-
-    if(states.context.players[0]->level_outcome() == player::outcome::failure)
-        text.setString("Game over!");
-    else
-        text.setString("Get ready for the next level!");
-
-    text.setCharacterSize(100);
     utility::center_origin(text);
 
     auto const view_size = states.context.window.getView().getSize();

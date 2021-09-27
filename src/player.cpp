@@ -109,16 +109,6 @@ void player::handle_realtime_input(
     // }
 }
 
-player::outcome& player::level_outcome()
-{
-    return outcome_;
-}
-
-player::outcome player::level_outcome() const
-{
-    return outcome_;
-}
-
 bool player::is_realtime_action(
     action const a)
 {
