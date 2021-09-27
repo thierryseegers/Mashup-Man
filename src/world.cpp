@@ -400,7 +400,6 @@ void world::handle_collisions()
         {
             if(!power_up->remove)
             {
-                power_up->remove = true;
                 immovables[power_up->getPosition().y / level::tile_size][power_up->getPosition().x / level::tile_size] = nullptr;
 
                 hero->pick_up(power_up);
