@@ -630,7 +630,7 @@ void world::update(
     playground.update(dt, commands_);
 
     // Tag all unviewable animations to be removed.
-    for(auto& node : playground)
+    for(auto& node : *layers[magic_enum::enum_integer(layer::id::animations)])
     {
         auto const position = node.getInverseTransform().transformPoint(node.getPosition());
         if(position.x > target.getSize().x ||
