@@ -342,11 +342,11 @@ void world::handle_collisions()
     {
         if(auto [hero, enemy] = match<entity::hero, entity::enemy>(collision); hero && enemy)
         {
-            spdlog::info("Hero got hit by an enemy!");
-
             if(!hero->immune() && !enemy->immune())
             {
                 hero->hit();
+                spdlog::info("Hero got hit by an enemy!");
+
                 if(hero->remove)
                 {
                     sound.play(resources::sound_effect::short_die);
@@ -365,13 +365,11 @@ void world::handle_collisions()
         {
             if(!projectile->remove)
             {
-                spdlog::info("Hero got hit by a projectile!");
-
-                projectile->hit();
-
                 if(!hero->immune())
                 {
+                    spdlog::info("Hero got hit by a projectile!");
                     hero->hit();
+                    projectile->hit();
 
                     if(hero->remove)
                     {
@@ -392,6 +390,7 @@ void world::handle_collisions()
         {
             if(!enemy->immune() && !fireball->remove)
             {
+                spdlog::info("Enemy got hit by a projectile!");
                 enemy->hit();
                 fireball->hit();
 
