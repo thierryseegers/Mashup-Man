@@ -38,17 +38,24 @@ sf::Vector2f random_level_corner()
 }
 
 sf::Vector2f random_home_corner(
-    sf::IntRect const& home)
+    sf::FloatRect const& home)
 {
-    return {(float)home.left + utility::random(1) * (home.width - level::tile_size) + level::half_tile_size,
-            (float)home.top + utility::random(1) * (home.height - level::tile_size) + level::half_tile_size};
+    return {home.left + utility::random(1) * (home.width - level::tile_size) + level::half_tile_size,
+            home.top + utility::random(1) * (home.height - level::tile_size) + level::half_tile_size};
+}
+
+bool contains(
+    sf::FloatRect const& a,
+    sf::FloatRect const& b)
+{
+    return b.left >= a.left && b.top >= a.top && (b.left + b.width <= a.left + a.width) && (b.top + b.height <= a.top + a.height);
 }
 
 enemy::enemy(
     animated_sprite_rects_f const animated_sprite_rects,
     dead_sprite_rect_f const dead_sprite_rect,
     float const scale_factor,
-    sf::IntRect const& home,
+    sf::FloatRect const& home,
     int const max_speed,
     direction const heading_)
     : hostile<character>{
@@ -63,7 +70,8 @@ enemy::enemy(
         , heading_}
     , animated_sprite_rects{animated_sprite_rects}
     , dead_sprite_rect{dead_sprite_rect}
-    , mode_{mode::confined}
+    , current_mode_{mode::confined}
+    , requested_mode_{mode::scatter}
     , home{home}
     , healed{true}
     , target{random_home_corner(home)}
@@ -79,56 +87,61 @@ void enemy::hit()
 
 bool enemy::immune() const
 {
-    return mode_ == mode::dead;
-}
-
-enemy::mode enemy::behavior() const
-{
-    return mode_;
+    return current_mode_ == mode::dead;
 }
 
 void enemy::behave(
-    mode const m)
+    mode const requested_mode)
 {
-    if(mode_ != m && healed)
+    if(current_mode_ == requested_mode ||
+       (current_mode_ == mode::dead && !healed) ||
+       (current_mode_ == mode::confined && confinement >= sf::Time::Zero))
     {
-        spdlog::info("{} changing mode from {} to {}.", name(), magic_enum::enum_name(mode_), magic_enum::enum_name(m));
-
-        mode_ = m;
-
-        switch(mode_)
-        {
-            case mode::confined:
-                assert(!"Do not manually change behavior to 'confined'. This mode is set form the start and never reoccurs.");
-                break;
-            case mode::chase:
-                break;
-            case mode::dead:
-                healed = false;
-                target = {home.left + home.width / 2.f, home.top + home.height / 2.f};
-                throttle(2.f);
-                break;
-            case mode::frightened:
-                break;
-            case mode::scatter:
-                target = random_level_corner();
-                throttle(1.f);
-                break;
-        }
-
-        update_sprite();
+        requested_mode_ = requested_mode;
+        return;
     }
+
+    spdlog::info("{} changing mode from {} to {}.", name(), me::enum_name(current_mode_), me::enum_name(requested_mode));
+
+    current_mode_ = requested_mode;
+
+    switch(current_mode_)
+    {
+        case mode::confined:
+            assert(!"Do not manually change behavior to 'confined'. This mode is set form the start and never reoccurs.");
+            break;
+        case mode::step_out:
+            target = {level::width * level::tile_size / 2, 0};  //Just need to get out of the house.
+            throttle(1.f);
+            break;
+        case mode::chase:
+            throttle(1.f);
+            break;
+        case mode::dead:
+            healed = false;
+            target = {home.left + home.width / 2.f, home.top + home.height / 2.f};
+            throttle(2.f);
+            break;
+        case mode::frightened:
+            break;
+        case mode::scatter:
+            target = random_level_corner();
+            throttle(1.f);
+            break;
+    }
+
+    update_sprite();
 }
 
 void enemy::update_sprite()
 {
-    if(mode_ == mode::dead)
+    if(current_mode_ == mode::dead)
     {
         sprite_.still(dead_sprite_rect());
     }
     else
     {
-        sprite_.animate(animated_sprite_rects(mode_), sf::seconds(0.25f), sprite::repeat::loop);
+        sprite_.animate(animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
     }
 }
 
@@ -136,15 +149,22 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(mode_ == mode::confined && ((confinement -= dt) <= sf::Time::Zero))
+    if(current_mode_ == mode::confined && ((confinement -= dt) <= sf::Time::Zero))
     {
-        behave(mode::scatter);
+        behave(mode::step_out);
     }
-    else if(mode_ == mode::dead && utility::length(getPosition() - target) < level::tile_size)
+    // else if(current_mode_ == mode::dead && contains(world_transform().transformRect(home), collision_bounds()))
+    // else if(current_mode_ == mode::dead && contains(home, getInverseTransform().transformRect(sprite_.global_bounds())))
+    // else if(current_mode_ == mode::dead && contains(home, sprite_.sprite_.getLocalBounds()))
+    else if(current_mode_ == mode::dead && home.contains(getPosition()))
     {
         healed = true;
 
-        behave(mode::scatter);
+        behave(mode::step_out);
+    }
+    else if(current_mode_ == mode::step_out && !home.contains(getPosition()))
+    {
+        behave(requested_mode_);
     }
 
     character::update_self(dt, commands);
@@ -179,7 +199,7 @@ sf::IntRect goomba_dead_sprite_rect()
 }
 
 goomba::goomba(
-    sf::IntRect const& home)
+    sf::FloatRect const& home)
     : enemy{
         goomba_animated_sprite_rects,
         goomba_dead_sprite_rect,
@@ -194,7 +214,7 @@ direction goomba::fork(
     std::vector<sf::Vector2f> const& heroes_positions,
     std::map<direction, sf::Vector2f> const& choices)
 {
-    switch(mode_)
+    switch(current_mode_)
     {
         case mode::confined:
             if(utility::length(target - getPosition()) < level::tile_size)

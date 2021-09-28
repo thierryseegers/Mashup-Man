@@ -25,6 +25,7 @@ public:
     enum class mode
     {
         confined,
+        step_out,
         scatter,
         chase,
         frightened,
@@ -42,7 +43,7 @@ public:
         animated_sprite_rects_f const animated_sprite_rects,
         dead_sprite_rect_f const dead_sprite_rect,
         float const scale_factor,
-        sf::IntRect const& home,
+        sf::FloatRect const& home,
         int const max_speed = 0,
         direction const heading_ = direction::right);
 
@@ -50,8 +51,6 @@ public:
 
     // An enemy is impervious to damage when it is dead and going to the ghost house.
     [[nodiscard]] bool immune() const override;
-
-    [[nodiscard]] mode behavior() const;
 
     void behave(
         mode const m);
@@ -74,9 +73,10 @@ protected:
     animated_sprite_rects_f animated_sprite_rects;
     dead_sprite_rect_f dead_sprite_rect;
 
-    mode mode_;
+    mode current_mode_;
+    mode requested_mode_;
 
-    sf::IntRect home;       // The ghost home.
+    sf::FloatRect home;       // The ghost home.
     bool healed;            // Whether a hurt ghost has reached home.
 
     sf::Vector2f target;    // Target coordinates.
@@ -89,7 +89,7 @@ class goomba
 {
 public:
     goomba(
-        sf::IntRect const& home);
+        sf::FloatRect const& home);
 
     virtual direction fork(
         std::vector<sf::Vector2f> const& heroes_positions,

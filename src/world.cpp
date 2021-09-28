@@ -170,7 +170,7 @@ void world::build_scene()
     m->layout(wall_texture_offsets, wall_rotations);
 
     // Get the rectangle coordinates of the ghost house.
-    sf::IntRect ghost_house{};
+    sf::FloatRect ghost_house{};
     for(size_t r = 0; r != level::height; ++r)
     {
         for(size_t c = 0; c != level::width; ++c)
@@ -519,7 +519,7 @@ void world::update_enemies(
     {
         if(auto* enemy = dynamic_cast<entity::enemy*>(character))
         {
-            // enemy->behave(enemy_mode_);
+            enemy->behave(enemy_mode_);
 
             sf::Vector2i const position{(int)enemy->getPosition().x, (int)enemy->getPosition().y};
             if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
