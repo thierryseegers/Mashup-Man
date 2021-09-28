@@ -23,6 +23,8 @@
 namespace entity
 {
 
+namespace me = magic_enum;
+
 sf::Vector2f random_level_corner()
 {
     // Pick a random corner area as a target.
@@ -151,7 +153,7 @@ void enemy::update_self(
 using animated_sprite_rects =
     std::array<
         std::vector<sf::IntRect>,
-        magic_enum::enum_count<enemy::mode>()>;
+        me::enum_count<enemy::mode>()>;
 
 std::vector<sf::IntRect> goomba_animated_sprite_rects(
     enemy::mode const mode_)
@@ -159,15 +161,16 @@ std::vector<sf::IntRect> goomba_animated_sprite_rects(
     static animated_sprite_rects const rects = []{
         animated_sprite_rects r;
 
-        r[magic_enum::enum_integer(enemy::mode::confined)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
-        r[magic_enum::enum_integer(enemy::mode::chase)] = r[magic_enum::enum_integer(enemy::mode::confined)];
-        r[magic_enum::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
-        r[magic_enum::enum_integer(enemy::mode::scatter)] = r[magic_enum::enum_integer(enemy::mode::confined)];
+        r[me::enum_integer(enemy::mode::confined)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+        r[me::enum_integer(enemy::mode::chase)] = r[me::enum_integer(enemy::mode::confined)];
+        r[me::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
+        r[me::enum_integer(enemy::mode::scatter)] = r[me::enum_integer(enemy::mode::confined)];
+        r[me::enum_integer(enemy::mode::step_out)] = r[me::enum_integer(enemy::mode::confined)];
 
         return r;
     }();
 
-    return rects[magic_enum::enum_integer(mode_)];
+    return rects[me::enum_integer(mode_)];
 }
 
 sf::IntRect goomba_dead_sprite_rect()
