@@ -25,6 +25,8 @@
 #include <tuple>
 #include <vector>
 
+namespace me = magic_enum;
+
 world::world(
     state::stack::context_t& context)
     : target{context.window}
@@ -157,14 +159,14 @@ void world::build_scene()
     playground.attach<scene::sound_t>(sound);
 
     // Create layers.
-    layers[magic_enum::enum_integer(layer::id::maze)] = playground.attach<layer::maze>();
-    layers[magic_enum::enum_integer(layer::id::items)] = playground.attach<layer::items>();
-    layers[magic_enum::enum_integer(layer::id::characters)] = playground.attach<layer::characters>();
-    layers[magic_enum::enum_integer(layer::id::projectiles)] = playground.attach<layer::projectiles>();
-    layers[magic_enum::enum_integer(layer::id::pipes)] = playground.attach<layer::pipes>();
-    layers[magic_enum::enum_integer(layer::id::animations)] = playground.attach<layer::animations>();
+    layers[me::enum_integer(layer::id::maze)] = playground.attach<layer::maze>();
+    layers[me::enum_integer(layer::id::items)] = playground.attach<layer::items>();
+    layers[me::enum_integer(layer::id::characters)] = playground.attach<layer::characters>();
+    layers[me::enum_integer(layer::id::projectiles)] = playground.attach<layer::projectiles>();
+    layers[me::enum_integer(layer::id::pipes)] = playground.attach<layer::pipes>();
+    layers[me::enum_integer(layer::id::animations)] = playground.attach<layer::animations>();
 
-    auto *m = layers[magic_enum::enum_integer(layer::id::maze)]->attach<maze>();
+    auto *m = layers[me::enum_integer(layer::id::maze)]->attach<maze>();
     m->layout(wall_texture_offsets, wall_rotations);
 
     // Get the rectangle coordinates of the ghost house.
@@ -198,17 +200,17 @@ void world::build_scene()
             switch(level_info[r][c])
             {
                 case '.':
-                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::power_up::coin>();
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::coin>();
                     immovables[r][c] = e;
                     ++n_pills;
                     break;
                 case 'f':
-                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::power_up::flower>();
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::flower>();
                     immovables[r][c] = e;
                     break;
                 case 'g':
                     {
-                        auto *g = layers[magic_enum::enum_integer(layer::id::characters)]->attach<entity::goomba>(ghost_house);
+                        auto *g = layers[me::enum_integer(layer::id::characters)]->attach<entity::goomba>(ghost_house);
                         if(!ghost_house.contains(c * level::tile_size, r * level::tile_size))
                         {
                             g->behave(entity::enemy::mode::scatter);
@@ -218,11 +220,11 @@ void world::build_scene()
                     }
                     break;
                 case 'm':
-                    e = layers[magic_enum::enum_integer(layer::id::items)]->attach<entity::power_up::mushroom>();
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::mushroom>();
                     immovables[r][c] = e;
                     break;
                 case 'p':
-                    e = layers[magic_enum::enum_integer(layer::id::pipes)]->attach<entity::pipe>();
+                    e = layers[me::enum_integer(layer::id::pipes)]->attach<entity::pipe>();
                     immovables[r][c] = e;
 
                     if(c == 0)
@@ -234,7 +236,7 @@ void world::build_scene()
                     {
                         auto h = heroes[0].maker();
                         e = heroes[0].hero_ = h.get();
-                        layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(h));
+                        layers[me::enum_integer(layer::id::characters)]->attach(std::move(h));
 
                         heroes[0].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
                     }
@@ -244,7 +246,7 @@ void world::build_scene()
                     {
                         auto h = heroes[1].maker();
                         e = heroes[1].hero_ = h.get();
-                        layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(h));
+                        layers[me::enum_integer(layer::id::characters)]->attach(std::move(h));
 
                         heroes[1].hero_->head(direction::left);
                         heroes[1].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
@@ -315,10 +317,10 @@ void world::handle_collisions()
     }
 
     // Detect collisions between characters and...
-    for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
+    for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
     {
         //  ...projectiles.
-        for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
+        for(auto* const projectile : layers[me::enum_integer(layer::id::projectiles)]->children())
         {
             if(character->collides(projectile))
             {
@@ -327,7 +329,7 @@ void world::handle_collisions()
         }
 
         // ...other characters.
-        for(auto* const other : layers[magic_enum::enum_integer(layer::id::characters)]->children())
+        for(auto* const other : layers[me::enum_integer(layer::id::characters)]->children())
         {
             if(character != other && character->collides(other))
             {
@@ -448,7 +450,7 @@ void world::update_hero(
             (steering == direction::down   && !utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'd')) ||
             (steering == direction::up     && !utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'd'))))
         {
-            spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, magic_enum::enum_name(steering));
+            spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, me::enum_name(steering));
             hero->head(steering);
             hero->throttle(1.f);
             hero->setPosition((position.x / level::tile_size) * level::tile_size + level::half_tile_size, (position.y / level::tile_size) * level::tile_size + level::half_tile_size);
@@ -461,7 +463,7 @@ void world::update_hero(
                  (heading == direction::down     && utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'd')) ||
                  (heading == direction::up       && utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'd'))))
         {
-            spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, magic_enum::enum_name(heading));
+            spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, me::enum_name(heading));
             hero->throttle(0.f);
         }
         // Else we let him cruise along.
@@ -471,7 +473,7 @@ void world::update_hero(
 void world::update_fireballs()
 {
     // If a fireball hits a wall or a pipe, remove it.
-    for(auto* const projectile : layers[magic_enum::enum_integer(layer::id::projectiles)]->children())
+    for(auto* const projectile : layers[me::enum_integer(layer::id::projectiles)]->children())
     {
         auto const r = projectile->getPosition().y / level::tile_size, c = projectile->getPosition().x / level::tile_size;
         if(utility::any_of(level_info[r][c], '0', '1', '2', '3', 'p'))
@@ -514,7 +516,7 @@ void world::update_enemies(
         }
     }
 
-    for(auto* const character : layers[magic_enum::enum_integer(layer::id::characters)]->children())
+    for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
     {
         if(auto* enemy = dynamic_cast<entity::enemy*>(character))
         {
@@ -572,7 +574,7 @@ void world::update_enemies(
                     // Nudge it along so it doesn't get to redecide immediately...
                     enemy->nudge(2.f);
 
-                    spdlog::info("{} decided to go {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
+                    spdlog::info("{} decided to go {}", enemy->name(), me::enum_name(enemy->heading()));
                 }
                 // Else, if it hit a wall, follow along the path.
                 else if(paths.begin()->first != heading)
@@ -582,7 +584,7 @@ void world::update_enemies(
                     // Nudge it along so it doesn't get to redecide immediately...
                     enemy->nudge(2.f);
 
-                    spdlog::info("{} is turning {}", enemy->name(), magic_enum::enum_name(enemy->heading()));
+                    spdlog::info("{} is turning {}", enemy->name(), me::enum_name(enemy->heading()));
                 }
                 // Else, let it cruise along.
             }
@@ -613,7 +615,7 @@ void world::update(
             hero.hero_ = h.get();
             hero.hero_->setPosition(hero.spawn_point);
 
-            layers[magic_enum::enum_integer(layer::id::characters)]->attach(std::move(h));
+            layers[me::enum_integer(layer::id::characters)]->attach(std::move(h));
         }
     }
 
@@ -630,7 +632,7 @@ void world::update(
     playground.update(dt, commands_);
 
     // Tag all unviewable animations to be removed.
-    for(auto& node : *layers[magic_enum::enum_integer(layer::id::animations)])
+    for(auto& node : *layers[me::enum_integer(layer::id::animations)])
     {
         auto const position = node.getInverseTransform().transformPoint(node.getPosition());
         if(position.x > target.getSize().x ||
