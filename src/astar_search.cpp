@@ -7,9 +7,24 @@
 #include <spdlog/spdlog.h>
 
 #include <cmath>
+#include <memory>
 
 namespace astar
 {
+
+using grid = boost::grid_graph<2, int>;
+
+struct vertex_hash
+{
+    using argument_type = grid::vertex_descriptor;
+    using result_type = std::size_t;
+
+    std::size_t operator()(
+        grid::vertex_descriptor const& u) const;
+};
+
+using vertex_set = boost::unordered_set<grid::vertex_descriptor, vertex_hash>;
+using filtered_grid = boost::vertex_subset_complement_filter<grid, vertex_set>::type;
 
 using distance = double;
 
@@ -21,31 +36,6 @@ std::size_t vertex_hash::operator()(
     boost::hash_combine(seed, u[1]);
 
     return seed;
-}
-
-maze::maze(
-    level::info const& level_info)
-    : grid_{{{(int)level_info[0].size(), (int)level_info.size()}}}
-    , paths{boost::make_vertex_subset_complement_filter(grid_, barriers)}
-{
-    for(size_t r = 0; r != level_info.size(); ++r)
-    {
-        for(size_t c = 0; c != level_info[0].size(); ++c)
-        {
-            switch(level_info[r][c])
-            {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case 'p':
-                    barriers.insert(vertex(c + r * level_info[0].size(), grid_));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 }
 
 struct euclidean_distance
@@ -61,21 +51,7 @@ struct euclidean_distance
     distance operator()(
         grid::vertex_descriptor const& v)
     {
-        auto const x1 = goal[0];
-        auto const x2 = v[0];
-        auto const y1 = goal[1];
-        auto const y2 = v[1];
-        double const delta_x = x1 - x2;
-        double const delta_y = y1 - y2;
-        auto const delta_x_squared = pow(delta_x, 2);
-        auto const delta_y_squared = pow(delta_y, 2);
-        auto const sqrt_deltas_squared = sqrt(delta_x_squared + delta_y_squared);
-
-        auto const d = sqrt(pow(double(goal[0] - v[0]), 2) + pow(double(goal[1] - v[1]), 2));
-        spdlog::info("distance to goal: {}", d);
-
-        // return sqrt(pow(double(goal[0] - v[0]), 2) + pow(double(goal[1] - v[1]), 2));
-        return d;
+        return sqrt(pow(double(goal[0] - v[0]), 2) + pow(double(goal[1] - v[1]), 2));
     }
 };
 
@@ -96,8 +72,6 @@ struct astar_goal_visitor
         grid::vertex_descriptor const& u,
         filtered_grid const&)
     {
-        spdlog::info("visiting [{},{}]", u[0], u[1]);
-
         if(u == goal)
         {
             throw found_goal();
@@ -105,67 +79,112 @@ struct astar_goal_visitor
     }
 };
 
-// Give the direction to go in given target coordinates.
-direction maze::route(
-    grid::vertex_descriptor const& start,
-    grid::vertex_descriptor const& goal,
-    level::grid<bool>* path)
+class maze
 {
-    boost::static_property_map<distance> weight(1);
-    
-    // The predecessor map is a vertex-to-vertex mapping.
-    using predecessor_map = boost::unordered_map<grid::vertex_descriptor, grid::vertex_descriptor, vertex_hash>;
-    predecessor_map predecessors;
-    boost::associative_property_map<predecessor_map> predecessors_property_map(predecessors);
-
-    euclidean_distance heuristic{goal};
-    astar_goal_visitor visitor{goal};
-
-    try
+public:
+    maze(
+        level::info const& level_info)
+        : grid_{{{(int)level_info[0].size(), (int)level_info.size()}}}
+        , paths{boost::make_vertex_subset_complement_filter(grid_, barriers)}
     {
-        astar_search(paths, start, heuristic,
-            boost::weight_map(weight)
-                .predecessor_map(predecessors_property_map)
-                .visitor(visitor));
-    }
-    catch(found_goal const&)
-    {
-        grid::vertex_descriptor u;
-        for(u = goal; u != start; u = predecessors[u])
+        for(size_t r = 0; r != level_info.size(); ++r)
         {
-            spdlog::info("[{},{}]", u[0], u[1]);
-            (void)u;
-            if(path)
+            for(size_t c = 0; c != level_info[0].size(); ++c)
             {
-                (*path)[u[1]][u[0]] = true;
+                switch(level_info[r][c])
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case 'p':
+                        barriers.insert(vertex(c + r * level_info[0].size(), grid_));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    // Give the direction to go in given target coordinates.
+    direction route(
+        grid::vertex_descriptor const& start,
+        grid::vertex_descriptor const& goal) const
+    {
+        boost::static_property_map<distance> weight(1);
+
+        // The predecessor map is a vertex-to-vertex mapping.
+        using predecessor_map = boost::unordered_map<grid::vertex_descriptor, grid::vertex_descriptor, vertex_hash>;
+        predecessor_map predecessors;
+        boost::associative_property_map<predecessor_map> predecessors_property_map(predecessors);
+
+        euclidean_distance heuristic{goal};
+        astar_goal_visitor visitor{goal};
+
+        try
+        {
+            astar_search(paths, start, heuristic,
+                boost::weight_map(weight)
+                    .predecessor_map(predecessors_property_map)
+                    .visitor(visitor));
+        }
+        catch(found_goal const&)
+        {
+            grid::vertex_descriptor u;
+            for(u = goal; u != start; u = predecessors[u])
+            {}
+
+            if(u[0] + 1 == start[0])
+            {
+                return direction::left;
+            }
+            else if(u[0] - 1 == start[0])
+            {
+                return direction::right;
+            }
+            else if(u[1] + 1 == start[1])
+            {
+                return direction::down;
+            }
+            else if(u[1] - 1 == start[1])
+            {
+                return direction::up;
             }
         }
 
-        if(u[0] + 1 == start[0])
-        {
-            return direction::left;
-        }
-        else if(u[0] - 1 == start[0])
-        {
-            return direction::right;
-        }
-        else if(u[1] + 1 == start[1])
-        {
-            return direction::down;
-        }
-        else if(u[1] - 1 == start[1])
-        {
-            return direction::up;
-        }
+        return direction::none;
     }
 
-    return direction::none;
-}
+private:
+    // The grid underlying the maze.
+    grid grid_;
+
+    // The barriers in the maze.
+    vertex_set barriers;
+
+    // The underlying maze grid with barrier vertices filtered out.
+    filtered_grid paths;
+};
 
 grid::vertex_descriptor to_vertex_descriptor(
     sf::Vector2i const& coordinates)
 {
     return {{static_cast<grid::vertices_size_type>(coordinates.x), static_cast<grid::vertices_size_type>(coordinates.y)}};
+}
+
+std::shared_ptr<maze> make_maze(
+    level::info const& level_info)
+{
+    return std::make_shared<maze>(level_info);
+}
+
+direction route(
+    maze const* const maze_,
+    sf::Vector2i const& start,
+    sf::Vector2i const& goal)
+{
+    return maze_->route(to_vertex_descriptor(start), to_vertex_descriptor(goal));
 }
 
 }
