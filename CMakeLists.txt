@@ -21,13 +21,23 @@ include(
 )
 
 # Request Conan to generate *-config.cmake modules for the dependencies.
+
+# Conan won't install Boost.Math on macOS because it claims apple-clang is not c++11-capable.
+# For that platform, Boost.Graph should be installed via other means (i.e. brew).
+if(NOT APPLE)
+    set(CONAN_BOOST_PACKAGE boost/1.77.0)
+    set(CONAN_BOOST_PACKAGE_OPTIONS boost::without_graph=False)
+endif()
+
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 conan_cmake_run(REQUIRES
+                    ${CONAN_BOOST_PACKAGE}
                     magic_enum/0.7.2
                     tomlplusplus/2.3.0
                     sfml/2.5.1
                     spdlog/1.9.2
                 OPTIONS
+                    ${CONAN_BOOST_PACKAGE_OPTIONS}
                     sfml:network=False
                 BASIC_SETUP
                 CONFIGURATION_TYPES
@@ -42,6 +52,21 @@ conan_cmake_run(REQUIRES
                 OUTPUT_QUIET
 )
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
+
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+if(APPLE)
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0057 NEW)
+endif()
+find_package(Boost
+    CONFIG
+    COMPONENTS graph
+    REQUIRED
+)
+if(APPLE)
+    cmake_policy(POP)
+endif()
 
 find_package(magic_enum 0.7.2
     CONFIG
@@ -72,6 +97,8 @@ add_executable(${PROJECT_NAME}
     src/action.h
     src/application.cpp
     src/application.h
+    src/astar_search.cpp
+    src/astar_search.h
     src/bindings.cpp
     src/bindings.h
     src/command.h
@@ -168,6 +195,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
+        Boost::graph
         magic_enum::magic_enum
         sfml::sfml
         spdlog::spdlog
@@ -175,9 +203,16 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if(APPLE)
+    # Required by SFML.
     target_link_options(${PROJECT_NAME}
         PRIVATE
             -ObjC
+    )
+
+    # Indirectly required by Boost.Graph (Graph requires Regex which requires ICU).
+    target_link_directories(${PROJECT_NAME}
+        PRIVATE
+            /usr/local/opt/icu4c/lib
     )
 endif()
 
