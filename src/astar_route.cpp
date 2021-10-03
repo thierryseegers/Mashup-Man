@@ -132,7 +132,7 @@ public:
         catch(found_goal const&)
         {
             grid::vertex_descriptor u;
-            for(u = goal; u != start; u = predecessors[u])
+            for(u = goal; predecessors[u] != start; u = predecessors[u])
             {}
 
             if(u[0] + 1 == start[0])
@@ -145,11 +145,11 @@ public:
             }
             else if(u[1] + 1 == start[1])
             {
-                return direction::down;
+                return direction::up;
             }
             else if(u[1] - 1 == start[1])
             {
-                return direction::up;
+                return direction::down;
             }
         }
 
