@@ -1,5 +1,6 @@
 #pragma once
 
+#include "astar_route.h"
 #include "command.h"
 // #include "effects/bloom.h"
 #include "entity/entities.h"
@@ -81,6 +82,7 @@ private:
 
     level::info level_info;
     level::grid<entity::entity*> immovables;
+    std::shared_ptr<astar::maze> astar_maze;
 
     entity::enemy::mode enemy_mode_;
     sf::Time enemy_mode_timer; // Time left in current mode.

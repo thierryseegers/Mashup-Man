@@ -25,7 +25,6 @@ public:
     enum class mode
     {
         confined,
-        step_out,
         scatter,
         chase,
         frightened,
@@ -55,9 +54,8 @@ public:
     void behave(
         mode const m);
 
-    virtual direction fork(
-        std::vector<sf::Vector2f> const& heroes_positions,
-        std::map<direction, sf::Vector2f> const& choices) = 0;
+    virtual sf::Vector2f fork(
+        std::vector<sf::Vector2f> const& heroes_positions) = 0;
 
     virtual void hit() override;
 
@@ -91,9 +89,8 @@ public:
     goomba(
         sf::FloatRect const& home);
 
-    virtual direction fork(
-        std::vector<sf::Vector2f> const& heroes_positions,
-        std::map<direction, sf::Vector2f> const& choices) override;
+    virtual sf::Vector2f fork(
+        std::vector<sf::Vector2f> const& heroes_positions) override;
 
     virtual std::string_view name() const override;
 };

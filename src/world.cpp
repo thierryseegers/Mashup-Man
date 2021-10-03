@@ -155,6 +155,8 @@ void world::build_scene()
     level::wall_rotations wall_rotations;
     std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
 
+    astar_maze = astar::make_maze(level_info);
+
     // Create a sound player.
     playground.attach<scene::sound_t>(sound);
 
@@ -568,7 +570,10 @@ void world::update_enemies(
                     }
 
                     // Change heading given chasing strategy.
-                    enemy->head(enemy->fork(heroes_positions, paths));
+                    // enemy->head(enemy->fork(heroes_positions, paths));
+                    auto const target = enemy->fork(heroes_positions);
+                    sf::Vector2i start{(int)enemy->getPosition().x  / level::tile_size, (int)enemy->getPosition().y  / level::tile_size}, goal{(int)target.x / level::tile_size, (int)target.y / level::tile_size};
+                    enemy->head(astar::route(astar_maze.get(), start, goal));
 
                     // Nudge it along so it doesn't get to redecide immediately...
                     enemy->nudge(2.f);

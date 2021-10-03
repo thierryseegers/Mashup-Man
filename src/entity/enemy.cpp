@@ -28,8 +28,8 @@ namespace me = magic_enum;
 sf::Vector2f random_level_corner()
 {
     // Pick a random corner area as a target.
-    static size_t const x[2] = {5ul, level::width - 5};
-    static size_t const y[2] = {5ul, level::width - 5};
+    static size_t const x[2] = {1ul, level::width - 1 - 1};
+    static size_t const y[2] = {2ul, level::height - 2 - 2};
 
     float const c = x[utility::random(1)];
     float const r = y[utility::random(1)];
@@ -95,7 +95,7 @@ void enemy::behave(
 {
     if(current_mode_ == requested_mode ||
        (current_mode_ == mode::dead && !healed) ||
-       (current_mode_ == mode::confined && confinement >= sf::Time::Zero))
+       (current_mode_ == mode::confined && confinement >= sf::Time::Zero && home.contains(getPosition())))
     {
         requested_mode_ = requested_mode;
         return;
@@ -109,10 +109,6 @@ void enemy::behave(
     {
         case mode::confined:
             assert(!"Do not manually change behavior to 'confined'. This mode is set form the start and never reoccurs.");
-            break;
-        case mode::step_out:
-            target = {level::width * level::tile_size / 2, 0};  //Just need to get out of the house.
-            throttle(1.f);
             break;
         case mode::chase:
             throttle(1.f);
@@ -151,7 +147,7 @@ void enemy::update_self(
 {
     if(current_mode_ == mode::confined && ((confinement -= dt) <= sf::Time::Zero))
     {
-        behave(mode::step_out);
+        behave(requested_mode_);
     }
     // else if(current_mode_ == mode::dead && contains(world_transform().transformRect(home), collision_bounds()))
     // else if(current_mode_ == mode::dead && contains(home, getInverseTransform().transformRect(sprite_.global_bounds())))
@@ -160,10 +156,6 @@ void enemy::update_self(
     {
         healed = true;
 
-        behave(mode::step_out);
-    }
-    else if(current_mode_ == mode::step_out && !home.contains(getPosition()))
-    {
         behave(requested_mode_);
     }
 
@@ -185,7 +177,6 @@ std::vector<sf::IntRect> goomba_animated_sprite_rects(
         r[me::enum_integer(enemy::mode::chase)] = r[me::enum_integer(enemy::mode::confined)];
         r[me::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
         r[me::enum_integer(enemy::mode::scatter)] = r[me::enum_integer(enemy::mode::confined)];
-        r[me::enum_integer(enemy::mode::step_out)] = r[me::enum_integer(enemy::mode::confined)];
 
         return r;
     }();
@@ -210,9 +201,8 @@ goomba::goomba(
         }
 {}
 
-direction goomba::fork(
-    std::vector<sf::Vector2f> const& heroes_positions,
-    std::map<direction, sf::Vector2f> const& choices)
+sf::Vector2f goomba::fork(
+    std::vector<sf::Vector2f> const& heroes_positions)
 {
     switch(current_mode_)
     {
@@ -221,13 +211,16 @@ direction goomba::fork(
             {
                 target = random_home_corner(home);
             }
-            [[fallthrough]];
+            // [[fallthrough]];
+            // return target;
+            break;
         case mode::scatter:
         case mode::dead:
-            return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-                {
-                    return utility::length(target - c1.second) < utility::length(target - c2.second);
-                })->first;
+            // return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
+            //     {
+            //         return utility::length(target - c1.second) < utility::length(target - c2.second);
+            //     })->first;
+            // return target;
             break;
         case mode::chase:
             {
@@ -238,10 +231,12 @@ direction goomba::fork(
                     return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
                 });
 
-                return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-                {
-                    return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
-                })->first;
+                // return closest;
+                target = *closest;
+                // return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
+                // {
+                //     return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
+                // })->first;
             }
             break;
         case mode::frightened:
@@ -250,7 +245,8 @@ direction goomba::fork(
             break;
     }
 
-    return choices.begin()->first;
+    // return choices.begin()->first;
+    return target;
 }
 
 std::string_view goomba::name() const
