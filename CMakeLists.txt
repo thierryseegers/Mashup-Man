@@ -97,8 +97,8 @@ add_executable(${PROJECT_NAME}
     src/action.h
     src/application.cpp
     src/application.h
-    src/astar_search.cpp
-    src/astar_search.h
+    src/astar_route.cpp
+    src/astar_route.h
     src/bindings.cpp
     src/bindings.h
     src/command.h
