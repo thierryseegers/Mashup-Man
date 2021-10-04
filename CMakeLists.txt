@@ -26,7 +26,7 @@ include(
 # For that platform, Boost.Graph should be installed via other means (i.e. brew).
 if(NOT APPLE)
     set(CONAN_BOOST_PACKAGE boost/1.77.0)
-    set(CONAN_BOOST_PACKAGE_OPTIONS boost::without_graph=False)
+    set(CONAN_BOOST_PACKAGE_OPTIONS boost:without_graph=False)
 endif()
 
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
