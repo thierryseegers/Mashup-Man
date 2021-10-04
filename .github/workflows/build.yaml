@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Install CMake
         uses: jwlawson/actions-setup-cmake@v1.9
+      - name: Install Boost
+        if: ${{ matrix.configuration }} == 'macos-latest'
+        run: brew install boost
       - name: Install Conan
         uses: turtlebrowser/get-conan@main
       - name: Check out repository
