@@ -29,12 +29,12 @@ sf::Vector2f random_level_corner()
 {
     // Pick a random corner area as a target.
     static size_t const x[2] = {1ul, level::width - 1 - 1};
-    static size_t const y[2] = {2ul, level::height - 2 - 2};
+    static size_t const y[2] = {2ul, level::height - 2 - 1};
 
     float const c = x[utility::random(1)];
     float const r = y[utility::random(1)];
 
-    return {c * level::tile_size, r * level::tile_size};
+    return {c * level::tile_size + level::half_tile_size, r * level::tile_size + level::half_tile_size};
 }
 
 sf::Vector2f random_home_corner(
@@ -234,9 +234,7 @@ goomba::goomba(
 
 std::string_view goomba::name() const
 {
-    static std::string const name_{"goomba"};
-
-    return name_;
+    return "goomba";
 }
 
 }
