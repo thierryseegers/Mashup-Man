@@ -2,7 +2,7 @@
 
 #include "configuration.h"
 #include "direction.h"
-#include "entity/entity.h"
+#include "entity/character.h"
 #include "level.h"
 #include "resources.h"
 #include "scene.h"
@@ -159,6 +159,40 @@ void enemy::update_self(
     character::update_self(dt, commands);
 }
 
+
+sf::Vector2f chaser::target(
+    std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
+    sf::Vector2f const& chaser)
+{
+    switch(current_mode_)
+    {
+        case mode::confined:
+            if(utility::length(target_ - getPosition()) < level::tile_size)
+            {
+                target_ = random_home_corner(home);
+            }
+            break;
+        case mode::chase:
+            {
+                assert(heroes.size());
+
+                auto const closest = std::min_element(heroes.begin(), heroes.end(), [=](auto const& p1, auto const& p2)
+                {
+                    return utility::length(getPosition() - p1.first) < utility::length(getPosition() - p2.first);
+                });
+
+                target_ = closest->first;
+            }
+            break;
+        case mode::frightened:
+            break;
+        default:
+            break;
+    }
+
+    return target_;
+}
+
 using animated_sprite_rects =
     std::array<
         std::vector<sf::IntRect>,
@@ -188,7 +222,7 @@ sf::IntRect goomba_dead_sprite_rect()
 
 goomba::goomba(
     sf::FloatRect const& home)
-    : enemy{
+    : chaser{
         goomba_animated_sprite_rects,
         goomba_dead_sprite_rect,
         configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
@@ -197,54 +231,6 @@ goomba::goomba(
         direction::left
         }
 {}
-
-sf::Vector2f goomba::fork(
-    std::vector<sf::Vector2f> const& heroes_positions)
-{
-    switch(current_mode_)
-    {
-        case mode::confined:
-            if(utility::length(target - getPosition()) < level::tile_size)
-            {
-                target = random_home_corner(home);
-            }
-            // [[fallthrough]];
-            // return target;
-            break;
-        case mode::scatter:
-        case mode::dead:
-            // return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-            //     {
-            //         return utility::length(target - c1.second) < utility::length(target - c2.second);
-            //     })->first;
-            // return target;
-            break;
-        case mode::chase:
-            {
-                assert(heroes_positions.size());
-
-                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [=](auto const& p1, auto const& p2)
-                {
-                    return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
-                });
-
-                // return closest;
-                target = *closest;
-                // return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-                // {
-                //     return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
-                // })->first;
-            }
-            break;
-        case mode::frightened:
-            break;
-        default:
-            break;
-    }
-
-    // return choices.begin()->first;
-    return target;
-}
 
 std::string_view goomba::name() const
 {

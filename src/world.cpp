@@ -517,9 +517,24 @@ void world::update_enemies(
         }
     }
 
+    // Gather heroes' positions and headings. Get the chaser's position as well.
+    std::vector<std::pair<sf::Vector2f, direction>> heroes_whereabouts;
+    sf::Vector2f chaser;
     for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
     {
-        if(auto* enemy = dynamic_cast<entity::enemy*>(character))
+        if(auto const* h = dynamic_cast<entity::hero const*>(character))
+        {
+            heroes_whereabouts.emplace_back(h->getPosition(), h->heading());
+        }
+        else if(auto const* c = dynamic_cast<entity::chaser const*>(character))
+        {
+            chaser = c->getPosition();
+        }
+    }
+
+    for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
+    {
+        if(auto* enemy = dynamic_cast<entity::strategist*>(character))
         {
             enemy->behave(enemy_mode_);
 
@@ -559,20 +574,11 @@ void world::update_enemies(
                 // If it is at an intersection, ask it for a direction.
                 if(paths.size() >= 2)
                 {
-                    std::vector<sf::Vector2f> heroes_positions;
-                    if(heroes[0].hero_)
-                    {
-                        heroes_positions.push_back(heroes[0].hero_->getPosition());
-                    }
-                    if(heroes.size() > 1 && heroes[1].hero_)
-                    {
-                        heroes_positions.push_back(heroes[1].hero_->getPosition());
-                    }
+                    // Pick and adjust heading given chasing strategy.
+                    auto const target = enemy->target(heroes_whereabouts, chaser);
 
-                    // Change heading given chasing strategy.
-                    // enemy->head(enemy->fork(heroes_positions, paths));
-                    auto const target = enemy->fork(heroes_positions);
-                    sf::Vector2i start{(int)enemy->getPosition().x  / level::tile_size, (int)enemy->getPosition().y  / level::tile_size}, goal{(int)target.x / level::tile_size, (int)target.y / level::tile_size};
+                    sf::Vector2i const start{(int)enemy->getPosition().x / level::tile_size, (int)enemy->getPosition().y / level::tile_size};
+                    sf::Vector2i const goal{(int)target.x / level::tile_size, (int)target.y / level::tile_size};
                     enemy->head(astar::route(astar_maze.get(), start, goal));
 
                     // Nudge it along so it doesn't get to redecide immediately...

@@ -54,9 +54,6 @@ public:
     void behave(
         mode const m);
 
-    virtual sf::Vector2f fork(
-        std::vector<sf::Vector2f> const& heroes_positions) = 0;
-
     virtual void hit() override;
 
     virtual std::string_view name() const = 0;
@@ -82,15 +79,33 @@ protected:
     sf::Time confinement;
 };
 
-class goomba
+struct strategist
     : public enemy
+{
+    using enemy::enemy;
+
+    // Given the provided information and the ghost's mode, returns the ghost's target.
+    virtual sf::Vector2f target(
+        std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
+        sf::Vector2f const& chaser) = 0;
+};
+
+struct chaser
+    : public strategist
+{
+    using strategist::strategist;
+
+    virtual sf::Vector2f target(
+        std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
+        sf::Vector2f const& chaser) override;
+};
+
+class goomba
+    : public chaser
 {
 public:
     goomba(
         sf::FloatRect const& home);
-
-    virtual sf::Vector2f fork(
-        std::vector<sf::Vector2f> const& heroes_positions) override;
 
     virtual std::string_view name() const override;
 };
