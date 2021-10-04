@@ -74,10 +74,10 @@ protected:
     mode current_mode_;
     mode requested_mode_;
 
-    sf::FloatRect home;       // The ghost home.
+    sf::FloatRect home;     // The ghost home.
     bool healed;            // Whether a hurt ghost has reached home.
 
-    sf::Vector2f target;    // Target coordinates.
+    sf::Vector2f target_;   // Target coordinates.
 
     sf::Time confinement;
 };
@@ -94,15 +94,5 @@ public:
 
     virtual std::string_view name() const override;
 };
-
-// class raptor : public enemy
-// {
-// public:
-//     raptor();
-
-// protected:
-//     virtual void attack(
-//         scene::projectiles& layer) const override;
-// };
 
 }

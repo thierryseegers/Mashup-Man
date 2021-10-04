@@ -74,7 +74,7 @@ enemy::enemy(
     , requested_mode_{mode::scatter}
     , home{home}
     , healed{true}
-    , target{random_home_corner(home)}
+    , target_{random_home_corner(home)}
     , confinement{sf::seconds(10)}
 {}
 
@@ -115,13 +115,13 @@ void enemy::behave(
             break;
         case mode::dead:
             healed = false;
-            target = {home.left + home.width / 2.f, home.top + home.height / 2.f};
+            target_ = {home.left + home.width / 2.f, home.top + home.height / 2.f};
             throttle(2.f);
             break;
         case mode::frightened:
             break;
         case mode::scatter:
-            target = random_level_corner();
+            target_ = random_level_corner();
             throttle(1.f);
             break;
     }
@@ -149,9 +149,6 @@ void enemy::update_self(
     {
         behave(requested_mode_);
     }
-    // else if(current_mode_ == mode::dead && contains(world_transform().transformRect(home), collision_bounds()))
-    // else if(current_mode_ == mode::dead && contains(home, getInverseTransform().transformRect(sprite_.global_bounds())))
-    // else if(current_mode_ == mode::dead && contains(home, sprite_.sprite_.getLocalBounds()))
     else if(current_mode_ == mode::dead && home.contains(getPosition()))
     {
         healed = true;
