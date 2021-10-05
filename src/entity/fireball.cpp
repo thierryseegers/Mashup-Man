@@ -7,8 +7,7 @@
 #include "maze.h"
 #include "resources.h"
 #include "sprite.h"
-
-#include <magic_enum.hpp>
+#include "utility.h"
 
 namespace entity
 {
@@ -39,6 +38,11 @@ fireball::fireball(
     , maze_{nullptr}
 {}
 
+void fireball::hit()
+{
+    fizzling = true;
+}
+
 void fireball::update_self(
     sf::Time const& dt,
     commands_t& commands)
@@ -68,7 +72,7 @@ void fireball::update_self(
             // Bring it closer to the wall.
             nudge(7.f);
 
-            fizzling = true;
+            hit();
 
             commands.push(make_command(+[](scene::sound_t& sound, sf::Time const&)
             {

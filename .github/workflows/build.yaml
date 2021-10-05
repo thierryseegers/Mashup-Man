@@ -10,11 +10,11 @@ jobs:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install Boost
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: brew install boost
       - name: Install CMake
         uses: jwlawson/actions-setup-cmake@v1.9
-      - name: Install Boost
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install boost
       - name: Install Conan
         uses: turtlebrowser/get-conan@main
       - name: Check out repository
