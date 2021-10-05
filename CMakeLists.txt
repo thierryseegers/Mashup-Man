@@ -104,6 +104,8 @@ add_executable(${PROJECT_NAME}
     src/command.h
     src/configuration.cpp
     src/configuration.h
+    src/direction.cpp
+    src/direction.h
     src/entity/animation.cpp
     src/entity/animation.h
     src/entity/brothers.cpp

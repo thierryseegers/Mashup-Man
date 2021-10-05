@@ -49,18 +49,7 @@ void fireball::update_self(
     }
     else
     {
-        static auto const directions = []
-        {
-            return std::array<sf::Vector2f, magic_enum::enum_count<direction>()>{
-                    sf::Vector2f{0.f, -1.f},
-                    sf::Vector2f{0.f, 1.f},
-                    sf::Vector2f{-1.f, 0.f},
-                    sf::Vector2f{1.f, 0.f}};
-        }();
-
-        sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * (max_speed * throttle_) * dt.asSeconds());
-
-        sprite_.update(dt, commands);
+        entity::update_self(dt, commands);
     }
 }
 
