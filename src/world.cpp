@@ -400,27 +400,6 @@ void world::update_hero(
     }
 }
 
-void world::update_fireballs()
-{
-    // If a fireball hits a wall or a pipe, remove it.
-    for(auto* const projectile : layers[me::enum_integer(layer::id::projectiles)]->children())
-    {
-        int const r = projectile->getPosition().y / level::tile_size, c = projectile->getPosition().x / level::tile_size;
-        if(utility::any_of((*maze_)[{c, r}], '0', '1', '2', '3', 'p'))
-        {
-            if(auto* fireball = dynamic_cast<entity::fireball*>(projectile))
-            {
-                // Bring it closer to the wall.
-                fireball->nudge(7.f);
-
-                fireball->hit();
-
-                sound.play(resources::sound_effect::bump);
-            }
-        }
-    }
-}
-
 void world::update_enemies(
     sf::Time const dt)
 {
@@ -557,9 +536,6 @@ void world::update(
             layers[me::enum_integer(layer::id::characters)]->attach(std::move(h));
         }
     }
-
-    // Update fireballs' movements.
-    update_fireballs();
 
     // Update enemies' movements.
     update_enemies(dt);

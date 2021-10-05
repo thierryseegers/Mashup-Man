@@ -3,6 +3,7 @@
 #include "command.h"
 #include "entity/animation.h"
 #include "entity/projectile.h"
+#include "maze.h"
 
 #include <SFML/System.hpp>
 
@@ -22,6 +23,9 @@ private:
     void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
+
+    bool fizzling;
+    maze *maze_;
 };
 
 }

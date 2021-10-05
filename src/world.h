@@ -47,8 +47,6 @@ private:
     void update_hero(
         entity::hero *hero);
 
-    void update_fireballs();
-
     void update_enemies(
         sf::Time const dt);
 
