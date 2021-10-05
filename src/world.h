@@ -1,11 +1,11 @@
 #pragma once
 
-#include "astar_route.h"
 #include "command.h"
 // #include "effects/bloom.h"
 #include "entity/entities.h"
 #include "layer.h"
 #include "level.h"
+#include "maze.h"
 #include "lifeboard.h"
 #include "resources.h"
 #include "scene.h"
@@ -59,6 +59,7 @@ private:
 
     scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;
+    maze *maze_;
     scoreboard scoreboard_;
     lifeboard lifeboard_;
 
@@ -80,9 +81,7 @@ private:
     // Number of pills to eat on this stage.
     int n_pills;
 
-    level::info level_info;
     level::grid<entity::entity*> immovables;
-    std::shared_ptr<astar::maze> astar_maze;
 
     entity::enemy::mode enemy_mode_;
     sf::Time enemy_mode_timer; // Time left in current mode.

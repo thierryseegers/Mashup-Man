@@ -13,7 +13,7 @@ namespace astar
 class maze;
 
 std::shared_ptr<maze> make_maze(
-    level::info const& level_info);
+    level::description const& level_description);
 
 direction route(
     maze const* const maze_,

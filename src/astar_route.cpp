@@ -83,22 +83,22 @@ class maze
 {
 public:
     maze(
-        level::info const& level_info)
-        : grid_{{{(int)level_info[0].size(), (int)level_info.size()}}}
+        level::description const& level_description)
+        : grid_{{{(int)level_description[0].size(), (int)level_description.size()}}}
         , paths{boost::make_vertex_subset_complement_filter(grid_, barriers)}
     {
-        for(size_t r = 0; r != level_info.size(); ++r)
+        for(size_t r = 0; r != level_description.size(); ++r)
         {
-            for(size_t c = 0; c != level_info[0].size(); ++c)
+            for(size_t c = 0; c != level_description[0].size(); ++c)
             {
-                switch(level_info[r][c])
+                switch(level_description[r][c])
                 {
                     case '0':
                     case '1':
                     case '2':
                     case '3':
                     case 'p':
-                        barriers.insert(vertex(c + r * level_info[0].size(), grid_));
+                        barriers.insert(vertex(c + r * level_description[0].size(), grid_));
                         break;
                     default:
                         break;
@@ -174,9 +174,9 @@ grid::vertex_descriptor to_vertex_descriptor(
 }
 
 std::shared_ptr<maze> make_maze(
-    level::info const& level_info)
+    level::description const& level_description)
 {
-    return std::make_shared<maze>(level_info);
+    return std::make_shared<maze>(level_description);
 }
 
 direction route(

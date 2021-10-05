@@ -14,9 +14,6 @@ constexpr int half_tile_size = tile_size / 2;
 template<typename T>
 using grid = std::array<std::array<T, width>, height>;
 
-using info = grid<char>;
-
-using wall_texture_offsets = grid<int>;
-using wall_rotations = grid<int>;
+using description = grid<char>;
 
 }

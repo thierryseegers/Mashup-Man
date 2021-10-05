@@ -63,69 +63,6 @@ bool world::players_done() const
     return n_pills == 0 || done_timer <= sf::Time::Zero;
 }
 
-std::tuple<level::info, level::wall_texture_offsets, level::wall_rotations> read_level(
-    std::filesystem::path const& path)
-{
-    level::info level_info;
-    level::wall_texture_offsets wall_texture_offsets;
-    level::wall_rotations wall_rotations;
-
-    // Read in the maze tile information.
-    std::ifstream file{path.c_str()};
-    std::string line;
-    for(auto& row : level_info)
-    {
-        std::getline(file, line);
-        std::copy(line.begin(), line.end(), row.begin());
-    }
-
-    // Read in wall tile rotation information.
-    for(auto& row : wall_rotations)
-    {
-        size_t column = 0;
-        std::getline(file, line);
-        std::for_each(line.begin(), line.end(), [&](char const c)
-        {
-            switch(c)
-            {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                    row[column] = c - '0';
-                    break;
-                default:
-                    row[column] = 0;
-                    break;
-            }
-            ++column;
-        });
-        column = 0;
-    }
-
-    // Extract just the wall tile information.
-    for(size_t r = 0; r != level::height; ++r)
-    {
-        for(size_t c = 0; c != level::width; ++c)
-        {
-            switch(level_info[r][c])
-            {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                    wall_texture_offsets[r][c] = level_info[r][c] - '0';
-                    break;
-                default:
-                    wall_texture_offsets[r][c] = 4;
-                    break;
-            }
-        }
-    }
-
-    return {level_info, wall_texture_offsets, wall_rotations};
-}
-
 void world::handle_size_changed(
     sf::Event::SizeEvent const& event)
 {
@@ -150,13 +87,6 @@ void world::handle_size_changed(
 
 void world::build_scene()
 {
-    // Read information of the first level.
-    level::wall_texture_offsets wall_texture_offsets;
-    level::wall_rotations wall_rotations;
-    std::tie(level_info, wall_texture_offsets, wall_rotations) = read_level("assets/levels/1.txt");
-
-    astar_maze = astar::make_maze(level_info);
-
     // Create a sound player.
     playground.attach<scene::sound_t>(sound);
 
@@ -168,16 +98,15 @@ void world::build_scene()
     layers[me::enum_integer(layer::id::pipes)] = playground.attach<layer::pipes>();
     layers[me::enum_integer(layer::id::animations)] = playground.attach<layer::animations>();
 
-    auto *m = layers[me::enum_integer(layer::id::maze)]->attach<maze>();
-    m->layout(wall_texture_offsets, wall_rotations);
+    maze_ = layers[me::enum_integer(layer::id::maze)]->attach<maze>("assets/levels/1.txt");
 
     // Get the rectangle coordinates of the ghost house.
     sf::FloatRect ghost_house{};
-    for(size_t r = 0; r != level::height; ++r)
+    for(int r = 0; r != level::height; ++r)
     {
-        for(size_t c = 0; c != level::width; ++c)
+        for(int c = 0; c != level::width; ++c)
         {
-            if(level_info[r][c] == 'h')
+            if((*maze_)[{c, r}] == 'h')
             {
                 if(ghost_house.left == 0)
                 {
@@ -194,12 +123,12 @@ void world::build_scene()
     }
 
     // Create entities as the level dictates.
-    for(size_t r = 0; r != level::height; ++r)
+    for(int r = 0; r != level::height; ++r)
     {
-        for(size_t c = 0; c != level::width; ++c)
+        for(int c = 0; c != level::width; ++c)
         {
             entity::entity *e = nullptr;
-            switch(level_info[r][c])
+            switch((*maze_)[{c, r}])
             {
                 case '.':
                     e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::coin>();
@@ -446,10 +375,10 @@ void world::update_hero(
     {
         // If the hero wants to change direction and he can, let him.
         if((steering != heading || hero->speed() == 0.f) &&
-           ((steering == direction::right  && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'd')) ||
-            (steering == direction::left   && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3', 'd')) ||
-            (steering == direction::down   && !utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'd')) ||
-            (steering == direction::up     && !utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'd'))))
+           ((steering == direction::right  && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+            (steering == direction::left   && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+            (steering == direction::down   && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
+            (steering == direction::up     && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
         {
             spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, me::enum_name(steering));
             hero->head(steering);
@@ -458,11 +387,11 @@ void world::update_hero(
         }
         // Else if the hero is crusing along and he's about to face a wall, stop him.
         else if(hero->speed() != 0.f &&
-                !((heading == direction::left || heading == direction::right) && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size], 'p')) &&
-                ((heading == direction::right    && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'd')) ||
-                 (heading == direction::left     && utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3', 'd')) ||
-                 (heading == direction::down     && utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'd')) ||
-                 (heading == direction::up       && utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'd'))))
+                !((heading == direction::left || heading == direction::right) && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size}], 'p')) &&
+                ((heading == direction::right    && utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+                 (heading == direction::left     && utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+                 (heading == direction::down     && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
+                 (heading == direction::up       && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
         {
             spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, me::enum_name(heading));
             hero->throttle(0.f);
@@ -476,8 +405,8 @@ void world::update_fireballs()
     // If a fireball hits a wall or a pipe, remove it.
     for(auto* const projectile : layers[me::enum_integer(layer::id::projectiles)]->children())
     {
-        auto const r = projectile->getPosition().y / level::tile_size, c = projectile->getPosition().x / level::tile_size;
-        if(utility::any_of(level_info[r][c], '0', '1', '2', '3', 'p'))
+        int const r = projectile->getPosition().y / level::tile_size, c = projectile->getPosition().x / level::tile_size;
+        if(utility::any_of((*maze_)[{c, r}], '0', '1', '2', '3', 'p'))
         {
             if(auto* fireball = dynamic_cast<entity::fireball*>(projectile))
             {
@@ -544,29 +473,29 @@ void world::update_enemies(
                 auto const heading = enemy->heading();
 
                 std::map<direction, sf::Vector2f> paths;
-                if(heading != direction::left && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size + 1], '0', '1', '2', '3', 'p'))
+                if(heading != direction::left && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
                 {
                     paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
                 }
-                if(heading != direction::right && !utility::any_of(level_info[position.y / level::tile_size][position.x / level::tile_size - 1], '0', '1', '2', '3', 'p'))
+                if(heading != direction::right && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
                 {
                     paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
                 }
-                if(heading != direction::up && !utility::any_of(level_info[position.y / level::tile_size + 1][position.x / level::tile_size], '0', '1', '2', '3', 'p'))
+                if(heading != direction::up && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'p'))
                 {
                     paths[direction::down] = {(float)position.x, (float)position.y + level::tile_size};
                 }
-                if(heading != direction::down && !utility::any_of(level_info[position.y / level::tile_size - 1][position.x / level::tile_size], '0', '1', '2', '3', 'p'))
+                if(heading != direction::down && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'p'))
                 {
                     paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
                 }
 
                 // In case it's in a pipe...
-                if(heading == direction::left && level_info[position.y / level::tile_size][position.x / level::tile_size - 1] == 'p')
+                if(heading == direction::left && (*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}] == 'p')
                 {
                     paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
                 }
-                else if(heading == direction::right && level_info[position.y / level::tile_size][position.x / level::tile_size + 1] == 'p')
+                else if(heading == direction::right && (*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}] == 'p')
                 {
                     paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
                 }
@@ -579,7 +508,7 @@ void world::update_enemies(
 
                     sf::Vector2i const start{(int)enemy->getPosition().x / level::tile_size, (int)enemy->getPosition().y / level::tile_size};
                     sf::Vector2i const goal{(int)target.x / level::tile_size, (int)target.y / level::tile_size};
-                    enemy->head(astar::route(astar_maze.get(), start, goal));
+                    enemy->head(maze_->route(start, goal));
 
                     // Nudge it along so it doesn't get to redecide immediately...
                     enemy->nudge(2.f);

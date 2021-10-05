@@ -4,28 +4,80 @@
 #include "resources.h"
 #include "utility.h"
 
-maze::maze()
+maze::maze(
+    std::filesystem::path const& level)
     : texture_strip{resources::textures().get(resources::texture::walls)}
 {
     vertices.setPrimitiveType(sf::Quads);
 
     // Resize the vertex array to fit the level size.
     vertices.resize(level::width * level::height * 4);
-}
 
-void maze::layout(
-    level::wall_texture_offsets const& offsets,
-    level::wall_rotations const& rotations)
-{
-    unsigned int const tile_size = texture_strip.getSize().y;
+    level::grid<int> wall_texture_offsets;
+    level::grid<int> wall_texture_rotations;
+
+    // Read in the maze tile information.
+    std::ifstream file{level.c_str()};
+    std::string line;
+    for(auto& row : level_description)
+    {
+        std::getline(file, line);
+        std::copy(line.begin(), line.end(), row.begin());
+    }
+
+    // Read in wall tile rotation information.
+    for(auto& row : wall_texture_rotations)
+    {
+        size_t column = 0;
+        std::getline(file, line);
+        std::for_each(line.begin(), line.end(), [&](char const c)
+        {
+            switch(c)
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                    row[column] = c - '0';
+                    break;
+                default:
+                    row[column] = 0;
+                    break;
+            }
+            ++column;
+        });
+        column = 0;
+    }
+
+    // Extract just the wall tile information.
+    for(size_t r = 0; r != level::height; ++r)
+    {
+        for(size_t c = 0; c != level::width; ++c)
+        {
+            switch(level_description[r][c])
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                    wall_texture_offsets[r][c] = level_description[r][c] - '0';
+                    break;
+                default:
+                    wall_texture_offsets[r][c] = 4;
+                    break;
+            }
+        }
+    }
 
     // Populate the vertex array, with one quad per tile.
+    unsigned int const tile_size = texture_strip.getSize().y;
+
     for (unsigned int r = 0; r < level::height; ++r)
     {
         for (unsigned int c = 0; c < level::width; ++c)
         {
             // Get the current tile offset.
-            int const offset = offsets[r][c];
+            int const offset = wall_texture_offsets[r][c];
 
             // Find its position in the texture_strip texture.
             int const tu = offset;
@@ -41,7 +93,7 @@ void maze::layout(
             quad[3].position = sf::Vector2f(c * tile_size, (r + 1) * tile_size);
 
             // Define its texture coordinates.
-            switch(rotations[r][c])
+            switch(wall_texture_rotations[r][c])
             {
                 default:
                 case 0: // No rotation.
@@ -71,6 +123,21 @@ void maze::layout(
             }
         }
     }
+
+    astar_maze = astar::make_maze(level_description);
+}
+
+char maze::operator[](
+    sf::Vector2i const& coordinates) const
+{
+    return level_description[coordinates.y][coordinates.x];
+}
+
+direction maze::route(
+    sf::Vector2i const& start,
+    sf::Vector2i const& goal) const
+{
+    return astar::route(astar_maze.get(), start, goal);
 }
 
 void maze::draw_self(
