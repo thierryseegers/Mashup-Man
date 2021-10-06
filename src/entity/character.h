@@ -27,10 +27,6 @@ public:
     [[nodiscard]] virtual bool immune() const = 0;
 
 protected:
-    virtual void update_self(
-        sf::Time const& dt,
-        commands_t& commands) override;
-
     template<typename Projectile>
     Projectile* add_projectile(
         layer::projectiles& layer,
