@@ -90,14 +90,22 @@ struct strategist
         sf::Vector2f const& chaser) = 0;
 };
 
-struct chaser
+class chaser
     : public strategist
 {
+public:
     using strategist::strategist;
 
     virtual sf::Vector2f target(
         std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
         sf::Vector2f const& chaser) override;
+
+private:
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
+
+    // sf::Vector2i target_;
 };
 
 class goomba

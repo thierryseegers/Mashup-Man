@@ -3,6 +3,7 @@
 #include "configuration.h"
 #include "direction.h"
 #include "entity/character.h"
+#include "entity/hero.h"
 #include "level.h"
 #include "resources.h"
 #include "scene.h"
@@ -147,9 +148,16 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(current_mode_ == mode::confined && ((confinement -= dt) <= sf::Time::Zero))
+    if(current_mode_ == mode::confined)
     {
-        behave(requested_mode_);
+        if((confinement -= dt) <= sf::Time::Zero)
+        {
+            behave(requested_mode_);
+        }
+        else if(utility::length(target_ - getPosition()) < level::tile_size)
+        {
+            target_ = random_home_corner(home);
+        }
     }
     else if(current_mode_ == mode::dead && home.contains(getPosition()))
     {
@@ -166,35 +174,41 @@ sf::Vector2f chaser::target(
     std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
     sf::Vector2f const& chaser)
 {
-    switch(current_mode_)
-    {
-        case mode::confined:
-            if(utility::length(target_ - getPosition()) < level::tile_size)
-            {
-                target_ = random_home_corner(home);
-            }
-            break;
-        case mode::chase:
-            {
-                assert(heroes.size());
-
-                auto const closest = std::min_element(heroes.begin(), heroes.end(), [=](auto const& p1, auto const& p2)
-                {
-                    return utility::length(getPosition() - p1.first) < utility::length(getPosition() - p2.first);
-                });
-
-                target_ = closest->first;
-            }
-            break;
-        case mode::frightened:
-            break;
-        default:
-            break;
-    }
-
     return target_;
 }
 
+void chaser::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    commands.push(make_command(std::function{[=](layer::characters& characters, sf::Time const&)
+    {
+        if(current_mode_ == mode::chase)
+        {
+            std::vector<sf::Vector2f> heroes_positions;
+
+            for(auto* const character : characters.children())
+            {
+                if(auto const* h = dynamic_cast<hero const*>(character))
+                {
+                    heroes_positions.push_back(h->getPosition());
+                }
+            }
+
+            if(heroes_positions.size())
+            {
+                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [=](auto const& p1, auto const& p2)
+                {
+                    return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
+                });
+
+                target_ = *closest;
+            }
+        }
+    }}));
+
+    enemy::update_self(dt, commands);
+}
 using animated_sprite_rects =
     std::array<
         std::vector<sf::IntRect>,
