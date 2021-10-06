@@ -1,5 +1,23 @@
 #include "direction.h"
 
+direction operator~(
+    direction const& d)
+{
+    switch(d)
+    {
+        case direction::down:
+            return direction::up;
+        case direction::left:
+            return direction::right;
+        case direction::none:
+            return direction::none;
+        case direction::right:
+            return direction::left;
+        case direction::up:
+            return direction::down;
+    }
+}
+
 sf::Vector2f to_vector(
     direction const d)
 {
