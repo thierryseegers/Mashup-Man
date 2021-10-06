@@ -44,9 +44,6 @@ private:
 
     void handle_collisions();
 
-    void update_hero(
-        entity::hero *hero);
-
     void update_enemies(
         sf::Time const dt);
 
