@@ -317,13 +317,13 @@ void world::handle_collisions()
                 }
             }
         }
-        if(auto [enemy, fireball] = match<entity::enemy, entity::fireball>(collision); enemy && fireball)
+        if(auto [enemy, projectile] = match<entity::enemy, entity::friendly<entity::projectile>>(collision); enemy && projectile)
         {
-            if(!enemy->immune() && !fireball->remove)
+            if(!enemy->immune() && !projectile->remove)
             {
                 spdlog::info("Enemy got hit by a projectile!");
                 enemy->hit();
-                fireball->hit();
+                projectile->hit();
 
                 sound.play(resources::sound_effect::kick);
             }

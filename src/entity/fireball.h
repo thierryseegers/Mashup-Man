@@ -10,7 +10,7 @@ namespace entity
 {
 
 class fireball
-    : public projectile
+    : public friendly<projectile>
 {
 public:
     fireball(

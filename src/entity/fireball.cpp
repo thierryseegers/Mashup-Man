@@ -26,7 +26,7 @@ public:
 
 fireball::fireball(
     direction const heading_)
-    : projectile{
+    : friendly<projectile>{
         sprite{
             resources::texture::items,
             {{96, 144, 8, 8}, {104, 144, 8, 8}, {96, 152, 8, 8}, {104, 152, 8, 8}},
