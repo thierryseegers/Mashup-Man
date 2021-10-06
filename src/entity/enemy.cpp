@@ -139,6 +139,8 @@ void enemy::update_sprite()
     {
         sprite_.animate(animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
     }
+
+    character::update_sprite();
 }
 
 void enemy::update_self(

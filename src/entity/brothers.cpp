@@ -177,6 +177,8 @@ void brother::update_sprite()
     {
         sprite_.animate(animated_sprite_rects(size_, attribute_), sf::seconds(0.25f), sprite::repeat::loop);
     }
+
+    character::update_sprite();
 }
 
 entity* brother::tombstone() const
