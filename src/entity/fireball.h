@@ -1,7 +1,6 @@
 #pragma once
 
 #include "command.h"
-#include "entity/animation.h"
 #include "entity/projectile.h"
 #include "maze.h"
 
@@ -26,7 +25,7 @@ private:
         sf::Time const& dt,
         commands_t& commands) override;
 
-    bool fizzling;
+    bool fizzled;
     maze *maze_;
 };
 

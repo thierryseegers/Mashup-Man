@@ -34,13 +34,13 @@ fireball::fireball(
             sprite::repeat::loop},
         *configuration::values()["brothers"]["fireball"]["speed"].value<int>(),
         heading_}
-    , fizzling{false}
+    , fizzled{false}
     , maze_{nullptr}
 {}
 
 void fireball::hit()
 {
-    fizzling = true;
+    fizzled = true;
 }
 
 void fireball::update_self(
@@ -54,14 +54,14 @@ void fireball::update_self(
             maze_ = &m;
         }}));
     }
-    else if(fizzling)
+    else if(fizzled)
     {
-        commands.push(make_command(std::function{[position = getPosition()](layer::animations& layer, sf::Time const&)
+        commands.push(make_command(std::function{[=](layer::animations& layer, sf::Time const&)
         {
-            layer.attach<fizzle>()->setPosition(position);
-        }}));
+            layer.attach<fizzle>()->setPosition(getPosition());
 
-        remove = true;
+            remove = true;
+        }}));
     }
     else
     {
