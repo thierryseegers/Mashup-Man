@@ -278,7 +278,7 @@ void world::handle_collisions()
                 hero->hit();
                 spdlog::info("Hero got hit by an enemy!");
 
-                if(hero->remove)
+                if(hero->dead())
                 {
                     sound.play(resources::sound_effect::short_die);
 
@@ -302,7 +302,7 @@ void world::handle_collisions()
                     hero->hit();
                     projectile->hit();
 
-                    if(hero->remove)
+                    if(hero->dead())
                     {
                         sound.play(resources::sound_effect::short_die);
 
@@ -520,6 +520,20 @@ void world::update(
         commands_.pop();
     }
 
+    // Tag all unviewable animations to be removed.
+    for(auto& node : *layers[me::enum_integer(layer::id::animations)])
+    {
+        auto const position = node.getInverseTransform().transformPoint(node.getPosition());
+        if(position.x > target.getSize().x ||
+           position.y > target.getSize().y)
+        {
+            node.remove = true;
+        }
+    }
+
+    // Remove all destroyed entities.
+    playground.sweep_removed();
+
     // Update the heroes' movements or respawn them if the time has come.
     for(auto& hero : heroes)
     {
@@ -546,20 +560,6 @@ void world::update(
     // Update the entire playground.
     playground.update(dt, commands_);
 
-    // Tag all unviewable animations to be removed.
-    for(auto& node : *layers[me::enum_integer(layer::id::animations)])
-    {
-        auto const position = node.getInverseTransform().transformPoint(node.getPosition());
-        if(position.x > target.getSize().x ||
-           position.y > target.getSize().y)
-        {
-            node.remove = true;
-        }
-    }
-
-    // Remove all destroyed entities.
-    playground.sweep_removed();
-
     // Remove played sounds.
     sound.remove_stopped();
 
@@ -570,8 +570,6 @@ void world::update(
             sound.play(resources::sound_effect::die);
         }
         done_timer -= dt;
-
-        return;
     }
 }
 

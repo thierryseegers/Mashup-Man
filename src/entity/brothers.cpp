@@ -179,7 +179,7 @@ void brother::update_sprite()
     }
 }
 
-entity* brother::dead() const
+entity* brother::tombstone() const
 {
     return new dead_brother(
         sprite{

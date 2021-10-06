@@ -26,12 +26,19 @@ hero::hero(
     : friendly<character>{
         sprite_,
         max_speed}
+    , maze_{nullptr}
+    , dead_{false}
     , immunity{sf::seconds(3)}
 {}
 
 direction hero::steering() const
 {
     return steering_;
+}
+
+bool hero::dead() const
+{
+    return dead_;
 }
 
 bool hero::immune() const
@@ -47,7 +54,7 @@ void hero::steer(
 
 void hero::hit()
 {
-    remove = true;
+    dead_ = true;
 }
 
 void hero::attack()
@@ -57,19 +64,58 @@ void hero::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(remove)
+    if(!maze_)
     {
-        auto d = dead();
-        d->setPosition(getPosition());
-
-        commands.push(make_command(std::function{[d](layer::animations& layer, sf::Time const&)
+        commands.push(make_command(std::function{[=](maze& m, sf::Time const&)
         {
-            std::unique_ptr<scene::node> u{d};
-            layer.attach(std::move(u));
+            maze_ = &m;
+        }}));
+    }
+    else if(dead_)
+    {
+        commands.push(make_command(std::function{[=](layer::animations& layer, sf::Time const&)
+        {
+            std::unique_ptr<scene::node> d{tombstone()};
+            d->setPosition(getPosition());
+            layer.attach(std::move(d));
+
+            remove = true;
         }}));
     }
     else
     {
+    //         sf::Vector2i const position{(int)hero->getPosition().x, (int)hero->getPosition().y};
+    // auto const heading = hero->heading();
+    // auto const steering = hero->steering();
+
+    // if(position.x % level::tile_size >= 8 && position.x % level::tile_size <= 12 && position.y % level::tile_size >= 8 && position.y % level::tile_size <= 12)
+    // {
+    //     // If the hero wants to change direction and he can, let him.
+    //     if((steering != heading || hero->speed() == 0.f) &&
+    //        ((steering == direction::right  && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+    //         (steering == direction::left   && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+    //         (steering == direction::down   && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
+    //         (steering == direction::up     && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
+    //     {
+    //         spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, me::enum_name(steering));
+    //         hero->head(steering);
+    //         hero->throttle(1.f);
+    //         hero->setPosition((position.x / level::tile_size) * level::tile_size + level::half_tile_size, (position.y / level::tile_size) * level::tile_size + level::half_tile_size);
+    //     }
+    //     // Else if the hero is crusing along and he's about to face a wall, stop him.
+    //     else if(hero->speed() != 0.f &&
+    //             !((heading == direction::left || heading == direction::right) && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size}], 'p')) &&
+    //             ((heading == direction::right    && utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+    //              (heading == direction::left     && utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+    //              (heading == direction::down     && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
+    //              (heading == direction::up       && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
+    //     {
+    //         spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, me::enum_name(heading));
+    //         hero->throttle(0.f);
+    //     }
+    //     // Else we let him cruise along.
+    // }
+
         // Flash transparency to denote temporary immunity.
         if(immunity > sf::Time::Zero)
         {
