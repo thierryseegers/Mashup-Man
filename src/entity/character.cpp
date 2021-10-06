@@ -16,12 +16,6 @@ void character::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    // if(!life)
-    // {
-    //     remove = true;
-    // }
-    // bar->adjust((life * 100) / starting_life);
-
     entity::update_self(dt, commands);
 }
 
