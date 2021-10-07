@@ -176,29 +176,30 @@ void enemy::update_self(
            (future_position.y < position.y && fmod(position.y, level::tile_size) >= level::half_tile_size && fmod(future_position.y, level::tile_size) < level::half_tile_size))
         {
             std::set<direction> paths;
-            if(heading() != direction::left && !utility::any_of((*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
+            auto const around = maze_->around({(int)position.x / level::tile_size, (int)position.y / level::tile_size});
+            if(heading() != direction::left && utility::any_of(around.at(direction::right), maze::path, maze::door))
             {
                 paths.insert(direction::right);
             }
-            if(heading() != direction::right && !utility::any_of((*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
+            if(heading() != direction::right && utility::any_of(around.at(direction::left), maze::path, maze::door))
             {
                 paths.insert(direction::left);
             }
-            if(heading() != direction::up && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size + 1}], '0', '1', '2', '3', 'p'))
+            if(heading() != direction::up && utility::any_of(around.at(direction::down), maze::path, maze::door))
             {
                 paths.insert(direction::down);
             }
-            if(heading() != direction::down && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size - 1}], '0', '1', '2', '3', 'p'))
+            if(heading() != direction::down && utility::any_of(around.at(direction::up), maze::path, maze::door))
             {
                 paths.insert(direction::up);
             }
 
             // In case it's in a pipe...
-            if(heading() == direction::left && (*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}] == 'p')
+            if(heading() == direction::left && around.at(direction::left) == maze::pipe)
             {
                 paths.insert(direction::right);
             }
-            else if(heading() == direction::right && (*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}] == 'p')
+            else if(heading() == direction::right && around.at(direction::right) == maze::pipe)
             {
                 paths.insert(direction::left);
             }
@@ -211,8 +212,6 @@ void enemy::update_self(
                 sf::Vector2i const goal{(int)target_.x / level::tile_size, (int)target_.y / level::tile_size};
                 auto const r = maze_->route(start, goal);
 
-                assert(r != direction::none);
-
                 // Head towards the best route but only if it's not backtracking because that is not allowed.
                 if(r != ~heading())
                 {
@@ -223,6 +222,7 @@ void enemy::update_self(
                     head(*paths.begin());
                 }
 
+                // Adjust position knowing where it's heading.
                 // switch(heading_)
                 // {
                 //     case direction::up:

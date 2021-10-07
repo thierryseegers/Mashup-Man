@@ -4,6 +4,29 @@
 #include "resources.h"
 #include "utility.h"
 
+#include <filesystem>
+#include <map>
+
+constexpr maze::structure to_structure(
+    char const c)
+{
+    switch(c)
+    {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+            return maze::wall;
+        case 'p':
+            return maze::pipe;
+        case 'd':
+            return maze::door;
+        default:
+            return maze::path;
+    }
+}
+
+
 maze::maze(
     std::filesystem::path const& level)
     : texture_strip{resources::textures().get(resources::texture::walls)}
@@ -131,6 +154,15 @@ char maze::operator[](
     sf::Vector2i const& coordinates) const
 {
     return level_description[coordinates.y][coordinates.x];
+}
+
+std::map<direction, maze::structure> maze::around(
+    sf::Vector2i const& coordinates) const
+{
+    return {{direction::down,   to_structure(operator[]({coordinates.x, coordinates.y + 1}))},
+            {direction::left,   to_structure(operator[]({coordinates.x - 1, coordinates.y}))},
+            {direction::right,  to_structure(operator[]({coordinates.x + 1, coordinates.y}))},
+            {direction::up,     to_structure(operator[]({coordinates.x, coordinates.y - 1}))}};
 }
 
 direction maze::route(

@@ -9,24 +9,32 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <filesystem>
+#include <map>
 
 class maze
     : public scene::node
 {
 public:
-    enum class structure
+    enum structure
     {
-        path,
-        pipe,
-        wall
+        path    = 0x1,
+        pipe    = 0x2,
+        wall    = 0x4,
+        door    = 0x8
     };
 
     maze(
         std::filesystem::path const& level);
 
+    // Returns the structure at a given cell.
     char operator[](
         sf::Vector2i const& coordinates) const;
 
+    // Returns the structures that surround a cell.
+    std::map<direction, structure> around(
+        sf::Vector2i const& coordinates) const;
+
+    // Returns the direction to go to next on the path from `start` to `goal`.
     direction route(
         sf::Vector2i const& start,
         sf::Vector2i const& goal) const;

@@ -29,6 +29,7 @@ hero::hero(
     : friendly<character>{
         sprite_,
         max_speed}
+    , steering_{direction::none}
     , maze_{nullptr}
     , dead_{false}
     , immunity{sf::seconds(3)}
@@ -97,11 +98,10 @@ void hero::update_self(
            (future_position.y < position.y && fmod(position.y, level::tile_size) >= level::half_tile_size && fmod(future_position.y, level::tile_size) < level::half_tile_size))
         {
             // If the hero wants to change direction and he can, let him.
-            if((steering() != heading() || speed() == 0.f) &&
-               ((steering() == direction::right && !utility::any_of((*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-                (steering() == direction::left  && !utility::any_of((*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-                (steering() == direction::down  && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
-                (steering() == direction::up    && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
+            auto const around = maze_->around({(int)position.x / level::tile_size, (int)position.y / level::tile_size});
+            if(steering() != direction::none &&
+               (steering() != heading() || speed() == 0.f) &&
+               !utility::any_of(around.at(steering()), maze::wall, maze::door))
             {
                 spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, me::enum_name(steering()));
                 head(steering());
@@ -110,10 +110,7 @@ void hero::update_self(
             }
             // Else if the hero is crusing along and he's about to face a wall, stop him.
             else if(speed() != 0.f &&
-                    ((heading() == direction::right && utility::any_of((*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-                     (heading() == direction::left  && utility::any_of((*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-                     (heading() == direction::down  && utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
-                     (heading() == direction::up    && utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
+                    utility::any_of(around.at(heading()), maze::wall, maze::door))
             {
                 spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, me::enum_name(heading()));
                 throttle(0.f);
