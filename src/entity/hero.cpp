@@ -87,28 +87,33 @@ void hero::update_self(
     }
     else
     {
-        sf::Vector2i const position{(int)getPosition().x, (int)getPosition().y};
+        sf::Vector2f const position = getPosition();
+        sf::Vector2f const future_position = position + to_vector(heading_) * (max_speed * 1.0f) * dt.asSeconds();
 
-        if(position.x % level::tile_size >= 8 && position.x % level::tile_size <= 12 && position.y % level::tile_size >= 8 && position.y % level::tile_size <= 12)
+        // If the position delta between now and then crosses the middle of a tile...
+        if((future_position.x > position.x && fmod(position.x, level::tile_size) <= level::half_tile_size && fmod(future_position.x, level::tile_size) > level::half_tile_size) ||
+           (future_position.x < position.x && fmod(position.x, level::tile_size) >= level::half_tile_size && fmod(future_position.x, level::tile_size) < level::half_tile_size) ||
+           (future_position.y > position.y && fmod(position.y, level::tile_size) <= level::half_tile_size && fmod(future_position.y, level::tile_size) > level::half_tile_size) ||
+           (future_position.y < position.y && fmod(position.y, level::tile_size) >= level::half_tile_size && fmod(future_position.y, level::tile_size) < level::half_tile_size))
         {
             // If the hero wants to change direction and he can, let him.
             if((steering() != heading() || speed() == 0.f) &&
-               ((steering() == direction::right && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-               (steering() == direction::left   && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-               (steering() == direction::down   && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
-               (steering() == direction::up     && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
+               ((steering() == direction::right && !utility::any_of((*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+                (steering() == direction::left  && !utility::any_of((*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+                (steering() == direction::down  && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
+                (steering() == direction::up    && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
             {
                 spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, me::enum_name(steering()));
                 head(steering());
                 throttle(1.f);
-                setPosition((position.x / level::tile_size) * level::tile_size + level::half_tile_size, (position.y / level::tile_size) * level::tile_size + level::half_tile_size);
+                setPosition(((int)position.x / level::tile_size) * level::tile_size + level::half_tile_size, ((int)position.y / level::tile_size) * level::tile_size + level::half_tile_size);
             }
             // Else if the hero is crusing along and he's about to face a wall, stop him.
             else if(speed() != 0.f &&
-                    ((heading() == direction::right && utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-                    (heading() == direction::left   && utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
-                    (heading() == direction::down   && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
-                    (heading() == direction::up     && utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
+                    ((heading() == direction::right && utility::any_of((*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+                     (heading() == direction::left  && utility::any_of((*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'd')) ||
+                     (heading() == direction::down  && utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size + 1}], '0', '1', '2', '3', 'd')) ||
+                     (heading() == direction::up    && utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size - 1}], '0', '1', '2', '3', 'd'))))
             {
                 spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, me::enum_name(heading()));
                 throttle(0.f);

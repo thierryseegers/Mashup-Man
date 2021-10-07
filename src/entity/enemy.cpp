@@ -15,6 +15,7 @@
 #include <SFML/Graphics.hpp>
 #include <spdlog/spdlog.h>
 
+#include <cmath>
 #include <functional>
 #include <map>
 #include <memory>
@@ -165,37 +166,41 @@ void enemy::update_self(
     }
     else
     {
-        // If x + speed * dt "goes accross" the x of the middle of a tile...
+        sf::Vector2f const position = getPosition();
+        sf::Vector2f const future_position = position + to_vector(heading_) * (max_speed * throttle_) * dt.asSeconds();
 
-        sf::Vector2i const position{(int)getPosition().x, (int)getPosition().y};
-        if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
+        // If the position delta between now and then crosses the middle of a tile...
+        if((future_position.x > position.x && fmod(position.x, level::tile_size) <= level::half_tile_size && fmod(future_position.x, level::tile_size) > level::half_tile_size) ||
+           (future_position.x < position.x && fmod(position.x, level::tile_size) >= level::half_tile_size && fmod(future_position.x, level::tile_size) < level::half_tile_size) ||
+           (future_position.y > position.y && fmod(position.y, level::tile_size) <= level::half_tile_size && fmod(future_position.y, level::tile_size) > level::half_tile_size) ||
+           (future_position.y < position.y && fmod(position.y, level::tile_size) >= level::half_tile_size && fmod(future_position.y, level::tile_size) < level::half_tile_size))
         {
-            std::map<direction, sf::Vector2f> paths;
-            if(heading() != direction::left && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
+            std::set<direction> paths;
+            if(heading() != direction::left && !utility::any_of((*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
             {
-                paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
+                paths.insert(direction::right);
             }
-            if(heading() != direction::right && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
+            if(heading() != direction::right && !utility::any_of((*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
             {
-                paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
+                paths.insert(direction::left);
             }
-            if(heading() != direction::up && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'p'))
+            if(heading() != direction::up && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size + 1}], '0', '1', '2', '3', 'p'))
             {
-                paths[direction::down] = {(float)position.x, (float)position.y + level::tile_size};
+                paths.insert(direction::down);
             }
-            if(heading() != direction::down && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'p'))
+            if(heading() != direction::down && !utility::any_of((*maze_)[{(int)position.x / level::tile_size, (int)position.y / level::tile_size - 1}], '0', '1', '2', '3', 'p'))
             {
-                paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
+                paths.insert(direction::up);
             }
 
             // In case it's in a pipe...
-            if(heading() == direction::left && (*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}] == 'p')
+            if(heading() == direction::left && (*maze_)[{(int)position.x / level::tile_size - 1, (int)position.y / level::tile_size}] == 'p')
             {
-                paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
+                paths.insert(direction::right);
             }
-            else if(heading() == direction::right && (*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}] == 'p')
+            else if(heading() == direction::right && (*maze_)[{(int)position.x / level::tile_size + 1, (int)position.y / level::tile_size}] == 'p')
             {
-                paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
+                paths.insert(direction::left);
             }
 
             // If it is at an intersection, ask it for a direction.
@@ -205,7 +210,9 @@ void enemy::update_self(
                 sf::Vector2i const start{(int)position.x / level::tile_size, (int)position.y / level::tile_size};
                 sf::Vector2i const goal{(int)target_.x / level::tile_size, (int)target_.y / level::tile_size};
                 auto const r = maze_->route(start, goal);
-                
+
+                assert(r != direction::none);
+
                 // Head towards the best route but only if it's not backtracking because that is not allowed.
                 if(r != ~heading())
                 {
@@ -213,21 +220,36 @@ void enemy::update_self(
                 }
                 else
                 {
-                    head(paths.begin()->first);
+                    head(*paths.begin());
                 }
 
+                // switch(heading_)
+                // {
+                //     case direction::up:
+                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y + level::half_tile_size - position.x % level::tile_size);
+                //         break;
+                //     case direction::down:
+                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y - (level::half_tile_size - position.x % level::tile_size));
+                //         break;
+                //     case direction::left:
+                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y + level::half_tile_size - position.x % level::tile_size);
+                //         break;
+                //     case direction::right:
+                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y + level::half_tile_size - position.x % level::tile_size);
+                //         break;
+                // }
                 // Nudge it along so it doesn't get to redecide immediately...
-                nudge(2.f);
+                // nudge(2.f);
 
                 spdlog::info("{} decided to go {}", name(), me::enum_name(heading()));
             }
             // Else, if it hit a wall, follow along the path.
-            else if(paths.begin()->first != heading())
+            else if(*paths.begin() != heading())
             {
-                head(paths.begin()->first);
+                head(*paths.begin());
 
                 // Nudge it along so it doesn't get to redecide immediately...
-                nudge(2.f);
+                // nudge(2.f);
 
                 spdlog::info("{} is turning {}", name(), me::enum_name(heading()));
             }
