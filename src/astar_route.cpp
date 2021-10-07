@@ -97,7 +97,7 @@ public:
                     case '1':
                     case '2':
                     case '3':
-                    case 'p':
+                    // case 'p':
                         barriers.insert(vertex(c + r * level_description[0].size(), grid_));
                         break;
                     default:
