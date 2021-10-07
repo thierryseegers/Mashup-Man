@@ -73,6 +73,7 @@ enemy::enemy(
     , dead_sprite_rect{dead_sprite_rect}
     , current_mode_{mode::confined}
     , requested_mode_{mode::scatter}
+    , maze_{nullptr}
     , home{home}
     , healed{true}
     , target_{random_home_corner(home)}
@@ -103,6 +104,13 @@ void enemy::behave(
     }
 
     spdlog::info("{} changing mode from {} to {}.", name(), me::enum_name(current_mode_), me::enum_name(requested_mode));
+
+    // As per the Pac-Man rule, ghosts reverse direction when switching from `chase` or `scatter`.
+    if(current_mode_ == mode::chase ||
+       current_mode_ == mode::scatter)
+    {
+        head(~heading());
+    }
 
     current_mode_ = requested_mode;
 
@@ -148,6 +156,85 @@ void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
+    if(!maze_)
+    {
+        commands.push(make_command(std::function{[=](maze& m, sf::Time const&)
+        {
+            maze_ = &m;
+        }}));
+    }
+    else
+    {
+        // If x + speed * dt "goes accross" the x of the middle of a tile...
+
+        sf::Vector2i const position{(int)getPosition().x, (int)getPosition().y};
+        if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
+        {
+            std::map<direction, sf::Vector2f> paths;
+            if(heading() != direction::left && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
+            {
+                paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
+            }
+            if(heading() != direction::right && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
+            {
+                paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
+            }
+            if(heading() != direction::up && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'p'))
+            {
+                paths[direction::down] = {(float)position.x, (float)position.y + level::tile_size};
+            }
+            if(heading() != direction::down && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'p'))
+            {
+                paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
+            }
+
+            // In case it's in a pipe...
+            if(heading() == direction::left && (*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}] == 'p')
+            {
+                paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
+            }
+            else if(heading() == direction::right && (*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}] == 'p')
+            {
+                paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
+            }
+
+            // If it is at an intersection, ask it for a direction.
+            if(paths.size() >= 2)
+            {
+                // Pick and adjust heading given current target.
+                sf::Vector2i const start{(int)position.x / level::tile_size, (int)position.y / level::tile_size};
+                sf::Vector2i const goal{(int)target_.x / level::tile_size, (int)target_.y / level::tile_size};
+                auto const r = maze_->route(start, goal);
+                
+                // Head towards the best route but only if it's not backtracking because that is not allowed.
+                if(r != ~heading())
+                {
+                    head(r);
+                }
+                else
+                {
+                    head(paths.begin()->first);
+                }
+
+                // Nudge it along so it doesn't get to redecide immediately...
+                nudge(2.f);
+
+                spdlog::info("{} decided to go {}", name(), me::enum_name(heading()));
+            }
+            // Else, if it hit a wall, follow along the path.
+            else if(paths.begin()->first != heading())
+            {
+                head(paths.begin()->first);
+
+                // Nudge it along so it doesn't get to redecide immediately...
+                nudge(2.f);
+
+                spdlog::info("{} is turning {}", name(), me::enum_name(heading()));
+            }
+            // Else, let it cruise along.
+        }
+    }
+
     if(current_mode_ == mode::confined)
     {
         if((confinement -= dt) <= sf::Time::Zero)
@@ -169,14 +256,6 @@ void enemy::update_self(
     character::update_self(dt, commands);
 }
 
-
-sf::Vector2f chaser::target(
-    std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
-    sf::Vector2f const& chaser)
-{
-    return target_;
-}
-
 void chaser::update_self(
     sf::Time const& dt,
     commands_t& commands)
@@ -185,6 +264,7 @@ void chaser::update_self(
     {
         if(current_mode_ == mode::chase)
         {
+            // Find the closest hero and target it.
             std::vector<sf::Vector2f> heroes_positions;
 
             for(auto* const character : characters.children())

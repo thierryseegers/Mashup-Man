@@ -44,7 +44,7 @@ private:
 
     void handle_collisions();
 
-    void update_enemies(
+    void update_enemies_behavior(
         sf::Time const dt);
 
     sf::RenderTarget& target;

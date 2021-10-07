@@ -363,24 +363,28 @@ void world::handle_collisions()
     }
 }
 
-void world::update_enemies(
+void world::update_enemies_behavior(
     sf::Time const dt)
 {
+    auto enemy_mode = enemy_mode_;
+
+    // If no heroes are alive, scatter.
     if(std::all_of(heroes.begin(), heroes.end(), [](auto const& h){ return h.hero_ == nullptr; }))
     {
-        enemy_mode_ = entity::enemy::mode::scatter;
+        enemy_mode = entity::enemy::mode::scatter;
         enemy_mode_timer = sf::seconds(7.f);
     }
+    // Otherwise, switch mode if the timer has gone off.
     else if((enemy_mode_timer -= dt) <= sf::Time::Zero)
     {
-        switch(enemy_mode_)
+        switch(enemy_mode)
         {
             case entity::enemy::mode::scatter:
-                enemy_mode_ = entity::enemy::mode::chase;
+                enemy_mode = entity::enemy::mode::chase;
                 enemy_mode_timer = sf::seconds(20.f);
                 break;
             case entity::enemy::mode::chase:
-                enemy_mode_ = entity::enemy::mode::scatter;
+                enemy_mode = entity::enemy::mode::scatter;
                 enemy_mode_timer = sf::seconds(7.f);
                 break;
             default:
@@ -388,86 +392,15 @@ void world::update_enemies(
         }
     }
 
-    // Gather heroes' positions and headings. Get the chaser's position as well.
-    std::vector<std::pair<sf::Vector2f, direction>> heroes_whereabouts;
-    sf::Vector2f chaser;
-    for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
+    if(enemy_mode != enemy_mode_)
     {
-        if(auto const* h = dynamic_cast<entity::hero const*>(character))
-        {
-            heroes_whereabouts.emplace_back(h->getPosition(), h->heading());
-        }
-        else if(auto const* c = dynamic_cast<entity::chaser const*>(character))
-        {
-            chaser = c->getPosition();
-        }
-    }
+        enemy_mode_ = enemy_mode;
 
-    for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
-    {
-        if(auto* enemy = dynamic_cast<entity::strategist*>(character))
+        for(auto* const character : layers[me::enum_integer(layer::id::characters)]->children())
         {
-            enemy->behave(enemy_mode_);
-
-            sf::Vector2i const position{(int)enemy->getPosition().x, (int)enemy->getPosition().y};
-            if(position.x % level::tile_size >= 9 && position.x % level::tile_size <= 11 && position.y % level::tile_size >= 9 && position.y % level::tile_size <= 11)
+            if(auto* enemy = dynamic_cast<entity::enemy*>(character))
             {
-                auto const heading = enemy->heading();
-
-                std::map<direction, sf::Vector2f> paths;
-                if(heading != direction::left && !utility::any_of((*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
-                {
-                    paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
-                }
-                if(heading != direction::right && !utility::any_of((*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}], '0', '1', '2', '3', 'p'))
-                {
-                    paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
-                }
-                if(heading != direction::up && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size + 1}], '0', '1', '2', '3', 'p'))
-                {
-                    paths[direction::down] = {(float)position.x, (float)position.y + level::tile_size};
-                }
-                if(heading != direction::down && !utility::any_of((*maze_)[{position.x / level::tile_size, position.y / level::tile_size - 1}], '0', '1', '2', '3', 'p'))
-                {
-                    paths[direction::up] = {(float)position.x, (float)position.y - level::tile_size};
-                }
-
-                // In case it's in a pipe...
-                if(heading == direction::left && (*maze_)[{position.x / level::tile_size - 1, position.y / level::tile_size}] == 'p')
-                {
-                    paths[direction::right] = {(float)position.x + level::tile_size, (float)position.y};
-                }
-                else if(heading == direction::right && (*maze_)[{position.x / level::tile_size + 1, position.y / level::tile_size}] == 'p')
-                {
-                    paths[direction::left] = {(float)position.x - level::tile_size, (float)position.y};
-                }
-
-                // If it is at an intersection, ask it for a direction.
-                if(paths.size() >= 2)
-                {
-                    // Pick and adjust heading given chasing strategy.
-                    auto const target = enemy->target(heroes_whereabouts, chaser);
-
-                    sf::Vector2i const start{(int)enemy->getPosition().x / level::tile_size, (int)enemy->getPosition().y / level::tile_size};
-                    sf::Vector2i const goal{(int)target.x / level::tile_size, (int)target.y / level::tile_size};
-                    enemy->head(maze_->route(start, goal));
-
-                    // Nudge it along so it doesn't get to redecide immediately...
-                    enemy->nudge(2.f);
-
-                    spdlog::info("{} decided to go {}", enemy->name(), me::enum_name(enemy->heading()));
-                }
-                // Else, if it hit a wall, follow along the path.
-                else if(paths.begin()->first != heading)
-                {
-                    enemy->head(paths.begin()->first);
-
-                    // Nudge it along so it doesn't get to redecide immediately...
-                    enemy->nudge(2.f);
-
-                    spdlog::info("{} is turning {}", enemy->name(), me::enum_name(enemy->heading()));
-                }
-                // Else, let it cruise along.
+                enemy->behave(enemy_mode_);
             }
         }
     }
@@ -510,17 +443,17 @@ void world::update(
     // Remove all destroyed entities.
     playground.sweep_removed();
 
-    // Update enemies' movements.
-    update_enemies(dt);
+    // Remove played sounds.
+    sound.remove_stopped();
 
-    // Deal with collision.
+    // Deal with collisions.
     handle_collisions();
+
+    // Switch between scattering and chasing.
+    update_enemies_behavior(dt);
 
     // Update the entire playground.
     playground.update(dt, commands_);
-
-    // Remove played sounds.
-    sound.remove_stopped();
 
     if(!players_alive())
     {

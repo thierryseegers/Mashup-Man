@@ -3,6 +3,7 @@
 #include "command.h"
 #include "entity/character.h"
 #include "entity/entity.h"
+#include "maze.h"
 #include "resources.h"
 #include "scene.h"
 #include "sprite.h"
@@ -71,6 +72,7 @@ protected:
     mode current_mode_;
     mode requested_mode_;
 
+    maze* maze_;
     sf::FloatRect home;     // The ghost home.
     bool healed;            // Whether a hurt ghost has reached home.
 
@@ -79,33 +81,16 @@ protected:
     sf::Time confinement;
 };
 
-struct strategist
+class chaser
     : public enemy
 {
-    using enemy::enemy;
-
-    // Given the provided information and the ghost's mode, returns the ghost's target.
-    virtual sf::Vector2f target(
-        std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
-        sf::Vector2f const& chaser) = 0;
-};
-
-class chaser
-    : public strategist
-{
 public:
-    using strategist::strategist;
-
-    virtual sf::Vector2f target(
-        std::vector<std::pair<sf::Vector2f, direction>> const& heroes,
-        sf::Vector2f const& chaser) override;
+    using enemy::enemy;
 
 private:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
-
-    // sf::Vector2i target_;
 };
 
 class goomba
