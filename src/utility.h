@@ -61,6 +61,9 @@ T to_radian(
 	return M_PI / 180. * degree;
 }
 
+sf::Vector2i to_vector2i(
+    sf::Vector2f const& vector);
+
 float length(
     sf::Vector2f const& vector);
 
