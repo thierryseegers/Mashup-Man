@@ -72,7 +72,7 @@ maze::maze(
         column = 0;
     }
 
-    // Extract just the wall tile information.
+    // Extract the wall tile information and the ghost house's coordinates.
     for(size_t r = 0; r != level::height; ++r)
     {
         for(size_t c = 0; c != level::width; ++c)
@@ -84,6 +84,18 @@ maze::maze(
                 case '2':
                 case '3':
                     wall_texture_offsets[r][c] = level_description[r][c] - '0';
+                    break;
+                case 'h':
+                    if(ghost_house_.left == 0)
+                    {
+                        ghost_house_.left = c;
+                        ghost_house_.top = r;
+                    }
+                    else
+                    {
+                        ghost_house_.width = (c + 1) - ghost_house_.left;
+                        ghost_house_.height = (r + 1) - ghost_house_.top;
+                    }
                     break;
                 default:
                     wall_texture_offsets[r][c] = 4;
@@ -163,6 +175,11 @@ std::map<direction, maze::structure> maze::around(
             {direction::left,   to_structure(operator[]({coordinates.x - 1, coordinates.y}))},
             {direction::right,  to_structure(operator[]({coordinates.x + 1, coordinates.y}))},
             {direction::up,     to_structure(operator[]({coordinates.x, coordinates.y - 1}))}};
+}
+
+sf::IntRect maze::ghost_house() const
+{
+    return ghost_house_;
 }
 
 direction maze::route(

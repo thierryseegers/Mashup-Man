@@ -26,13 +26,16 @@ public:
     maze(
         std::filesystem::path const& level);
 
-    // Returns the structure at a given cell.
+    // Returns the level code at a given cell.
     char operator[](
         sf::Vector2i const& coordinates) const;
 
     // Returns the structures that surround a cell.
     std::map<direction, structure> around(
         sf::Vector2i const& coordinates) const;
+
+    // Returns the coordinates of the ghost house.
+    sf::IntRect ghost_house() const;
 
     // Returns the direction to go to next on the path from `start` to `goal`.
     direction route(
@@ -47,6 +50,8 @@ private:
     level::description level_description;
     sf::VertexArray vertices;
     sf::Texture texture_strip;
+
+    sf::IntRect ghost_house_;
 
     std::shared_ptr<astar::maze> astar_maze;
 };
