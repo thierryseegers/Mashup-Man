@@ -19,11 +19,11 @@ jobs:
         uses: turtlebrowser/get-conan@main
       - name: Check out repository
         uses: actions/checkout@v2
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Configure
         run: cmake . -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
       - uses: SimenB/github-actions-cpu-cores@v1
         id: cpu-count
       - name: Build
         run: cmake --build . --config ${{ matrix.configuration }} --parallel ${{ steps.cpu-count.outputs.count }}
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
