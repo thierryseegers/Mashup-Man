@@ -25,3 +25,5 @@ jobs:
         id: cpu-count
       - name: Build
         run: cmake --build . --config ${{ matrix.configuration }} --parallel ${{ steps.cpu-count.outputs.count }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
