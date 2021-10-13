@@ -13,6 +13,9 @@ jobs:
       - name: Install Boost
         if: ${{ contains(matrix.os, 'macos') }}
         run: brew install boost
+      - name: Install libudev-dev
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt-get install -y libudev-dev
       - name: Install CMake
         uses: jwlawson/actions-setup-cmake@v1.9
       - name: Install Conan
