@@ -16,6 +16,8 @@ direction operator~(
         case direction::up:
             return direction::down;
     }
+
+    return direction::none;
 }
 
 sf::Vector2f to_vector(
@@ -34,4 +36,6 @@ sf::Vector2f to_vector(
         case direction::up:
             return sf::Vector2f{0.f, -1.f};
     }
+
+    return sf::Vector2f{0.f, 0.f};
 }

@@ -124,6 +124,7 @@ void enemy::behave(
             break;
         case mode::scatter:
             target_ = random_level_corner();
+            spdlog::info("{} targeting random corner [{}, {}].", name(), target_.x, target_.y);
             throttle(1.f);
             break;
     }
@@ -151,7 +152,7 @@ void enemy::update_self(
 {
     if(!maze_)
     {
-        commands.push(make_command(std::function{[=](maze& m, sf::Time const&)
+        commands.push(make_command(std::function{[this](maze& m, sf::Time const&)
         {
             maze_ = &m;
         }}));
@@ -258,7 +259,7 @@ void chaser::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    commands.push(make_command(std::function{[=](layer::characters& characters, sf::Time const&)
+    commands.push(make_command(std::function{[this](layer::characters& characters, sf::Time const&)
     {
         if(current_mode_ == mode::chase)
         {
@@ -275,7 +276,7 @@ void chaser::update_self(
 
             if(heroes_positions.size())
             {
-                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [=](auto const& p1, auto const& p2)
+                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [this](auto const& p1, auto const& p2)
                 {
                     return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
                 });

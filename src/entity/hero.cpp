@@ -70,14 +70,14 @@ void hero::update_self(
 {
     if(!maze_)
     {
-        commands.push(make_command(std::function{[=](maze& m, sf::Time const&)
+        commands.push(make_command(std::function{[this](maze& m, sf::Time const&)
         {
             maze_ = &m;
         }}));
     }
     else if(dead_)
     {
-        commands.push(make_command(std::function{[=](layer::animations& layer, sf::Time const&)
+        commands.push(make_command(std::function{[this](layer::animations& layer, sf::Time const&)
         {
             std::unique_ptr<scene::node> d{tombstone()};
             d->setPosition(getPosition());

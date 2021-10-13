@@ -145,7 +145,7 @@ void brother::update_self(
 
     if(shooting && fire_countdown <= sf::Time::Zero)
     {
-        commands.push(make_command(std::function{[=](layer::projectiles& layer, sf::Time const&)
+        commands.push(make_command(std::function{[this](layer::projectiles& layer, sf::Time const&)
         {
             shoot_fireball(layer);
         }}));
