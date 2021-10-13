@@ -4,17 +4,10 @@
 #include "direction.h"
 #include "entity/character.h"
 #include "entity/power_up.h"
-#include "layer.h"
+#include "maze.h"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
-
-#include <memory>
-#include <type_traits>
-
-#if defined(WIN32)
-    #undef small
-#endif
 
 namespace entity
 {
@@ -27,10 +20,11 @@ public:
         sprite sprite_,
         int const max_speed = 0);
 
-    virtual ~hero() = default;
-
-    // The hero may be immune to damage when recently spawned.
-    [[nodiscard]] bool immune() const;
+    // Whether the hero is dead. (Death doesn't always follow from a hit().)
+    [[nodiscard]] bool dead() const;
+    
+    // The hero may be impervious to damage when recently spawned.
+    [[nodiscard]] bool immune() const override;
 
     // The direction towards which the hero is steered by the player.
     [[nodiscard]] direction steering() const;
@@ -57,11 +51,13 @@ protected:
         sf::Time const& dt,
         commands_t& commands) override;
 
-    // The entity that this hero "transforms" into wen dead.
-    virtual entity* dead() const = 0;
+    // The entity that this hero "transforms" into when dead.
+    virtual entity* tombstone() const = 0;
 
     direction steering_;
 
+    maze *maze_;
+    bool dead_;
     sf::Time immunity;  // Immunity timer.
 };
 

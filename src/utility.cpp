@@ -139,6 +139,12 @@ std::string to_string(
     return "";
 }
 
+sf::Vector2i to_vector2i(
+    sf::Vector2f const& vector)
+{
+    return {(int)vector.x, (int)vector.y};
+}
+
 float length(
     sf::Vector2f const& vector)
 {

@@ -42,7 +42,7 @@ void stack::handle_event(
 void stack::request_push(
     id const id)
 {
-    pending_requests.push_back([=]()
+    pending_requests.push_back([=, this]()
     {
         states.push_back(factory[id]());
     });
@@ -50,7 +50,7 @@ void stack::request_push(
 
 void stack::request_pop()
 {
-    pending_requests.push_back([=]()
+    pending_requests.push_back([this]()
     {
         states.pop_back();
     });
@@ -58,7 +58,7 @@ void stack::request_pop()
 
 void stack::request_clear()
 {
-    pending_requests.push_back([=]()
+    pending_requests.push_back([this]()
     {
         states.clear();
     });

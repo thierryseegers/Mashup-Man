@@ -18,7 +18,7 @@ void lifeboard::draw(
     sf::RenderStates states) const
 {
     states.transform *= getTransform();
-    
+
     for(int i = 0; i != infos[0].lives; ++i)
     {
         infos[0].sprite.setPosition(i * (level::tile_size + level::half_tile_size), 0);

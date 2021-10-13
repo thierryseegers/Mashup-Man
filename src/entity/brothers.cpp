@@ -145,7 +145,7 @@ void brother::update_self(
 
     if(shooting && fire_countdown <= sf::Time::Zero)
     {
-        commands.push(make_command(std::function{[=](layer::projectiles& layer, sf::Time const&)
+        commands.push(make_command(std::function{[this](layer::projectiles& layer, sf::Time const&)
         {
             shoot_fireball(layer);
         }}));
@@ -177,9 +177,11 @@ void brother::update_sprite()
     {
         sprite_.animate(animated_sprite_rects(size_, attribute_), sf::seconds(0.25f), sprite::repeat::loop);
     }
+
+    character::update_sprite();
 }
 
-entity* brother::dead() const
+entity* brother::tombstone() const
 {
     return new dead_brother(
         sprite{

@@ -48,3 +48,4 @@ In rough order:
 - [ ] A variety of enemies that use the original (or novel) chasing strategies
 - [ ] Character select screen
 - [ ] Coop/Competitive mode
+- [ ] Runtime debug menu using [ImGui](https://github.com/ocornut/imgui)

@@ -23,11 +23,10 @@ public:
 
     virtual ~character() = default;
 
-protected:
-    virtual void update_self(
-        sf::Time const& dt,
-        commands_t& commands) override;
+    // A character may be impervious to damage (e.g. recently spawned hero, dead enemy going home).
+    [[nodiscard]] virtual bool immune() const = 0;
 
+protected:
     template<typename Projectile>
     Projectile* add_projectile(
         layer::projectiles& layer,

@@ -5,6 +5,7 @@
 #include "entity/entities.h"
 #include "layer.h"
 #include "level.h"
+#include "maze.h"
 #include "lifeboard.h"
 #include "resources.h"
 #include "scene.h"
@@ -43,12 +44,7 @@ private:
 
     void handle_collisions();
 
-    void update_hero(
-        entity::hero *hero);
-
-    void update_fireballs();
-
-    void update_enemies(
+    void update_enemies_behavior(
         sf::Time const dt);
 
     sf::RenderTarget& target;
@@ -58,6 +54,7 @@ private:
 
     scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;
+    maze *maze_;
     scoreboard scoreboard_;
     lifeboard lifeboard_;
 
@@ -79,7 +76,6 @@ private:
     // Number of pills to eat on this stage.
     int n_pills;
 
-    level::info level_info;
     level::grid<entity::entity*> immovables;
 
     entity::enemy::mode enemy_mode_;

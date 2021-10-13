@@ -34,29 +34,9 @@ direction entity::heading() const
 void entity::head(
     direction const d)
 {
-    switch(d)
-    {
-        case direction::up:
-            sprite_.unflip();
-            sprite_.set_rotation(270.f);
-            break;
-        case direction::down:
-            sprite_.unflip();
-            sprite_.set_rotation(90.f);
-            break;
-        case direction::left:
-            sprite_.flip();
-            sprite_.set_rotation(0);
-            break;
-        case direction::right:
-            sprite_.unflip();
-            sprite_.set_rotation(0);
-            break;
-        default:
-            break;
-    }
-
     heading_ = d;
+
+    update_sprite();
 }
 
 float entity::speed() const
@@ -96,24 +76,11 @@ void entity::nudge(
                 position.y + (d == direction::down ? distance : d == direction::up ? -distance : 0.f));
 }
 
-void entity::update_sprite()
-{}
-
 void entity::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    static std::array<sf::Vector2f, magic_enum::enum_count<direction>()> const directions = []
-    {
-        return std::array<sf::Vector2f, magic_enum::enum_count<direction>()>{
-                sf::Vector2f{0.f, -1.f},
-                sf::Vector2f{0.f, 1.f},
-                sf::Vector2f{-1.f, 0.f},
-                sf::Vector2f{1.f, 0.f},
-                sf::Vector2f{0.f, 0.f}};
-    }();
-
-    sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * (max_speed * throttle_) * dt.asSeconds());
+    sf::Transformable::move(to_vector(heading_) * (max_speed * throttle_) * dt.asSeconds());
 
     sprite_.update(dt, commands);
 }
@@ -123,6 +90,31 @@ void entity::update_self(
     sf::RenderStates states) const
 {
     sprite_.draw(target, states);
+}
+
+void entity::update_sprite()
+{
+    switch(heading_)
+    {
+        case direction::up:
+            sprite_.unflip();
+            sprite_.set_rotation(270.f);
+            break;
+        case direction::down:
+            sprite_.unflip();
+            sprite_.set_rotation(90.f);
+            break;
+        case direction::left:
+            sprite_.flip();
+            sprite_.set_rotation(0.f);
+            break;
+        case direction::right:
+            sprite_.unflip();
+            sprite_.set_rotation(0.f);
+            break;
+        default:
+            break;
+    }
 }
 
 }

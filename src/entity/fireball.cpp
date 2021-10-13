@@ -4,10 +4,10 @@
 #include "configuration.h"
 #include "entity/projectile.h"
 #include "layer.h"
+#include "maze.h"
 #include "resources.h"
 #include "sprite.h"
-
-#include <magic_enum.hpp>
+#include "utility.h"
 
 namespace entity
 {
@@ -26,7 +26,7 @@ public:
 
 fireball::fireball(
     direction const heading_)
-    : projectile{
+    : friendly<projectile>{
         sprite{
             resources::texture::items,
             {{96, 144, 8, 8}, {104, 144, 8, 8}, {96, 152, 8, 8}, {104, 152, 8, 8}},
@@ -34,33 +34,53 @@ fireball::fireball(
             sprite::repeat::loop},
         *configuration::values()["brothers"]["fireball"]["speed"].value<int>(),
         heading_}
+    , fizzled{false}
+    , maze_{nullptr}
 {}
+
+void fireball::hit()
+{
+    fizzled = true;
+}
 
 void fireball::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(remove)
+    if(!maze_)
     {
-        commands.push(make_command(std::function{[position = getPosition()](layer::animations& layer, sf::Time const&)
+        commands.push(make_command(std::function{[this](maze& m, sf::Time const&)
         {
-            layer.attach<fizzle>()->setPosition(position);
+            maze_ = &m;
+        }}));
+    }
+    else if(fizzled)
+    {
+        commands.push(make_command(std::function{[this](layer::animations& layer, sf::Time const&)
+        {
+            layer.attach<fizzle>()->setPosition(getPosition());
+
+            remove = true;
         }}));
     }
     else
     {
-        static auto const directions = []
+        // Check if it's hitting a wall or not.
+        int const r = getPosition().y / level::tile_size, c = getPosition().x / level::tile_size;
+        if(utility::any_of((*maze_)[{c, r}], '0', '1', '2', '3', 'p'))
         {
-            return std::array<sf::Vector2f, magic_enum::enum_count<direction>()>{
-                    sf::Vector2f{0.f, -1.f},
-                    sf::Vector2f{0.f, 1.f},
-                    sf::Vector2f{-1.f, 0.f},
-                    sf::Vector2f{1.f, 0.f}};
-        }();
+            // Bring it closer to the wall.
+            nudge(7.f);
 
-        sf::Transformable::move(directions[magic_enum::enum_integer(heading_)] * (max_speed * throttle_) * dt.asSeconds());
+            hit();
 
-        sprite_.update(dt, commands);
+            commands.push(make_command(+[](scene::sound_t& sound, sf::Time const&)
+            {
+                sound.play(resources::sound_effect::bump);
+            }));
+        }
+
+        entity::update_self(dt, commands);
     }
 }
 

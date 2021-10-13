@@ -8,6 +8,10 @@
 
 #include <memory>
 
+#if defined(WIN32)
+    #undef small
+#endif
+
 namespace entity
 {
 
@@ -66,7 +70,7 @@ private:
 
     virtual void update_sprite() override;
 
-    virtual entity* dead() const override;
+    virtual entity* tombstone() const override;
 
     void pick_up(
         power_up::mushroom const* const);

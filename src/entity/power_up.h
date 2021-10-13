@@ -14,7 +14,7 @@ class power_up
 public:
     using entity::entity;
 
-    virtual void pick_up(power_up_picker*) const = 0;
+    virtual void pick_up(power_up_picker*);
 
     virtual resources::sound_effect sound_effect() const = 0;
 };
@@ -25,7 +25,7 @@ class coin
 public:
     coin();
 
-    virtual void pick_up(power_up_picker*) const override;
+    virtual void pick_up(power_up_picker*) override;
 
     virtual resources::sound_effect sound_effect() const override;
 };
@@ -36,7 +36,7 @@ class mushroom
 public:
     mushroom();
 
-    virtual void pick_up(power_up_picker*) const override;
+    virtual void pick_up(power_up_picker*) override;
 
     virtual resources::sound_effect sound_effect() const override;
 };
@@ -47,7 +47,7 @@ class flower
 public:
     flower();
 
-    virtual void pick_up(power_up_picker*) const override;
+    virtual void pick_up(power_up_picker*) override;
 
     virtual resources::sound_effect sound_effect() const override;
 };

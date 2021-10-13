@@ -7,9 +7,15 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, MinSizeRel]
-        platform: [macos-latest, windows-latest]
-    runs-on: ${{ matrix.platform }}
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
+      - name: Install Boost
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: brew install boost
+      - name: Install Ubuntu packages
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt-get install -y libudev-dev libgl-dev
       - name: Install CMake
         uses: jwlawson/actions-setup-cmake@v1.9
       - name: Install Conan

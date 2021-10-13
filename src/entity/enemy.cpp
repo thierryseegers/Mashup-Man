@@ -2,7 +2,8 @@
 
 #include "configuration.h"
 #include "direction.h"
-#include "entity/entity.h"
+#include "entity/character.h"
+#include "entity/hero.h"
 #include "level.h"
 #include "resources.h"
 #include "scene.h"
@@ -14,6 +15,7 @@
 #include <SFML/Graphics.hpp>
 #include <spdlog/spdlog.h>
 
+#include <cmath>
 #include <functional>
 #include <map>
 #include <memory>
@@ -23,30 +25,32 @@
 namespace entity
 {
 
-sf::Vector2f random_level_corner()
+namespace me = magic_enum;
+
+sf::Vector2i random_level_corner()
 {
     // Pick a random corner area as a target.
-    static size_t const x[2] = {5ul, level::width - 5};
-    static size_t const y[2] = {5ul, level::width - 5};
-
-    float const c = x[utility::random(1)];
-    float const r = y[utility::random(1)];
-
-    return {c * level::tile_size, r * level::tile_size};
+    return {1 + utility::random(1) * ((int)level::width - 2 - 1),
+            2 + utility::random(1) * ((int)level::height - 3 - 2)};
 }
 
-sf::Vector2f random_home_corner(
+sf::Vector2i random_home_corner(
     sf::IntRect const& home)
 {
-    return {(float)home.left + utility::random(1) * (home.width - level::tile_size) + level::half_tile_size,
-            (float)home.top + utility::random(1) * (home.height - level::tile_size) + level::half_tile_size};
+    return {home.left + utility::random(1) * (home.width - 1),
+            home.top + utility::random(1) * (home.height - 1)};
+}
+
+sf::Vector2i to_maze_coordinates(
+    sf::Vector2f const& position)
+{
+    return {(int)position.x / level::tile_size, (int)position.y / level::tile_size};
 }
 
 enemy::enemy(
     animated_sprite_rects_f const animated_sprite_rects,
     dead_sprite_rect_f const dead_sprite_rect,
     float const scale_factor,
-    sf::IntRect const& home,
     int const max_speed,
     direction const heading_)
     : hostile<character>{
@@ -61,10 +65,11 @@ enemy::enemy(
         , heading_}
     , animated_sprite_rects{animated_sprite_rects}
     , dead_sprite_rect{dead_sprite_rect}
-    , mode_{mode::confined}
-    , home{home}
+    , current_mode_{mode::confined}
+    , requested_mode_{mode::scatter}
+    , maze_{nullptr}
     , healed{true}
-    , target{random_home_corner(home)}
+    , target_{0, 0}
     , confinement{sf::seconds(10)}
 {}
 
@@ -75,78 +80,218 @@ void enemy::hit()
     update_sprite();
 }
 
-enemy::mode enemy::behavior() const
+bool enemy::immune() const
 {
-    return mode_;
+    return current_mode_ == mode::dead;
 }
 
 void enemy::behave(
-    mode const m)
+    mode const requested_mode)
 {
-    if(mode_ != m && healed)
+    if(current_mode_ == requested_mode ||
+       (current_mode_ == mode::dead && !healed) ||
+       (current_mode_ == mode::confined && confinement > sf::Time::Zero))
     {
-        spdlog::info("{} changing mode from {} to {}.", name(), magic_enum::enum_name(mode_), magic_enum::enum_name(m));
-
-        mode_ = m;
-
-        switch(mode_)
-        {
-            case mode::confined:
-                assert(!"Do not manually change behavior to 'confined'. This mode is set form the start and never reoccurs.");
-                break;
-            case mode::chase:
-                break;
-            case mode::dead:
-                healed = false;
-                target = {home.left + home.width / 2.f, home.top + home.height / 2.f};
-                throttle(2.f);
-                break;
-            case mode::frightened:
-                break;
-            case mode::scatter:
-                target = random_level_corner();
-                throttle(1.f);
-                break;
-        }
-
-        update_sprite();
+        requested_mode_ = requested_mode;
+        return;
     }
+
+    spdlog::info("{} changing mode from {} to {}.", name(), me::enum_name(current_mode_), me::enum_name(requested_mode));
+
+    // As per the Pac-Man rule, ghosts reverse direction when switching from `chase` or `scatter`.
+    if(current_mode_ == mode::chase ||
+       current_mode_ == mode::scatter)
+    {
+        head(~heading());
+    }
+
+    current_mode_ = requested_mode;
+
+    switch(current_mode_)
+    {
+        case mode::confined:
+            assert(!"Do not manually change behavior to 'confined'. This mode is set form the start and never reoccurs.");
+            break;
+        case mode::chase:
+            throttle(1.f);
+            break;
+        case mode::dead:
+            healed = false;
+            target_ = random_home_corner(maze_->ghost_house());
+            throttle(2.f);
+            break;
+        case mode::frightened:
+            break;
+        case mode::scatter:
+            target_ = random_level_corner();
+            spdlog::info("{} targeting random corner [{}, {}].", name(), target_.x, target_.y);
+            throttle(1.f);
+            break;
+    }
+
+    update_sprite();
 }
 
 void enemy::update_sprite()
 {
-    if(mode_ == mode::dead)
+    if(current_mode_ == mode::dead)
     {
         sprite_.still(dead_sprite_rect());
     }
     else
     {
-        sprite_.animate(animated_sprite_rects(mode_), sf::seconds(0.25f), sprite::repeat::loop);
+        sprite_.animate(animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
     }
+
+    character::update_sprite();
 }
 
 void enemy::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    if(mode_ == mode::confined && ((confinement -= dt) <= sf::Time::Zero))
+    if(!maze_)
     {
-        behave(mode::scatter);
+        commands.push(make_command(std::function{[this](maze& m, sf::Time const&)
+        {
+            maze_ = &m;
+        }}));
     }
-    else if(mode_ == mode::dead && utility::length(getPosition() - target) < level::tile_size)
+    else
+    {
+        sf::Vector2f const position = getPosition();
+        sf::Vector2f const future_position = position + to_vector(heading_) * (max_speed * throttle_) * dt.asSeconds();
+
+        // If the position delta between now and then crosses the middle of a tile...
+        if((future_position.x > position.x && fmod(position.x, level::tile_size) <= level::half_tile_size && fmod(future_position.x, level::tile_size) > level::half_tile_size) ||
+           (future_position.x < position.x && fmod(position.x, level::tile_size) >= level::half_tile_size && fmod(future_position.x, level::tile_size) < level::half_tile_size) ||
+           (future_position.y > position.y && fmod(position.y, level::tile_size) <= level::half_tile_size && fmod(future_position.y, level::tile_size) > level::half_tile_size) ||
+           (future_position.y < position.y && fmod(position.y, level::tile_size) >= level::half_tile_size && fmod(future_position.y, level::tile_size) < level::half_tile_size))
+        {
+            std::set<direction> paths;
+            auto const around = maze_->around({(int)position.x / level::tile_size, (int)position.y / level::tile_size});
+            if(heading() != direction::left && utility::any_of(around.at(direction::right), maze::path, maze::door))
+            {
+                paths.insert(direction::right);
+            }
+            if(heading() != direction::right && utility::any_of(around.at(direction::left), maze::path, maze::door))
+            {
+                paths.insert(direction::left);
+            }
+            if(heading() != direction::up && utility::any_of(around.at(direction::down), maze::path, maze::door))
+            {
+                paths.insert(direction::down);
+            }
+            if(heading() != direction::down && utility::any_of(around.at(direction::up), maze::path, maze::door))
+            {
+                paths.insert(direction::up);
+            }
+
+            // In case it's in a pipe...
+            if(heading() == direction::left && around.at(direction::left) == maze::pipe)
+            {
+                paths.insert(direction::right);
+            }
+            else if(heading() == direction::right && around.at(direction::right) == maze::pipe)
+            {
+                paths.insert(direction::left);
+            }
+
+            // If it is at an intersection, ask it for a direction.
+            if(paths.size() >= 2)
+            {
+                // Pick and adjust heading given current target.
+                sf::Vector2i const start{(int)position.x / level::tile_size, (int)position.y / level::tile_size};
+                auto const r = maze_->route(start, target_);
+
+                // Head towards the best route but only if it's not backtracking because that is not allowed.
+                if(r != ~heading() && r != direction::none)
+                {
+                    head(r);
+                }
+                else
+                {
+                    head(*paths.begin());
+                }
+
+                spdlog::info("{} decided to go {}", name(), me::enum_name(heading()));
+            }
+            // Else, if it hit a wall, follow along the path.
+            else if(*paths.begin() != heading())
+            {
+                head(*paths.begin());
+
+                spdlog::info("{} is turning {}", name(), me::enum_name(heading()));
+            }
+            // Else, let it cruise along.
+        }
+    }
+
+    if(current_mode_ == mode::confined)
+    {
+        if(!maze_)
+        {}
+        else if((confinement -= dt) <= sf::Time::Zero ||
+                !maze_->ghost_house().contains(to_maze_coordinates(getPosition())))
+        {
+            confinement = sf::Time::Zero;
+
+            behave(requested_mode_);
+        }
+        else if(target_ == sf::Vector2i{0, 0} ||
+                to_maze_coordinates(getPosition()) == target_)
+        {
+            target_ = random_home_corner(maze_->ghost_house());
+        }
+    }
+    else if(current_mode_ == mode::dead &&
+            maze_->ghost_house().contains(to_maze_coordinates(getPosition())))
     {
         healed = true;
 
-        behave(mode::scatter);
+        behave(requested_mode_);
     }
 
     character::update_self(dt, commands);
 }
 
+void chaser::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    commands.push(make_command(std::function{[this](layer::characters& characters, sf::Time const&)
+    {
+        if(current_mode_ == mode::chase)
+        {
+            // Find the closest hero and target it.
+            std::vector<sf::Vector2f> heroes_positions;
+
+            for(auto* const character : characters.children())
+            {
+                if(auto const* h = dynamic_cast<hero const*>(character))
+                {
+                    heroes_positions.push_back(h->getPosition());
+                }
+            }
+
+            if(heroes_positions.size())
+            {
+                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [this](auto const& p1, auto const& p2)
+                {
+                    return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
+                });
+
+                target_ = to_maze_coordinates(*closest);
+            }
+        }
+    }}));
+
+    enemy::update_self(dt, commands);
+}
 using animated_sprite_rects =
     std::array<
         std::vector<sf::IntRect>,
-        magic_enum::enum_count<enemy::mode>()>;
+        me::enum_count<enemy::mode>()>;
 
 std::vector<sf::IntRect> goomba_animated_sprite_rects(
     enemy::mode const mode_)
@@ -154,15 +299,15 @@ std::vector<sf::IntRect> goomba_animated_sprite_rects(
     static animated_sprite_rects const rects = []{
         animated_sprite_rects r;
 
-        r[magic_enum::enum_integer(enemy::mode::confined)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
-        r[magic_enum::enum_integer(enemy::mode::chase)] = r[magic_enum::enum_integer(enemy::mode::confined)];
-        r[magic_enum::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
-        r[magic_enum::enum_integer(enemy::mode::scatter)] = r[magic_enum::enum_integer(enemy::mode::confined)];
+        r[me::enum_integer(enemy::mode::confined)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
+        r[me::enum_integer(enemy::mode::chase)] = r[me::enum_integer(enemy::mode::confined)];
+        r[me::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
+        r[me::enum_integer(enemy::mode::scatter)] = r[me::enum_integer(enemy::mode::confined)];
 
         return r;
     }();
 
-    return rects[magic_enum::enum_integer(mode_)];
+    return rects[me::enum_integer(mode_)];
 }
 
 sf::IntRect goomba_dead_sprite_rect()
@@ -170,66 +315,19 @@ sf::IntRect goomba_dead_sprite_rect()
     return sf::IntRect{39, 28, 16, 16};
 }
 
-goomba::goomba(
-    sf::IntRect const& home)
-    : enemy{
+goomba::goomba()
+    : chaser{
         goomba_animated_sprite_rects,
         goomba_dead_sprite_rect,
         configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
-        home,
         *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
         direction::left
         }
 {}
 
-direction goomba::fork(
-    std::vector<sf::Vector2f> const& heroes_positions,
-    std::map<direction, sf::Vector2f> const& choices)
-{
-    switch(mode_)
-    {
-        case mode::confined:
-            if(utility::length(target - getPosition()) < level::tile_size)
-            {
-                target = random_home_corner(home);
-            }
-            [[fallthrough]];
-        case mode::scatter:
-        case mode::dead:
-            return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-                {
-                    return utility::length(target - c1.second) < utility::length(target - c2.second);
-                })->first;
-            break;
-        case mode::chase:
-            {
-                assert(heroes_positions.size());
-
-                auto const closest = std::min_element(heroes_positions.begin(), heroes_positions.end(), [=](auto const& p1, auto const& p2)
-                {
-                    return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
-                });
-
-                return std::min_element(choices.begin(), choices.end(), [=](auto const& c1, auto const& c2)
-                {
-                    return utility::length(*closest - c1.second) < utility::length(*closest - c2.second);
-                })->first;
-            }
-            break;
-        case mode::frightened:
-            break;
-        default:
-            break;
-    }
-
-    return choices.begin()->first;
-}
-
 std::string_view goomba::name() const
 {
-    static std::string const name_{"goomba"};
-
-    return name_;
+    return "goomba";
 }
 
 }

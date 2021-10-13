@@ -3,6 +3,7 @@
 #include "command.h"
 #include "entity/character.h"
 #include "entity/entity.h"
+#include "maze.h"
 #include "resources.h"
 #include "scene.h"
 #include "sprite.h"
@@ -42,20 +43,16 @@ public:
         animated_sprite_rects_f const animated_sprite_rects,
         dead_sprite_rect_f const dead_sprite_rect,
         float const scale_factor,
-        sf::IntRect const& home,
         int const max_speed = 0,
         direction const heading_ = direction::right);
 
     virtual ~enemy() = default;
 
-    [[nodiscard]] mode behavior() const;
+    // An enemy is impervious to damage when it is dead and going to the ghost house.
+    [[nodiscard]] bool immune() const override;
 
     void behave(
         mode const m);
-
-    virtual direction fork(
-        std::vector<sf::Vector2f> const& heroes_positions,
-        std::map<direction, sf::Vector2f> const& choices) = 0;
 
     virtual void hit() override;
 
@@ -71,38 +68,36 @@ protected:
     animated_sprite_rects_f animated_sprite_rects;
     dead_sprite_rect_f dead_sprite_rect;
 
-    mode mode_;
+    mode current_mode_;
+    mode requested_mode_;
 
-    sf::IntRect home;       // The ghost home.
+    maze* maze_;
+
+    sf::Vector2i target_;   // Target coordinates.
     bool healed;            // Whether a hurt ghost has reached home.
-
-    sf::Vector2f target;    // Target coordinates.
 
     sf::Time confinement;
 };
 
-class goomba
+class chaser
     : public enemy
 {
 public:
-    goomba(
-        sf::IntRect const& home);
+    using enemy::enemy;
 
-    virtual direction fork(
-        std::vector<sf::Vector2f> const& heroes_positions,
-        std::map<direction, sf::Vector2f> const& choices) override;
+private:
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
+};
+
+class goomba
+    : public chaser
+{
+public:
+    goomba();
 
     virtual std::string_view name() const override;
 };
-
-// class raptor : public enemy
-// {
-// public:
-//     raptor();
-
-// protected:
-//     virtual void attack(
-//         scene::projectiles& layer) const override;
-// };
 
 }
