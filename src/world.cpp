@@ -100,28 +100,6 @@ void world::build_scene()
 
     maze_ = layers[me::enum_integer(layer::id::maze)]->attach<maze>("assets/levels/1.txt");
 
-    // Get the rectangle coordinates of the ghost house.
-    sf::FloatRect ghost_house{};
-    for(int r = 0; r != level::height; ++r)
-    {
-        for(int c = 0; c != level::width; ++c)
-        {
-            if((*maze_)[{c, r}] == 'h')
-            {
-                if(ghost_house.left == 0)
-                {
-                    ghost_house.left = c * level::tile_size;
-                    ghost_house.top = r * level::tile_size;
-                }
-                else
-                {
-                    ghost_house.width = (c + 1) * level::tile_size - ghost_house.left;
-                    ghost_house.height = (r + 1) * level::tile_size - ghost_house.top;
-                }
-            }
-        }
-    }
-
     // Create entities as the level dictates.
     for(int r = 0; r != level::height; ++r)
     {
@@ -141,8 +119,8 @@ void world::build_scene()
                     break;
                 case 'g':
                     {
-                        auto *g = layers[me::enum_integer(layer::id::characters)]->attach<entity::goomba>(ghost_house);
-                        if(!ghost_house.contains(c * level::tile_size, r * level::tile_size))
+                        auto *g = layers[me::enum_integer(layer::id::characters)]->attach<entity::goomba>();
+                        if(!maze_->ghost_house().contains(c, r))
                         {
                             g->behave(entity::enemy::mode::scatter);
                         }

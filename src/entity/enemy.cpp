@@ -27,37 +27,30 @@ namespace entity
 
 namespace me = magic_enum;
 
-sf::Vector2f random_level_corner()
+sf::Vector2i random_level_corner()
 {
     // Pick a random corner area as a target.
-    static size_t const x[2] = {1ul, level::width - 1 - 1};
-    static size_t const y[2] = {2ul, level::height - 2 - 1};
-
-    float const c = x[utility::random(1)];
-    float const r = y[utility::random(1)];
-
-    return {c * level::tile_size + level::half_tile_size, r * level::tile_size + level::half_tile_size};
+    return {1 + utility::random(1) * ((int)level::width - 2 - 1),
+            2 + utility::random(1) * ((int)level::height - 3 - 2)};
 }
 
-sf::Vector2f random_home_corner(
-    sf::FloatRect const& home)
+sf::Vector2i random_home_corner(
+    sf::IntRect const& home)
 {
-    return {home.left + utility::random(1) * (home.width - level::tile_size) + level::half_tile_size,
-            home.top + utility::random(1) * (home.height - level::tile_size) + level::half_tile_size};
+    return {home.left + utility::random(1) * (home.width - 1),
+            home.top + utility::random(1) * (home.height - 1)};
 }
 
-bool contains(
-    sf::FloatRect const& a,
-    sf::FloatRect const& b)
+sf::Vector2i to_maze_coordinates(
+    sf::Vector2f const& position)
 {
-    return b.left >= a.left && b.top >= a.top && (b.left + b.width <= a.left + a.width) && (b.top + b.height <= a.top + a.height);
+    return {(int)position.x / level::tile_size, (int)position.y / level::tile_size};
 }
 
 enemy::enemy(
     animated_sprite_rects_f const animated_sprite_rects,
     dead_sprite_rect_f const dead_sprite_rect,
     float const scale_factor,
-    sf::FloatRect const& home,
     int const max_speed,
     direction const heading_)
     : hostile<character>{
@@ -75,9 +68,8 @@ enemy::enemy(
     , current_mode_{mode::confined}
     , requested_mode_{mode::scatter}
     , maze_{nullptr}
-    , home{home}
     , healed{true}
-    , target_{random_home_corner(home)}
+    , target_{0, 0}
     , confinement{sf::seconds(10)}
 {}
 
@@ -98,7 +90,7 @@ void enemy::behave(
 {
     if(current_mode_ == requested_mode ||
        (current_mode_ == mode::dead && !healed) ||
-       (current_mode_ == mode::confined && confinement >= sf::Time::Zero && home.contains(getPosition())))
+       (current_mode_ == mode::confined && confinement > sf::Time::Zero))
     {
         requested_mode_ = requested_mode;
         return;
@@ -125,7 +117,7 @@ void enemy::behave(
             break;
         case mode::dead:
             healed = false;
-            target_ = {home.left + home.width / 2.f, home.top + home.height / 2.f};
+            target_ = random_home_corner(maze_->ghost_house());
             throttle(2.f);
             break;
         case mode::frightened:
@@ -209,11 +201,10 @@ void enemy::update_self(
             {
                 // Pick and adjust heading given current target.
                 sf::Vector2i const start{(int)position.x / level::tile_size, (int)position.y / level::tile_size};
-                sf::Vector2i const goal{(int)target_.x / level::tile_size, (int)target_.y / level::tile_size};
-                auto const r = maze_->route(start, goal);
+                auto const r = maze_->route(start, target_);
 
                 // Head towards the best route but only if it's not backtracking because that is not allowed.
-                if(r != ~heading())
+                if(r != ~heading() && r != direction::none)
                 {
                     head(r);
                 }
@@ -222,34 +213,12 @@ void enemy::update_self(
                     head(*paths.begin());
                 }
 
-                // Adjust position knowing where it's heading.
-                // switch(heading_)
-                // {
-                //     case direction::up:
-                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y + level::half_tile_size - position.x % level::tile_size);
-                //         break;
-                //     case direction::down:
-                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y - (level::half_tile_size - position.x % level::tile_size));
-                //         break;
-                //     case direction::left:
-                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y + level::half_tile_size - position.x % level::tile_size);
-                //         break;
-                //     case direction::right:
-                //         setPosition(position.x % position.x % level::tile_size + level::half_tile_size, getPosition().y + level::half_tile_size - position.x % level::tile_size);
-                //         break;
-                // }
-                // Nudge it along so it doesn't get to redecide immediately...
-                // nudge(2.f);
-
                 spdlog::info("{} decided to go {}", name(), me::enum_name(heading()));
             }
             // Else, if it hit a wall, follow along the path.
             else if(*paths.begin() != heading())
             {
                 head(*paths.begin());
-
-                // Nudge it along so it doesn't get to redecide immediately...
-                // nudge(2.f);
 
                 spdlog::info("{} is turning {}", name(), me::enum_name(heading()));
             }
@@ -259,16 +228,23 @@ void enemy::update_self(
 
     if(current_mode_ == mode::confined)
     {
-        if((confinement -= dt) <= sf::Time::Zero)
+        if(!maze_)
+        {}
+        else if((confinement -= dt) <= sf::Time::Zero ||
+                !maze_->ghost_house().contains(to_maze_coordinates(getPosition())))
         {
+            confinement = sf::Time::Zero;
+
             behave(requested_mode_);
         }
-        else if(utility::length(target_ - getPosition()) < level::tile_size)
+        else if(target_ == sf::Vector2i{0, 0} ||
+                to_maze_coordinates(getPosition()) == target_)
         {
-            target_ = random_home_corner(home);
+            target_ = random_home_corner(maze_->ghost_house());
         }
     }
-    else if(current_mode_ == mode::dead && home.contains(getPosition()))
+    else if(current_mode_ == mode::dead &&
+            maze_->ghost_house().contains(to_maze_coordinates(getPosition())))
     {
         healed = true;
 
@@ -304,7 +280,7 @@ void chaser::update_self(
                     return utility::length(getPosition() - p1) < utility::length(getPosition() - p2);
                 });
 
-                target_ = *closest;
+                target_ = to_maze_coordinates(*closest);
             }
         }
     }}));
@@ -338,13 +314,11 @@ sf::IntRect goomba_dead_sprite_rect()
     return sf::IntRect{39, 28, 16, 16};
 }
 
-goomba::goomba(
-    sf::FloatRect const& home)
+goomba::goomba()
     : chaser{
         goomba_animated_sprite_rects,
         goomba_dead_sprite_rect,
         configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
-        home,
         *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
         direction::left
         }

@@ -43,7 +43,6 @@ public:
         animated_sprite_rects_f const animated_sprite_rects,
         dead_sprite_rect_f const dead_sprite_rect,
         float const scale_factor,
-        sf::FloatRect const& home,
         int const max_speed = 0,
         direction const heading_ = direction::right);
 
@@ -73,10 +72,9 @@ protected:
     mode requested_mode_;
 
     maze* maze_;
-    sf::FloatRect home;     // The ghost home.
-    bool healed;            // Whether a hurt ghost has reached home.
 
-    sf::Vector2f target_;   // Target coordinates.
+    sf::Vector2i target_;   // Target coordinates.
+    bool healed;            // Whether a hurt ghost has reached home.
 
     sf::Time confinement;
 };
@@ -97,8 +95,7 @@ class goomba
     : public chaser
 {
 public:
-    goomba(
-        sf::FloatRect const& home);
+    goomba();
 
     virtual std::string_view name() const override;
 };
