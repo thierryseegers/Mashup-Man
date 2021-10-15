@@ -108,8 +108,6 @@ add_executable(${PROJECT_NAME}
     src/direction.h
     src/entity/animation.cpp
     src/entity/animation.h
-    src/entity/brothers.cpp
-    src/entity/brothers.h
     src/entity/character.cpp
     src/entity/character.h
     src/entity/enemy.cpp
@@ -132,6 +130,8 @@ add_executable(${PROJECT_NAME}
     src/entity/super_mario/enemy.cpp
     src/entity/super_mario/enemy.h
     src/entity/super_mario/entities.h
+    src/entity/super_mario/hero.cpp
+    src/entity/super_mario/hero.h
     src/entity/super_mario/picker.cpp
     src/entity/super_mario/picker.h
     src/entity/super_mario/power_up.cpp

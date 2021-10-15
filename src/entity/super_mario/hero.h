@@ -12,15 +12,10 @@
     #undef small
 #endif
 
-namespace entity
-{
-
-namespace super_mario
+namespace entity::super_mario
 {
 
 class brother_picker;
-
-}
 
 class brother
     : public hero

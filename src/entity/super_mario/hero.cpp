@@ -1,10 +1,10 @@
-#include "brothers.h"
+#include "entity/super_mario/hero.h"
 
 #include "command.h"
 #include "configuration.h"
 #include "entity/super_mario/picker.h"
 #include "entity/super_mario/power_up.h"
-#include "fireball.h"
+#include "entity/fireball.h"
 #include "level.h"
 #include "sprite.h"
 
@@ -12,7 +12,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-namespace entity
+namespace entity::super_mario
 {
 
 namespace me = magic_enum;
