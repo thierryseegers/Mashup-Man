@@ -4,7 +4,7 @@
 #include "configuration.h"
 #include "entity/super_mario/picker.h"
 #include "entity/super_mario/power_up.h"
-#include "entity/fireball.h"
+#include "entity/super_mario/projectile.h"
 #include "level.h"
 #include "sprite.h"
 
@@ -220,7 +220,7 @@ void brother::shoot_fireball(
             break;
     }
 
-    add_projectile<fireball>(layer, position, heading_);
+    add_projectile<super_mario::fireball>(layer, position, heading_);
 }
 
 using still_sprite_rects = 

@@ -1,7 +1,7 @@
-#include "entity/fireball.h"
+#include "entity/super_mario/projectile.h"
 
-#include "animation.h"
 #include "configuration.h"
+#include "entity/animation.h"
 #include "entity/projectile.h"
 #include "layer.h"
 #include "maze.h"
@@ -9,7 +9,7 @@
 #include "sprite.h"
 #include "utility.h"
 
-namespace entity
+namespace entity::super_mario
 {
 
 class fizzle
