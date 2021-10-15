@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity/hero.h"
-#include "entity/power_up.h"
+#include "entity/super_mario/power_up.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -15,7 +15,12 @@
 namespace entity
 {
 
-class brother_power_up_picker;
+namespace power_up::super_mario
+{
+
+class brother_picker;
+
+}
 
 class brother
     : public hero
@@ -64,6 +69,8 @@ public:
     virtual void attack() override;
 
 private:
+    friend class power_up::super_mario::brother_picker;
+
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -73,10 +80,13 @@ private:
     virtual entity* tombstone() const override;
 
     void pick_up(
-        power_up::mushroom const* const);
+        power_up::super_mario::coin const* const);
 
     void pick_up(
-        power_up::flower const* const);
+        power_up::super_mario::mushroom const* const);
+
+    void pick_up(
+        power_up::super_mario::flower const* const);
 
     void shoot_fireball(
         layer::projectiles& layer) const;
@@ -97,21 +107,6 @@ private:
 
     // Shrinking when hit.
     sf::Time shrinking;
-
-    friend class brother_power_up_picker;
-};
-
-struct brother_power_up_picker
-    : power_up::power_up_picker
-{
-    brother_power_up_picker(
-        brother* brother_);
-
-    virtual void pick_up(power_up::mushroom const*) override;
-
-    virtual void pick_up(power_up::flower const*) override;
-
-    brother *brother_;
 };
 
 template<template<typename> class Hero_N>

@@ -109,12 +109,12 @@ void world::build_scene()
             switch((*maze_)[{c, r}])
             {
                 case '.':
-                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::coin>();
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::super_mario::coin>();
                     immovables[r][c] = e;
                     ++n_pills;
                     break;
                 case 'f':
-                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::flower>();
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::super_mario::flower>();
                     immovables[r][c] = e;
                     break;
                 case 'g':
@@ -129,7 +129,7 @@ void world::build_scene()
                     }
                     break;
                 case 'm':
-                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::mushroom>();
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::super_mario::mushroom>();
                     immovables[r][c] = e;
                     break;
                 case 'p':
@@ -316,7 +316,7 @@ void world::handle_collisions()
 
                 sound.play(power_up->sound_effect());
 
-                if(auto const* coin = dynamic_cast<entity::power_up::coin*>(power_up))
+                if(auto const* coin = dynamic_cast<entity::power_up::super_mario::coin*>(power_up))
                 {
                     --n_pills;
 

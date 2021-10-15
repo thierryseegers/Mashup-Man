@@ -7,3 +7,4 @@
 #include "entity/pipe.h"
 #include "entity/power_up.h"
 #include "entity/projectile.h"
+#include "entity/super_mario/power_up.h"

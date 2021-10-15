@@ -121,12 +121,18 @@ add_executable(${PROJECT_NAME}
     src/entity/fireball.h
     src/entity/hero.cpp
     src/entity/hero.h
-    src/entity/power_up.cpp
-    src/entity/power_up.h
+    src/entity/picker.cpp
+    src/entity/picker.h
     src/entity/pipe.cpp
     src/entity/pipe.h
+    src/entity/power_up.cpp
+    src/entity/power_up.h
     src/entity/projectile.cpp
     src/entity/projectile.h
+    src/entity/super_mario/picker.cpp
+    src/entity/super_mario/picker.h
+    src/entity/super_mario/power_up.cpp
+    src/entity/super_mario/power_up.h
     src/level.cpp
     src/level.h
     src/lifeboard.cpp
