@@ -91,13 +91,4 @@ private:
         commands_t& commands) override;
 };
 
-class goomba
-    : public chaser
-{
-public:
-    goomba();
-
-    virtual std::string_view name() const override;
-};
-
 }

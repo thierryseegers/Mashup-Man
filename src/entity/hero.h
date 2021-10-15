@@ -40,7 +40,7 @@ public:
 
     // Pick up a power-up.
     virtual void pick_up(
-        power_up::power_up*) = 0;
+        power_up*) = 0;
 
     // Steer the hero in a certain direction.
     void steer(

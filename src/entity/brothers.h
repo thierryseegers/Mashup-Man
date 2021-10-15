@@ -15,7 +15,7 @@
 namespace entity
 {
 
-namespace power_up::super_mario
+namespace super_mario
 {
 
 class brother_picker;
@@ -64,12 +64,12 @@ public:
     virtual void hit() override;
 
     virtual void pick_up(
-        power_up::power_up*) override;
+        power_up*) override;
 
     virtual void attack() override;
 
 private:
-    friend class power_up::super_mario::brother_picker;
+    friend class super_mario::brother_picker;
 
     virtual void update_self(
         sf::Time const& dt,
@@ -80,13 +80,13 @@ private:
     virtual entity* tombstone() const override;
 
     void pick_up(
-        power_up::super_mario::coin const* const);
+        super_mario::coin const* const);
 
     void pick_up(
-        power_up::super_mario::mushroom const* const);
+        super_mario::mushroom const* const);
 
     void pick_up(
-        power_up::super_mario::flower const* const);
+        super_mario::flower const* const);
 
     void shoot_fireball(
         layer::projectiles& layer) const;

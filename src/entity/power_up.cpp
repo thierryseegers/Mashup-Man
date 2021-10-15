@@ -2,7 +2,7 @@
 
 #include "entity/super_mario/picker.h"
 
-namespace entity::power_up
+namespace entity
 {
 
 void power_up::picked_up(

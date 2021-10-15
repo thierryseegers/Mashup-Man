@@ -1,6 +1,6 @@
 #pragma once
 
-namespace entity::power_up
+namespace entity
 {
 
 class power_up;

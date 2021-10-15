@@ -3,7 +3,7 @@
 #include "entity/entity.h"
 #include "resources.h"
 
-namespace entity::power_up
+namespace entity
 {
 
 class picker;

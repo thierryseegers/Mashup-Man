@@ -79,18 +79,18 @@ void brother::hit()
 }
 
 void brother::pick_up(
-    power_up::power_up* pu)
+    power_up* pu)
 {
-    power_up::super_mario::brother_picker picker{this};
+    super_mario::brother_picker picker{this};
     pu->picked_up(&picker);
 }
 
 void brother::pick_up(
-    power_up::super_mario::coin const* const)
+    super_mario::coin const* const)
 {}
 
 void brother::pick_up(
-    power_up::super_mario::mushroom const* const)
+    super_mario::mushroom const* const)
 {
     size_ = size::big;
 
@@ -98,7 +98,7 @@ void brother::pick_up(
 }
 
 void brother::pick_up(
-    power_up::super_mario::flower const* const)
+    super_mario::flower const* const)
 {
     if(size_ == size::small)
     {

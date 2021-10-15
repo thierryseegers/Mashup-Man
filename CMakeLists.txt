@@ -129,6 +129,9 @@ add_executable(${PROJECT_NAME}
     src/entity/power_up.h
     src/entity/projectile.cpp
     src/entity/projectile.h
+    src/entity/super_mario/enemy.cpp
+    src/entity/super_mario/enemy.h
+    src/entity/super_mario/entities.h
     src/entity/super_mario/picker.cpp
     src/entity/super_mario/picker.h
     src/entity/super_mario/power_up.cpp

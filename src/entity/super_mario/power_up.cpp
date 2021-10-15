@@ -9,7 +9,7 @@
 
 #include <vector>
 
-namespace entity::power_up::super_mario
+namespace entity::super_mario
 {
 
 coin::coin()

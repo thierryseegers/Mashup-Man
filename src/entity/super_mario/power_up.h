@@ -3,7 +3,7 @@
 #include "entity/power_up.h"
 #include "resources.h"
 
-namespace entity::power_up::super_mario
+namespace entity::super_mario
 {
 
 class brother_picker;
