@@ -10,7 +10,11 @@ speed = 200
 [enemies]
 
 [enemies.goomba]
-scale = 1.2
+scale = 1.1
+speed = 85
+
+[enemies.koopa]
+scale = 1
 speed = 85
 
 [items]

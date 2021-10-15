@@ -121,13 +121,25 @@ void world::build_scene()
                     immovables[r][c] = e;
                     break;
                 case 'a':   // Level-1 enemy
+                case 'b':
+                case 'c':
+                case 'd':
                     {
-                        auto *g = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::goomba>();
+                        entity::enemy *p;
+                        switch((*maze_)[{c, r}])
+                        {
+                            case 'a':
+                                p = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::goomba>();
+                                break;
+                            case 'b':
+                                p = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::koopa>();
+                                break;
+                        }
                         if(!maze_->ghost_house().contains(c, r))
                         {
-                            g->behave(entity::enemy::mode::scatter);
+                            p->behave(entity::enemy::mode::scatter);
                         }
-                        e = g;
+                        e = p;
                         e->throttle(1.f);
                     }
                     break;

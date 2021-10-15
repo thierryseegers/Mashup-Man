@@ -17,7 +17,7 @@ constexpr maze::structure to_structure(
         case '2':
         case '3':
             return maze::wall;
-        case 'p':
+        case 'w':
             return maze::pipe;
         case 'd':
             return maze::door;

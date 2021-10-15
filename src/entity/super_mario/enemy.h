@@ -16,4 +16,14 @@ public:
     virtual std::string_view name() const override;
 };
 
+class koopa
+    : public chaser
+{
+public:
+    koopa();
+
+    virtual std::string_view name() const override;
+
+};
+
 }
