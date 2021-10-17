@@ -95,4 +95,16 @@ private:
         commands_t& commands) override;
 };
 
+class ahead
+    : public enemy
+{
+public:
+    using enemy::enemy;
+
+private:
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
+};
+
 }

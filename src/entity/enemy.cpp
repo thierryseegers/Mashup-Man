@@ -307,4 +307,73 @@ void follower::update_self(
     enemy::update_self(dt, commands);
 }
 
+
+void ahead::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    commands.push(make_command(std::function{[this](layer::characters& characters, sf::Time const&)
+    {
+        if(current_mode_ == mode::chase)
+        {
+            // Find the closest hero.
+            std::vector<hero const*> heroes;
+
+            for(auto* const character : characters.children())
+            {
+                if(auto const* h = dynamic_cast<hero const*>(character))
+                {
+                    heroes.push_back(h);
+                }
+            }
+
+            if(heroes.size())
+            {
+                auto const closest = *std::min_element(heroes.begin(), heroes.end(), [this](auto const& h1, auto const& h2)
+                {
+                    return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
+                });
+
+                target_ = to_maze_coordinates(closest->getPosition());
+
+                auto h = closest->heading();
+                for(int i = 0; i != 4; ++i)
+                {
+                    // Get the nature of the tiles around the target.
+                    auto around = maze_->around(target_);
+
+                    // Remove the tile that would be opposite of the heading.
+                    around.erase(~h);
+
+                    // If there's path straight ahead, pick that...
+                    if(around.at(h) == maze::structure::path)
+                    {
+                        target_ = target_ + to_vector2i(h);
+                    }
+                    // ...else pick the first other possible path.
+                    else
+                    {
+                        // Remove the choice that's ahead since ahead is not a path.
+                        around.erase(h);
+
+                        // If the first choice is not a path, remove it.
+                        if(around.begin()->second != maze::structure::path)
+                        {
+                            around.erase(around.begin());
+                        }
+
+                        // We're left with the first choice being a path for sure.
+                        h = around.begin()->first;
+                        target_ = target_ + to_vector2i(h);
+                    }
+                }
+            }
+
+            spdlog::info("{} targeting ahead [{}, {}]", name(), target_.x, target_.y);
+        }
+    }}));
+
+    enemy::update_self(dt, commands);
+}
+
 }
