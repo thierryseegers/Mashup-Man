@@ -17,7 +17,7 @@ public:
 };
 
 class koopa
-    : public follower
+    : public ahead
 {
 public:
     koopa();

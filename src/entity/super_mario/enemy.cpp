@@ -83,7 +83,7 @@ sf::IntRect koopa_dead_sprite_rect()
 }
 
 koopa::koopa()
-    : follower{
+    : ahead{
         koopa_animated_sprite_rects,
         koopa_dead_sprite_rect,
         configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f),
