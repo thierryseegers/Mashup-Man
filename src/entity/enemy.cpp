@@ -259,15 +259,19 @@ void enemy::draw_self(
     sf::RenderTarget& target,
     sf::RenderStates states) const
 {
+    // Show this enemy's target as an 'X'.
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::T))
     {
-        sf::RectangleShape t{{15, 15}};
-        utility::center_origin(t);
-        t.setFillColor((current_mode_ == mode::chase) ? sf::Color::Red : sf::Color::Yellow);
-        t.setFillColor(t.getFillColor() * sf::Color{255, 255, 255, 128});
-        t.setPosition({(float)target_.x * level::tile_size + level::half_tile_size, (float)target_.y * level::tile_size + level::half_tile_size});
+        for(auto const angle : {45.f, 45.f + 90.f})
+        {
+            sf::RectangleShape x{{25, 5}};
+            utility::center_origin(x);
+            x.setRotation(angle);
+            x.setFillColor(((current_mode_ == mode::chase) ? sf::Color::Red : sf::Color::Yellow) * sf::Color{255, 255, 255, 128});
+            x.setPosition({(float)target_.x * level::tile_size + level::half_tile_size, (float)target_.y * level::tile_size + level::half_tile_size});
 
-        target.draw(t, {parent->world_transform()});
+            target.draw(x, {parent->world_transform()});
+        }
     }
 
     return character::draw_self(target, states);
