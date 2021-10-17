@@ -255,6 +255,24 @@ void enemy::update_self(
     character::update_self(dt, commands);
 }
 
+void enemy::draw_self(
+    sf::RenderTarget& target,
+    sf::RenderStates states) const
+{
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::T))
+    {
+        sf::RectangleShape t{{15, 15}};
+        utility::center_origin(t);
+        t.setFillColor((current_mode_ == mode::chase) ? sf::Color::Red : sf::Color::Yellow);
+        t.setFillColor(t.getFillColor() * sf::Color{255, 255, 255, 128});
+        t.setPosition({(float)target_.x * level::tile_size + level::half_tile_size, (float)target_.y * level::tile_size + level::half_tile_size});
+
+        target.draw(t, {parent->world_transform()});
+    }
+
+    return character::draw_self(target, states);
+}
+
 void follower::update_self(
     sf::Time const& dt,
     commands_t& commands)

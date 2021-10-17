@@ -63,6 +63,10 @@ protected:
         sf::Time const& dt,
         commands_t& commands) override;
 
+    virtual void draw_self(
+        sf::RenderTarget& target,
+        sf::RenderStates states) const override;
+
     virtual void update_sprite() override;
 
     animated_sprite_rects_f animated_sprite_rects;
@@ -73,10 +77,10 @@ protected:
 
     maze* maze_;
 
-    sf::Vector2i target_;   // Target coordinates.
+    sf::Vector2i target_;   // Target coordinates {[0:level::width], [0,level:height]}.
     bool healed;            // Whether a hurt ghost has reached home.
 
-    sf::Time confinement;
+    sf::Time confinement;   // Time left in confinement.
 };
 
 class follower
