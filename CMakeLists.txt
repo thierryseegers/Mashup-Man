@@ -30,6 +30,36 @@ if(NOT APPLE)
 endif()
 
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
+
+# conan_cmake_configure(
+#     REQUIRES
+#         ${CONAN_BOOST_PACKAGE}
+#         magic_enum/0.7.2
+#         tomlplusplus/2.3.0
+#         sfml/2.5.1
+#         spdlog/1.9.2
+#     GENERATORS
+#         cmake_find_package_multi
+#     OPTIONS
+#         ${CONAN_BOOST_PACKAGE_OPTIONS}
+#         sfml:network=False)
+
+# foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
+#     conan_cmake_autodetect(
+#         settings
+#         BUILD_TYPE
+#             ${TYPE}
+#     )
+    
+#     conan_cmake_install(
+#         BASIC_SETUP
+#         INSTALL_FOLDER
+#             ${CONAN_INSTALL_FOLDER}
+#         NO_OUTPUT_DIRS
+#         # OUTPUT_QUIET
+#     )
+# endforeach()
+
 conan_cmake_run(REQUIRES
                     ${CONAN_BOOST_PACKAGE}
                     magic_enum/0.7.2
@@ -49,7 +79,7 @@ conan_cmake_run(REQUIRES
                 INSTALL_FOLDER
                     ${CONAN_INSTALL_FOLDER}
                 NO_OUTPUT_DIRS
-                OUTPUT_QUIET
+                # OUTPUT_QUIET
 )
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
 

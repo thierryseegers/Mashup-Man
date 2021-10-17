@@ -13,7 +13,10 @@ jobs:
       - name: Install Boost
         if: ${{ contains(matrix.os, 'macos') }}
         run: brew install boost
-      - name: Install Ubuntu packages
+      - name: Update apt sources
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt-get update
+      - name: Install required system packages
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: sudo apt-get install -y libudev-dev libgl-dev
       - name: Install CMake
@@ -22,10 +25,11 @@ jobs:
         uses: turtlebrowser/get-conan@main
       - name: Check out repository
         uses: actions/checkout@v2
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
       - name: Configure
         run: cmake . -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+      - name: Setup tmate session
+        if: always()
+        uses: mxschmitt/action-tmate@v3
       - uses: SimenB/github-actions-cpu-cores@v1
         id: cpu-count
       - name: Build
