@@ -79,7 +79,7 @@ protected:
     sf::Time confinement;
 };
 
-class chaser
+class follower
     : public enemy
 {
 public:

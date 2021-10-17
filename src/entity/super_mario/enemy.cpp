@@ -45,7 +45,7 @@ sf::IntRect goomba_dead_sprite_rect()
 }
 
 goomba::goomba()
-    : chaser{
+    : follower{
         goomba_animated_sprite_rects,
         goomba_dead_sprite_rect,
         configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
@@ -83,7 +83,7 @@ sf::IntRect koopa_dead_sprite_rect()
 }
 
 koopa::koopa()
-    : chaser{
+    : follower{
         koopa_animated_sprite_rects,
         koopa_dead_sprite_rect,
         configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f),

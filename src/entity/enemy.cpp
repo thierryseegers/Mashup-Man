@@ -255,7 +255,7 @@ void enemy::update_self(
     character::update_self(dt, commands);
 }
 
-void chaser::update_self(
+void follower::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {

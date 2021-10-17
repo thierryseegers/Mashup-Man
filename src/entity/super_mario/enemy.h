@@ -8,7 +8,7 @@ namespace entity::super_mario
 {
 
 class goomba
-    : public chaser
+    : public follower
 {
 public:
     goomba();
@@ -17,7 +17,7 @@ public:
 };
 
 class koopa
-    : public chaser
+    : public follower
 {
 public:
     koopa();
