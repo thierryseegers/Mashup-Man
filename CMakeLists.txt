@@ -31,6 +31,7 @@ endif()
 
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 
+# The new and preferred method for invoking Conan.
 # conan_cmake_configure(
 #     REQUIRES
 #         ${CONAN_BOOST_PACKAGE}
