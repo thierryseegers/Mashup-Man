@@ -44,7 +44,7 @@ conan_cmake_configure(
         tomlplusplus/2.3.0
         sfml/2.5.1
         spdlog/1.9.2
-    )
+)
 
 foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
     conan_cmake_autodetect(
@@ -55,12 +55,14 @@ foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
 
     conan_cmake_install(
         BASIC_SETUP
+            NO_OUTPUT_DIRS
         BUILD
             missing
-        NO_OUTPUT_DIRS
+        INSTALL_FOLDER
+            ${CONAN_INSTALL_FOLDER}
         # OUTPUT_QUIET
         PATH_OR_REFERENCE
-            .
+            ${CMAKE_BINARY_DIR}
         SETTINGS
             ${settings}
     )
