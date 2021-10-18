@@ -46,7 +46,7 @@ conan_cmake_configure(
         sfml:network=False
     )
 
-foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
+foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
     conan_cmake_autodetect(
         settings
         BUILD_TYPE
@@ -55,9 +55,13 @@ foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
 
     conan_cmake_install(
         BASIC_SETUP
+        PATH_OR_REFERENCE
+            .
         INSTALL_FOLDER
             ${CONAN_INSTALL_FOLDER}
         NO_OUTPUT_DIRS
+        SETTINGS
+            ${settings}
         # OUTPUT_QUIET
     )
 endforeach()
