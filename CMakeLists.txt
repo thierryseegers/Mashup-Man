@@ -32,56 +32,41 @@ endif()
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 
 # The new and preferred method for invoking Conan.
-# conan_cmake_configure(
-#     REQUIRES
-#         ${CONAN_BOOST_PACKAGE}
-#         magic_enum/0.7.2
-#         tomlplusplus/2.3.0
-#         sfml/2.5.1
-#         spdlog/1.9.2
-#     GENERATORS
-#         cmake_find_package_multi
-#     OPTIONS
-#         ${CONAN_BOOST_PACKAGE_OPTIONS}
-#         sfml:network=False)
-
-# foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
-#     conan_cmake_autodetect(
-#         settings
-#         BUILD_TYPE
-#             ${TYPE}
-#     )
-    
-#     conan_cmake_install(
-#         BASIC_SETUP
-#         INSTALL_FOLDER
-#             ${CONAN_INSTALL_FOLDER}
-#         NO_OUTPUT_DIRS
-#         # OUTPUT_QUIET
-#     )
-# endforeach()
-
-conan_cmake_run(REQUIRES
-                    ${CONAN_BOOST_PACKAGE}
-                    magic_enum/0.7.2
-                    tomlplusplus/2.3.0
-                    sfml/2.5.1
-                    spdlog/1.9.2
-                OPTIONS
-                    ${CONAN_BOOST_PACKAGE_OPTIONS}
-                    sfml:network=False
-                BASIC_SETUP
-                CONFIGURATION_TYPES
-                    ${CMAKE_BUILD_TYPES}
-                BUILD
-                    missing
-                GENERATORS
-                    cmake_find_package_multi
-                INSTALL_FOLDER
-                    ${CONAN_INSTALL_FOLDER}
-                NO_OUTPUT_DIRS
-                # OUTPUT_QUIET
+conan_cmake_configure(
+    GENERATORS
+        cmake_find_package_multi
+    OPTIONS
+        ${CONAN_BOOST_PACKAGE_OPTIONS}
+        sfml:network=False
+    REQUIRES
+        ${CONAN_BOOST_PACKAGE}
+        magic_enum/0.7.2
+        tomlplusplus/2.3.0
+        sfml/2.5.1
+        spdlog/1.9.2
 )
+
+foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
+    conan_cmake_autodetect(
+        settings
+        BUILD_TYPE
+            ${TYPE}
+    )
+
+    conan_cmake_install(
+        BASIC_SETUP
+            NO_OUTPUT_DIRS
+        BUILD
+            missing
+        INSTALL_FOLDER
+            ${CONAN_INSTALL_FOLDER}
+        # OUTPUT_QUIET
+        PATH_OR_REFERENCE
+            ${CMAKE_BINARY_DIR}
+        SETTINGS
+            ${settings}
+    )
+endforeach()
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
 
 set(Boost_USE_STATIC_LIBS ON)
