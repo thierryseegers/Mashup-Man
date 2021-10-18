@@ -48,23 +48,10 @@ sf::Vector2i to_maze_coordinates(
 }
 
 enemy::enemy(
-    animated_sprite_rects_f const animated_sprite_rects,
-    dead_sprite_rect_f const dead_sprite_rect,
-    float const scale_factor,
+    sprite sprite_,
     int const max_speed,
     direction const heading_)
-    : hostile<character>{
-        sprite{
-            resources::texture::enemies,
-            animated_sprite_rects(mode::confined),
-            sf::seconds(0.25f),
-            sprite::repeat::loop,
-            scale_factor
-            }
-        , max_speed
-        , heading_}
-    , animated_sprite_rects{animated_sprite_rects}
-    , dead_sprite_rect{dead_sprite_rect}
+    : hostile<character>{sprite_, max_speed, heading_}
     , current_mode_{mode::confined}
     , requested_mode_{mode::scatter}
     , maze_{nullptr}
@@ -134,14 +121,7 @@ void enemy::behave(
 
 void enemy::update_sprite()
 {
-    if(current_mode_ == mode::dead)
-    {
-        sprite_.still(dead_sprite_rect());
-    }
-    else
-    {
-        sprite_.animate(animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
-    }
+
 
     character::update_sprite();
 }

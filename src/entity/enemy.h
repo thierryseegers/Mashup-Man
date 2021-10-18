@@ -32,17 +32,8 @@ public:
         dead
     };
 
-private:
-    using animated_sprite_rects_f = std::vector<sf::IntRect>(*)(
-                                        mode const mode_);
-
-    using dead_sprite_rect_f = sf::IntRect (*)();
-
-public:
     enemy(
-        animated_sprite_rects_f const animated_sprite_rects,
-        dead_sprite_rect_f const dead_sprite_rect,
-        float const scale_factor,
+        sprite sprite_,
         int const max_speed = 0,
         direction const heading_ = direction::right);
 
@@ -68,9 +59,6 @@ protected:
         sf::RenderStates states) const override;
 
     virtual void update_sprite() override;
-
-    animated_sprite_rects_f animated_sprite_rects;
-    dead_sprite_rect_f dead_sprite_rect;
 
     mode current_mode_;
     mode requested_mode_;

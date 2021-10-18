@@ -2,6 +2,7 @@
 
 #include "configuration.h"
 #include "entity/enemy.h"
+#include "resources.h"
 
 #include <magic_enum.hpp>
 #include <SFML/Graphics.hpp>
@@ -46,9 +47,13 @@ sf::IntRect goomba_dead_sprite_rect()
 
 goomba::goomba()
     : follower{
-        goomba_animated_sprite_rects,
-        goomba_dead_sprite_rect,
-        configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
+        sprite{
+            resources::texture::enemies,
+            goomba_animated_sprite_rects(mode::scatter),
+            sf::seconds(0.25f),
+            sprite::repeat::loop,
+            configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
+        },
         *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
         direction::left
         }
@@ -57,6 +62,20 @@ goomba::goomba()
 std::string_view goomba::name() const
 {
     return "goomba";
+}
+
+void goomba::update_sprite()
+{
+    if(current_mode_ == mode::dead)
+    {
+        sprite_.still(goomba_dead_sprite_rect());
+    }
+    else
+    {
+        sprite_.animate(goomba_animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
+    }
+
+    enemy::update_sprite();
 }
 
 std::vector<sf::IntRect> koopa_animated_sprite_rects(
@@ -84,9 +103,13 @@ sf::IntRect koopa_dead_sprite_rect()
 
 koopa::koopa()
     : ahead{
-        koopa_animated_sprite_rects,
-        koopa_dead_sprite_rect,
-        configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f),
+        sprite{
+            resources::texture::enemies,
+            goomba_animated_sprite_rects(mode::scatter),
+            sf::seconds(0.25f),
+            sprite::repeat::loop,
+            configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f),
+        },
         *configuration::values()["enemies"]["koopa"]["speed"].value<int>(),
         direction::left
         }
@@ -95,6 +118,20 @@ koopa::koopa()
 std::string_view koopa::name() const
 {
     return "koopa";
+}
+
+void koopa::update_sprite()
+{
+    if(current_mode_ == mode::dead)
+    {
+        sprite_.still(koopa_dead_sprite_rect());
+    }
+    else
+    {
+        sprite_.animate(koopa_animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
+    }
+
+    enemy::update_sprite();
 }
 
 }
