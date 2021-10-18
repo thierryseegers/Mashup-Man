@@ -6,7 +6,7 @@
 
 #include <SFML/System.hpp>
 
-namespace entity
+namespace entity::super_mario
 {
 
 class fireball

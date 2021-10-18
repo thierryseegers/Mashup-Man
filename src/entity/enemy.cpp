@@ -160,7 +160,7 @@ void enemy::update_self(
     else
     {
         sf::Vector2f const position = getPosition();
-        sf::Vector2f const future_position = position + to_vector(heading_) * (max_speed * throttle_) * dt.asSeconds();
+        sf::Vector2f const future_position = position + to_vector2f(heading_) * (max_speed * throttle_) * dt.asSeconds();
 
         // If the position delta between now and then crosses the middle of a tile...
         if((future_position.x > position.x && fmod(position.x, level::tile_size) <= level::half_tile_size && fmod(future_position.x, level::tile_size) > level::half_tile_size) ||
@@ -255,7 +255,29 @@ void enemy::update_self(
     character::update_self(dt, commands);
 }
 
-void chaser::update_self(
+void enemy::draw_self(
+    sf::RenderTarget& target,
+    sf::RenderStates states) const
+{
+    // Show this enemy's target as an 'X'.
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::T))
+    {
+        for(auto const angle : {45.f, 45.f + 90.f})
+        {
+            sf::RectangleShape x{{25, 5}};
+            utility::center_origin(x);
+            x.setRotation(angle);
+            x.setFillColor(((current_mode_ == mode::chase) ? sf::Color::Red : sf::Color::Yellow) * sf::Color{255, 255, 255, 128});
+            x.setPosition({(float)target_.x * level::tile_size + level::half_tile_size, (float)target_.y * level::tile_size + level::half_tile_size});
+
+            target.draw(x, {parent->world_transform()});
+        }
+    }
+
+    return character::draw_self(target, states);
+}
+
+void follower::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
@@ -288,46 +310,74 @@ void chaser::update_self(
 
     enemy::update_self(dt, commands);
 }
-using animated_sprite_rects =
-    std::array<
-        std::vector<sf::IntRect>,
-        me::enum_count<enemy::mode>()>;
 
-std::vector<sf::IntRect> goomba_animated_sprite_rects(
-    enemy::mode const mode_)
+
+void ahead::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
 {
-    static animated_sprite_rects const rects = []{
-        animated_sprite_rects r;
+    commands.push(make_command(std::function{[this](layer::characters& characters, sf::Time const&)
+    {
+        if(current_mode_ == mode::chase)
+        {
+            // Find the closest hero.
+            std::vector<hero const*> heroes;
 
-        r[me::enum_integer(enemy::mode::confined)] = std::vector<sf::IntRect>{{1, 28, 16, 16}, {18, 28, 16, 16}};
-        r[me::enum_integer(enemy::mode::chase)] = r[me::enum_integer(enemy::mode::confined)];
-        r[me::enum_integer(enemy::mode::frightened)] = std::vector<sf::IntRect>{{1, 166, 16, 16}, {18, 166, 16, 16}};
-        r[me::enum_integer(enemy::mode::scatter)] = r[me::enum_integer(enemy::mode::confined)];
+            for(auto* const character : characters.children())
+            {
+                if(auto const* h = dynamic_cast<hero const*>(character))
+                {
+                    heroes.push_back(h);
+                }
+            }
 
-        return r;
-    }();
+            if(heroes.size())
+            {
+                auto const closest = *std::min_element(heroes.begin(), heroes.end(), [this](auto const& h1, auto const& h2)
+                {
+                    return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
+                });
 
-    return rects[me::enum_integer(mode_)];
-}
+                target_ = to_maze_coordinates(closest->getPosition());
 
-sf::IntRect goomba_dead_sprite_rect()
-{
-    return sf::IntRect{39, 28, 16, 16};
-}
+                auto h = closest->heading();
+                for(int i = 0; i != 4; ++i)
+                {
+                    // Get the nature of the tiles around the target.
+                    auto around = maze_->around(target_);
 
-goomba::goomba()
-    : chaser{
-        goomba_animated_sprite_rects,
-        goomba_dead_sprite_rect,
-        configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
-        *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
-        direction::left
+                    // Remove the tile that would be opposite of the heading.
+                    around.erase(~h);
+
+                    // If there's path straight ahead, pick that...
+                    if(around.at(h) == maze::structure::path)
+                    {
+                        target_ = target_ + to_vector2i(h);
+                    }
+                    // ...else pick the first other possible path.
+                    else
+                    {
+                        // Remove the choice that's ahead since ahead is not a path.
+                        around.erase(h);
+
+                        // If the first choice is not a path, remove it.
+                        if(around.begin()->second != maze::structure::path)
+                        {
+                            around.erase(around.begin());
+                        }
+
+                        // We're left with the first choice being a path for sure.
+                        h = around.begin()->first;
+                        target_ = target_ + to_vector2i(h);
+                    }
+                }
+            }
+
+            spdlog::info("{} targeting ahead [{}, {}]", name(), target_.x, target_.y);
         }
-{}
+    }}));
 
-std::string_view goomba::name() const
-{
-    return "goomba";
+    enemy::update_self(dt, commands);
 }
 
 }

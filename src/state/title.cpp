@@ -1,6 +1,6 @@
 #include "state/title.h"
 
-#include "entity/brothers.h"
+#include "entity/super_mario/hero.h"
 #include "resources.h"
 #include "state/stack.h"
 #include "utility.h"
@@ -89,10 +89,10 @@ bool title::handle_event(
     {
         states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
 
-        states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::mario<entity::hero_1>>{}));
+        states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::mario<entity::hero_1>>{}));
         if(num_players >= 2)
         {
-            states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::luigi<entity::hero_2>>{}));
+            states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::luigi<entity::hero_2>>{}));
         }
 
         states.context.window.setView(sf::View{sf::FloatRect{0, 0, (float)states.context.window.getSize().x, (float)states.context.window.getSize().y}});

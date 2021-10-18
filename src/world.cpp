@@ -4,7 +4,6 @@
 #include "configuration.h"
 // #include "effects/bloom.h"
 // #include "effects/post_effect.h"
-#include "entity/character.h"
 #include "entity/entities.h"
 // #include "particle.h"
 #include "maze.h"
@@ -108,31 +107,43 @@ void world::build_scene()
             entity::entity *e = nullptr;
             switch((*maze_)[{c, r}])
             {
-                case '.':
-                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::coin>();
+                case '.':   // Simple coin
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::super_mario::coin>();
                     immovables[r][c] = e;
                     ++n_pills;
                     break;
-                case 'f':
-                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::flower>();
+                case 'p':   // Lesser power-up
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::super_mario::mushroom>();
                     immovables[r][c] = e;
                     break;
-                case 'g':
+                case 'P':   // Greater power-up
+                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::super_mario::flower>();
+                    immovables[r][c] = e;
+                    break;
+                case 'a':   // Level-1 enemy
+                case 'b':
+                case 'c':
+                case 'd':
                     {
-                        auto *g = layers[me::enum_integer(layer::id::characters)]->attach<entity::goomba>();
+                        entity::enemy *p;
+                        switch((*maze_)[{c, r}])
+                        {
+                            case 'a':
+                                p = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::goomba>();
+                                break;
+                            case 'b':
+                                p = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::koopa>();
+                                break;
+                        }
                         if(!maze_->ghost_house().contains(c, r))
                         {
-                            g->behave(entity::enemy::mode::scatter);
+                            p->behave(entity::enemy::mode::scatter);
                         }
-                        e = g;
+                        e = p;
                         e->throttle(1.f);
                     }
                     break;
-                case 'm':
-                    e = layers[me::enum_integer(layer::id::items)]->attach<entity::power_up::mushroom>();
-                    immovables[r][c] = e;
-                    break;
-                case 'p':
+                case 'w':   // Pipe/warp
                     e = layers[me::enum_integer(layer::id::pipes)]->attach<entity::pipe>();
                     immovables[r][c] = e;
 
@@ -141,7 +152,7 @@ void world::build_scene()
                         e->setRotation(180);
                     }
                     break;
-                case 'x':
+                case 'x':   // First hero
                     {
                         auto h = heroes[0].maker();
                         e = heroes[0].hero_ = h.get();
@@ -150,7 +161,7 @@ void world::build_scene()
                         heroes[0].spawn_point = {(float)c * level::tile_size + level::half_tile_size, (float)r * level::tile_size + level::half_tile_size};
                     }
                     break;
-                case 'y':
+                case 'y':   // Second hero
                     if(heroes.size() >= 2)
                     {
                         auto h = heroes[1].maker();
@@ -306,7 +317,7 @@ void world::handle_collisions()
                 sound.play(resources::sound_effect::kick);
             }
         }
-        else if(auto [hero, power_up] = match<entity::hero, entity::power_up::power_up>(collision); hero && power_up)
+        else if(auto [hero, power_up] = match<entity::hero, entity::power_up>(collision); hero && power_up)
         {
             if(!power_up->remove)
             {
@@ -316,7 +327,7 @@ void world::handle_collisions()
 
                 sound.play(power_up->sound_effect());
 
-                if(auto const* coin = dynamic_cast<entity::power_up::coin*>(power_up))
+                if(auto const* coin = dynamic_cast<entity::super_mario::coin*>(power_up))
                 {
                     --n_pills;
 

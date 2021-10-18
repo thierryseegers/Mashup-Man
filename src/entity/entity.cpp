@@ -80,7 +80,7 @@ void entity::update_self(
     sf::Time const& dt,
     commands_t& commands)
 {
-    sf::Transformable::move(to_vector(heading_) * (max_speed * throttle_) * dt.asSeconds());
+    sf::Transformable::move(to_vector2f(heading_) * (max_speed * throttle_) * dt.asSeconds());
 
     sprite_.update(dt, commands);
 }

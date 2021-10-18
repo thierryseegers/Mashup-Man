@@ -16,5 +16,9 @@ direction operator~(
     direction const& d);
 
 // Returns a unit vector of the given direction or `{0.f, 0.f}` if `none`.
-sf::Vector2f to_vector(
+sf::Vector2f to_vector2f(
+    direction const d);
+
+// Returns a unit vector of the given direction or `{0, 0}` if `none`.
+sf::Vector2i to_vector2i(
     direction const d);

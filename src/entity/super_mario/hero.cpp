@@ -1,8 +1,10 @@
-#include "brothers.h"
+#include "entity/super_mario/hero.h"
 
 #include "command.h"
 #include "configuration.h"
-#include "fireball.h"
+#include "entity/super_mario/picker.h"
+#include "entity/super_mario/power_up.h"
+#include "entity/super_mario/projectile.h"
 #include "level.h"
 #include "sprite.h"
 
@@ -10,7 +12,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-namespace entity
+namespace entity::super_mario
 {
 
 namespace me = magic_enum;
@@ -77,14 +79,18 @@ void brother::hit()
 }
 
 void brother::pick_up(
-    power_up::power_up* pu)
+    power_up* pu)
 {
-    brother_power_up_picker picker{this};
-    pu->pick_up(&picker);
+    super_mario::brother_picker picker{this};
+    pu->picked_up(&picker);
 }
 
 void brother::pick_up(
-    power_up::mushroom const* const)
+    super_mario::coin const* const)
+{}
+
+void brother::pick_up(
+    super_mario::mushroom const* const)
 {
     size_ = size::big;
 
@@ -92,7 +98,7 @@ void brother::pick_up(
 }
 
 void brother::pick_up(
-    power_up::flower const* const)
+    super_mario::flower const* const)
 {
     if(size_ == size::small)
     {
@@ -214,21 +220,7 @@ void brother::shoot_fireball(
             break;
     }
 
-    add_projectile<fireball>(layer, position, heading_);
-}
-
-brother_power_up_picker::brother_power_up_picker(
-    brother* brother_)
-    : brother_{brother_}
-{}
-void brother_power_up_picker::pick_up(power_up::mushroom const* m)
-{
-    brother_->pick_up(m);
-}
-
-void brother_power_up_picker::pick_up(power_up::flower const* f)
-{
-    brother_->pick_up(f);
+    add_projectile<super_mario::fireball>(layer, position, heading_);
 }
 
 using still_sprite_rects = 

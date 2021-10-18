@@ -63,6 +63,10 @@ protected:
         sf::Time const& dt,
         commands_t& commands) override;
 
+    virtual void draw_self(
+        sf::RenderTarget& target,
+        sf::RenderStates states) const override;
+
     virtual void update_sprite() override;
 
     animated_sprite_rects_f animated_sprite_rects;
@@ -73,13 +77,13 @@ protected:
 
     maze* maze_;
 
-    sf::Vector2i target_;   // Target coordinates.
+    sf::Vector2i target_;   // Target coordinates {[0:level::width], [0,level:height]}.
     bool healed;            // Whether a hurt ghost has reached home.
 
-    sf::Time confinement;
+    sf::Time confinement;   // Time left in confinement.
 };
 
-class chaser
+class follower
     : public enemy
 {
 public:
@@ -91,13 +95,16 @@ private:
         commands_t& commands) override;
 };
 
-class goomba
-    : public chaser
+class ahead
+    : public enemy
 {
 public:
-    goomba();
+    using enemy::enemy;
 
-    virtual std::string_view name() const override;
+private:
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
 };
 
 }

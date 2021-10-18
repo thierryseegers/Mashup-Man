@@ -30,6 +30,37 @@ if(NOT APPLE)
 endif()
 
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
+
+# The new and preferred method for invoking Conan.
+# conan_cmake_configure(
+#     REQUIRES
+#         ${CONAN_BOOST_PACKAGE}
+#         magic_enum/0.7.2
+#         tomlplusplus/2.3.0
+#         sfml/2.5.1
+#         spdlog/1.9.2
+#     GENERATORS
+#         cmake_find_package_multi
+#     OPTIONS
+#         ${CONAN_BOOST_PACKAGE_OPTIONS}
+#         sfml:network=False)
+
+# foreach(TYPE ${CMAKE_CONFIGURATION_TYPES})
+#     conan_cmake_autodetect(
+#         settings
+#         BUILD_TYPE
+#             ${TYPE}
+#     )
+    
+#     conan_cmake_install(
+#         BASIC_SETUP
+#         INSTALL_FOLDER
+#             ${CONAN_INSTALL_FOLDER}
+#         NO_OUTPUT_DIRS
+#         # OUTPUT_QUIET
+#     )
+# endforeach()
+
 conan_cmake_run(REQUIRES
                     ${CONAN_BOOST_PACKAGE}
                     magic_enum/0.7.2
@@ -49,7 +80,7 @@ conan_cmake_run(REQUIRES
                 INSTALL_FOLDER
                     ${CONAN_INSTALL_FOLDER}
                 NO_OUTPUT_DIRS
-                OUTPUT_QUIET
+                # OUTPUT_QUIET
 )
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
 
@@ -108,8 +139,6 @@ add_executable(${PROJECT_NAME}
     src/direction.h
     src/entity/animation.cpp
     src/entity/animation.h
-    src/entity/brothers.cpp
-    src/entity/brothers.h
     src/entity/character.cpp
     src/entity/character.h
     src/entity/enemy.cpp
@@ -117,16 +146,27 @@ add_executable(${PROJECT_NAME}
     src/entity/entities.h
     src/entity/entity.cpp
     src/entity/entity.h
-    src/entity/fireball.cpp
-    src/entity/fireball.h
     src/entity/hero.cpp
     src/entity/hero.h
-    src/entity/power_up.cpp
-    src/entity/power_up.h
+    src/entity/picker.cpp
+    src/entity/picker.h
     src/entity/pipe.cpp
     src/entity/pipe.h
+    src/entity/power_up.cpp
+    src/entity/power_up.h
     src/entity/projectile.cpp
     src/entity/projectile.h
+    src/entity/super_mario/enemy.cpp
+    src/entity/super_mario/enemy.h
+    src/entity/super_mario/entities.h
+    src/entity/super_mario/hero.cpp
+    src/entity/super_mario/hero.h
+    src/entity/super_mario/picker.cpp
+    src/entity/super_mario/picker.h
+    src/entity/super_mario/power_up.cpp
+    src/entity/super_mario/power_up.h
+    src/entity/super_mario/projectile.cpp
+    src/entity/super_mario/projectile.h
     src/level.cpp
     src/level.h
     src/lifeboard.cpp

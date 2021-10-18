@@ -89,7 +89,7 @@ void hero::update_self(
     else
     {
         sf::Vector2f const position = getPosition();
-        sf::Vector2f const future_position = position + to_vector(heading_) * (max_speed * 1.0f) * dt.asSeconds();
+        sf::Vector2f const future_position = position + to_vector2f(heading_) * (max_speed * 1.0f) * dt.asSeconds();
 
         // If the position delta between now and then crosses the middle of a tile...
         if((future_position.x > position.x && fmod(position.x, level::tile_size) <= level::half_tile_size && fmod(future_position.x, level::tile_size) > level::half_tile_size) ||
