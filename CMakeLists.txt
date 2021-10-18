@@ -33,17 +33,17 @@ set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
 
 # The new and preferred method for invoking Conan.
 conan_cmake_configure(
+    GENERATORS
+        cmake_find_package_multi
+    OPTIONS
+        ${CONAN_BOOST_PACKAGE_OPTIONS}
+        sfml:network=False
     REQUIRES
         ${CONAN_BOOST_PACKAGE}
         magic_enum/0.7.2
         tomlplusplus/2.3.0
         sfml/2.5.1
         spdlog/1.9.2
-    GENERATORS
-        cmake_find_package_multi
-    OPTIONS
-        ${CONAN_BOOST_PACKAGE_OPTIONS}
-        sfml:network=False
     )
 
 foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
@@ -55,14 +55,14 @@ foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
 
     conan_cmake_install(
         BASIC_SETUP
+        BUILD
+            missing
+        NO_OUTPUT_DIRS
+        # OUTPUT_QUIET
         PATH_OR_REFERENCE
             .
-        INSTALL_FOLDER
-            ${CONAN_INSTALL_FOLDER}
-        NO_OUTPUT_DIRS
         SETTINGS
             ${settings}
-        # OUTPUT_QUIET
     )
 endforeach()
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
