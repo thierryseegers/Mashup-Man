@@ -30,7 +30,7 @@ public:
 };
 
 class beetle
-    : public ahead
+    : public axis
 {
 public:
     beetle();

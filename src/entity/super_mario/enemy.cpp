@@ -157,7 +157,7 @@ sf::IntRect beetle_dead_sprite_rect()
 }
 
 beetle::beetle()
-    : ahead{
+    : axis{
         sprite{
             resources::texture::enemies,
             beetle_animated_sprite_rects(mode::scatter),
