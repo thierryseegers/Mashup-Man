@@ -15,13 +15,32 @@ class maze
     : public scene::node
 {
 public:
-    enum structure
+    enum class structure
     {
-        path    = 0x1,
-        pipe    = 0x2,
-        wall    = 0x4,
-        door    = 0x8
+        path,
+        pipe,
+        wall,
+        door
     };
+
+    static constexpr structure to_structure(
+        char const c)
+    {
+        switch(c)
+        {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+                return maze::structure::wall;
+            case 'w':
+                return maze::structure::pipe;
+            case 'd':
+                return maze::structure::door;
+            default:
+                return maze::structure::path;
+        }
+    }
 
     maze(
         std::filesystem::path const& level);
@@ -31,7 +50,7 @@ public:
         sf::Vector2i const& coordinates) const;
 
     // Returns the structures that surround a cell.
-    std::map<direction, structure> around(
+    std::map<direction, char> around(
         sf::Vector2i const& coordinates) const;
 
     // Returns the coordinates of the ghost house.

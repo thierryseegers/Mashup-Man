@@ -150,29 +150,29 @@ void enemy::update_self(
         {
             std::set<direction> paths;
             auto const around = maze_->around({(int)position.x / level::tile_size, (int)position.y / level::tile_size});
-            if(heading() != direction::left && utility::any_of(around.at(direction::right), maze::path, maze::door))
+            if(heading() != direction::left && utility::any_of(maze::to_structure(around.at(direction::right)), maze::structure::path, maze::structure::door))
             {
                 paths.insert(direction::right);
             }
-            if(heading() != direction::right && utility::any_of(around.at(direction::left), maze::path, maze::door))
+            if(heading() != direction::right && utility::any_of(maze::to_structure(around.at(direction::left)), maze::structure::path, maze::structure::door))
             {
                 paths.insert(direction::left);
             }
-            if(heading() != direction::up && utility::any_of(around.at(direction::down), maze::path, maze::door))
+            if(heading() != direction::up && utility::any_of(maze::to_structure(around.at(direction::down)), maze::structure::path, maze::structure::door))
             {
                 paths.insert(direction::down);
             }
-            if(heading() != direction::down && utility::any_of(around.at(direction::up), maze::path, maze::door))
+            if(heading() != direction::down && utility::any_of(maze::to_structure(around.at(direction::up)), maze::structure::path, maze::structure::door))
             {
                 paths.insert(direction::up);
             }
 
             // In case it's in a pipe...
-            if(heading() == direction::left && around.at(direction::left) == maze::pipe)
+            if(heading() == direction::left && maze::to_structure(around.at(direction::left)) == maze::structure::pipe)
             {
                 paths.insert(direction::right);
             }
-            else if(heading() == direction::right && around.at(direction::right) == maze::pipe)
+            else if(heading() == direction::right && maze::to_structure(around.at(direction::right)) == maze::structure::pipe)
             {
                 paths.insert(direction::left);
             }
@@ -330,7 +330,7 @@ void ahead::update_self(
                     around.erase(~h);
 
                     // If there's path straight ahead, pick that...
-                    if(around.at(h) == maze::structure::path)
+                    if(maze::to_structure(around.at(h)) == maze::structure::path)
                     {
                         target_ = target_ + to_vector2i(h);
                     }
@@ -341,7 +341,7 @@ void ahead::update_self(
                         around.erase(h);
 
                         // If the first choice is not a path, remove it.
-                        if(around.begin()->second != maze::structure::path)
+                        if(maze::to_structure(around.begin()->second) != maze::structure::path)
                         {
                             around.erase(around.begin());
                         }

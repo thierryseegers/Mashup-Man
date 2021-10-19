@@ -101,7 +101,7 @@ void hero::update_self(
             auto const around = maze_->around({(int)position.x / level::tile_size, (int)position.y / level::tile_size});
             if(steering() != direction::none &&
                (steering() != heading() || speed() == 0.f) &&
-               !utility::any_of(around.at(steering()), maze::wall, maze::door))
+               !utility::any_of(maze::to_structure(around.at(steering())), maze::structure::wall, maze::structure::door))
             {
                 spdlog::info("Changing heading at coordinates [{}, {}] to [{}]", position.x, position.y, me::enum_name(steering()));
                 head(steering());
@@ -110,7 +110,7 @@ void hero::update_self(
             }
             // Else if the hero is crusing along and he's about to face a wall, stop him.
             else if(speed() != 0.f &&
-                    utility::any_of(around.at(heading()), maze::wall, maze::door))
+                    utility::any_of(maze::to_structure(around.at(heading())), maze::structure::wall, maze::structure::door))
             {
                 spdlog::info("Hit a wall at coordinates [{}, {}] heading [{}]", position.x, position.y, me::enum_name(heading()));
                 throttle(0.f);
