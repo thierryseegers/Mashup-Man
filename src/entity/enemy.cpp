@@ -47,6 +47,12 @@ sf::Vector2i to_maze_coordinates(
     return {(int)position.x / level::tile_size, (int)position.y / level::tile_size};
 }
 
+sf::Vector2f to_playground_coordinates(
+    sf::Vector2i const& position)
+{
+    return {(float)position.x * level::tile_size, (float)position.y * level::tile_size};
+}
+
 enemy::enemy(
     sprite sprite_,
     int const max_speed,
@@ -285,6 +291,8 @@ void follower::update_self(
 
                 target_ = to_maze_coordinates(*closest);
             }
+
+            spdlog::info("{} targeting following [{}, {}]", name(), target_.x, target_.y);
         }
     }}));
 
@@ -318,8 +326,10 @@ void ahead::update_self(
                     return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
                 });
 
+                // Start targetting from the hero's position...
                 target_ = to_maze_coordinates(closest->getPosition());
 
+                // ...then guess its position four tiles ahead.
                 auto h = closest->heading();
                 for(int i = 0; i != 4; ++i)
                 {
@@ -358,6 +368,120 @@ void ahead::update_self(
     }}));
 
     enemy::update_self(dt, commands);
+}
+
+void axis::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    commands.push(make_command(std::function{[this](layer::characters& characters, sf::Time const&)
+    {
+        if(current_mode_ == mode::chase)
+        {
+            // Find the closest hero and the follower.
+            std::vector<hero const*> heroes;
+
+            for(auto* const character : characters.children())
+            {
+                if(auto const* c = dynamic_cast<hero const*>(character))
+                {
+                    heroes.push_back(c);
+                }
+                else if(auto const* c = dynamic_cast<follower const*>(character))
+                {
+                    follower_position_ = c->getPosition();
+                }
+            }
+
+            if(heroes.size())
+            {
+                auto const closest = *std::min_element(heroes.begin(), heroes.end(), [this](auto const& h1, auto const& h2)
+                {
+                    return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
+                });
+
+                // Start targetting from the hero's position...
+                target_ = to_maze_coordinates(closest->getPosition());
+
+                // ...then guess its position two tiles ahead...
+                auto h = closest->heading();
+                for(int i = 0; i != 2; ++i)
+                {
+                    // Get the nature of the tiles around the target.
+                    auto around = maze_->around(target_);
+
+                    // Remove the tile that would be opposite of the heading.
+                    around.erase(~h);
+
+                    // If there's path straight ahead, pick that...
+                    if(maze::to_structure(around.at(h)) == maze::structure::path)
+                    {
+                        target_ = target_ + to_vector2i(h);
+                    }
+                    // ...else pick the first other possible path.
+                    else
+                    {
+                        // Remove the choice that's ahead since ahead is not a path.
+                        around.erase(h);
+
+                        // If the first choice is not a path, remove it.
+                        if(maze::to_structure(around.begin()->second) != maze::structure::path)
+                        {
+                            around.erase(around.begin());
+                        }
+
+                        // We're left with the first choice being a path for sure.
+                        h = around.begin()->first;
+                        target_ = target_ + to_vector2i(h);
+                    }
+                }
+
+                // ...then double the vector from follower to target.
+                follower_to_ahead_ = to_playground_coordinates(target_) - follower_position_;
+                auto const unit = utility::unit(follower_to_ahead_) * (float)level::tile_size;
+                auto t = to_playground_coordinates(target_) + follower_to_ahead_;
+
+                // "Backtrack" `t` along `v`'s axis until it is within bounds and is a `path`.
+                while(!sf::IntRect{0, 0, level::width, level::height}.contains(to_maze_coordinates(t)) ||
+                      maze::to_structure((*maze_)[to_maze_coordinates(t)]) != maze::structure::path)
+                {
+                    t -= unit;
+                }
+                ahead_to_target_ = t - to_playground_coordinates(target_);
+
+                target_ = to_maze_coordinates(t);
+            }
+            
+            spdlog::info("{} targeting through axis [{}, {}]", name(), target_.x, target_.y);
+        }
+    }}));
+
+    enemy::update_self(dt, commands);
+}
+
+void axis::draw_self(
+    sf::RenderTarget& target,
+    sf::RenderStates states) const
+{
+    // Show the computations done to arrive at the target.
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::T) &&
+       current_mode_ == mode::chase)
+    {
+            sf::RectangleShape a{{utility::length(follower_to_ahead_), 5}};
+            a.setPosition(follower_position_);
+            a.setRotation(utility::to_degree(std::atan2(follower_to_ahead_.y, follower_to_ahead_.x)));
+            a.setFillColor(sf::Color::Cyan * sf::Color{255, 255, 255, 128});
+
+            sf::RectangleShape b{{utility::length(ahead_to_target_), 5}};
+            b.setPosition(follower_position_ + follower_to_ahead_);
+            b.setRotation(utility::to_degree(std::atan2(ahead_to_target_.y, ahead_to_target_.x)));
+            b.setFillColor(sf::Color::Magenta * sf::Color{255, 255, 255, 128});
+
+            target.draw(a, {parent->world_transform()});
+            target.draw(b, {parent->world_transform()});
+    }
+
+    enemy::draw_self(target, states);
 }
 
 }
