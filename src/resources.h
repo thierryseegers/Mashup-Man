@@ -22,6 +22,7 @@ enum class font
 
 enum class texture
 {
+    background,
     brothers,
     enemies,
     features,
