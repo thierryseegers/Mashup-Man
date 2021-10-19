@@ -17,6 +17,10 @@ speed = 85
 scale = 1
 speed = 85
 
+[enemies.beetle]
+scale = 1.1
+speed = 85
+
 [items]
 
 [items.coin]
