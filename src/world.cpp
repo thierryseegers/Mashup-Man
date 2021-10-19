@@ -1,5 +1,6 @@
 #include "world.h"
 
+#include "background.h"
 #include "command.h"
 #include "configuration.h"
 // #include "effects/bloom.h"
@@ -90,6 +91,7 @@ void world::build_scene()
     playground.attach<scene::sound_t>(sound);
 
     // Create layers.
+    layers[me::enum_integer(layer::id::background)] = playground.attach<layer::background>();
     layers[me::enum_integer(layer::id::maze)] = playground.attach<layer::maze>();
     layers[me::enum_integer(layer::id::items)] = playground.attach<layer::items>();
     layers[me::enum_integer(layer::id::characters)] = playground.attach<layer::characters>();
@@ -97,6 +99,7 @@ void world::build_scene()
     layers[me::enum_integer(layer::id::pipes)] = playground.attach<layer::pipes>();
     layers[me::enum_integer(layer::id::animations)] = playground.attach<layer::animations>();
 
+    layers[me::enum_integer(layer::id::background)]->attach<background>();
     maze_ = layers[me::enum_integer(layer::id::maze)]->attach<maze>("assets/levels/1.txt");
 
     // Create entities as the level dictates.
