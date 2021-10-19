@@ -5,7 +5,7 @@
 namespace level
 {
 
-constexpr size_t height = 33;
+constexpr size_t height = 31;
 constexpr size_t width = 28;
 
 constexpr int tile_size = 20;

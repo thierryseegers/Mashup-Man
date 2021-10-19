@@ -14,6 +14,8 @@ public:
     goomba();
 
     virtual std::string_view name() const override;
+
+    virtual void update_sprite() override;
 };
 
 class koopa
@@ -24,6 +26,18 @@ public:
 
     virtual std::string_view name() const override;
 
+    virtual void update_sprite() override;
+};
+
+class beetle
+    : public axis
+{
+public:
+    beetle();
+
+    virtual std::string_view name() const override;
+
+    virtual void update_sprite() override;
 };
 
 }
