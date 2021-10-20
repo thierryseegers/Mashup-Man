@@ -35,7 +35,7 @@ public:
                 return maze::structure::wall;
             case 'w':
                 return maze::structure::pipe;
-            case 'd':
+            case 's':
                 return maze::structure::door;
             default:
                 return maze::structure::path;
