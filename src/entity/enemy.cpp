@@ -46,6 +46,43 @@ sf::Vector2f to_playground_coordinates(
     return {(float)position.x * level::tile_size, (float)position.y * level::tile_size};
 }
 
+sf::Vector2i predict_position(
+    maze const* const maze_,
+    sf::Vector2i position,
+    direction heading,
+    int const steps)
+{
+    for(int i = 0; i != steps; ++i)
+    {
+        // Get the nature of the tiles around the target.
+        auto around = maze_->around(position);
+
+        // Remove the tile that would be opposite of the heading.
+        around.erase(~heading);
+
+        // If there's no path straight ahead, pick a possible new heading
+        if(maze::to_structure(around.at(heading)) != maze::structure::path)
+        {
+            // Remove the choice that's ahead since ahead is not a path.
+            around.erase(heading);
+
+            // If the first choice is not a path, remove it.
+            if(maze::to_structure(around.begin()->second) != maze::structure::path)
+            {
+                around.erase(around.begin());
+            }
+
+            // We're left with the first choice being a path for sure. Update the heading.
+            heading = around.begin()->first;
+        }
+
+        // Update the position by one step.
+        position = position + to_vector2i(heading);
+    }
+
+    return position;
+}
+
 enemy::enemy(
     sprite sprite_,
     int const max_speed,
@@ -136,39 +173,30 @@ void enemy::update_self(
         sf::Vector2f const position = getPosition();
         sf::Vector2f const future_position = position + to_vector2f(heading_) * (max_speed * throttle_) * dt.asSeconds();
 
-        // If the position delta between now and then crosses the middle of a tile...
+        // If the position delta between now and then crosses the center of a tile...
         if((future_position.x > position.x && fmod(position.x, level::tile_size) <= level::half_tile_size && fmod(future_position.x, level::tile_size) > level::half_tile_size) ||
            (future_position.x < position.x && fmod(position.x, level::tile_size) >= level::half_tile_size && fmod(future_position.x, level::tile_size) < level::half_tile_size) ||
            (future_position.y > position.y && fmod(position.y, level::tile_size) <= level::half_tile_size && fmod(future_position.y, level::tile_size) > level::half_tile_size) ||
            (future_position.y < position.y && fmod(position.y, level::tile_size) >= level::half_tile_size && fmod(future_position.y, level::tile_size) < level::half_tile_size))
         {
+            // Collect the set of directions of possible paths, excluding going where it came from.
             std::set<direction> paths;
             auto const around = maze_->around({(int)position.x / level::tile_size, (int)position.y / level::tile_size});
-            if(heading() != direction::left && utility::any_of(maze::to_structure(around.at(direction::right)), maze::structure::path, maze::structure::door))
+            for(auto const h : {direction::left, direction::right, direction::up, direction::down})
             {
-                paths.insert(direction::right);
-            }
-            if(heading() != direction::right && utility::any_of(maze::to_structure(around.at(direction::left)), maze::structure::path, maze::structure::door))
-            {
-                paths.insert(direction::left);
-            }
-            if(heading() != direction::up && utility::any_of(maze::to_structure(around.at(direction::down)), maze::structure::path, maze::structure::door))
-            {
-                paths.insert(direction::down);
-            }
-            if(heading() != direction::down && utility::any_of(maze::to_structure(around.at(direction::up)), maze::structure::path, maze::structure::door))
-            {
-                paths.insert(direction::up);
+                if(heading() != ~h && utility::any_of(maze::to_structure(around.at(h)), maze::structure::path, maze::structure::door))
+                {
+                    paths.insert(h);
+                }
             }
 
-            // In case it's in a pipe...
-            if(heading() == direction::left && maze::to_structure(around.at(direction::left)) == maze::structure::pipe)
+            // In case it's in a pipe, allow going back...
+            for(auto const h : {direction::left, direction::right})
             {
-                paths.insert(direction::right);
-            }
-            else if(heading() == direction::right && maze::to_structure(around.at(direction::right)) == maze::structure::pipe)
-            {
-                paths.insert(direction::left);
+                if(heading() == h && maze::to_structure(around.at(h)) == maze::structure::pipe)
+                {
+                    paths.insert(~h);
+                }
             }
 
             // If it is at an intersection, ask it for a direction.
@@ -315,7 +343,7 @@ void ahead::update_self(
     {
         if(current_mode_ == mode::chase)
         {
-            // Find the closest hero.
+            // Find the closest hero...
             std::vector<hero const*> heroes;
 
             for(auto* const character : characters.children())
@@ -333,44 +361,11 @@ void ahead::update_self(
                     return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
                 });
 
-                // Start targetting from the hero's position...
-                target_ = to_maze_coordinates(closest->getPosition());
-
-                // ...then guess its position four tiles ahead.
-                auto h = closest->heading();
-                for(int i = 0; i != 4; ++i)
-                {
-                    // Get the nature of the tiles around the target.
-                    auto around = maze_->around(target_);
-
-                    // Remove the tile that would be opposite of the heading.
-                    around.erase(~h);
-
-                    // If there's path straight ahead, pick that...
-                    if(maze::to_structure(around.at(h)) == maze::structure::path)
-                    {
-                        target_ = target_ + to_vector2i(h);
-                    }
-                    // ...else pick the first other possible path.
-                    else
-                    {
-                        // Remove the choice that's ahead since ahead is not a path.
-                        around.erase(h);
-
-                        // If the first choice is not a path, remove it.
-                        if(maze::to_structure(around.begin()->second) != maze::structure::path)
-                        {
-                            around.erase(around.begin());
-                        }
-
-                        // We're left with the first choice being a path for sure.
-                        h = around.begin()->first;
-                        target_ = target_ + to_vector2i(h);
-                    }
-                }
+                // ... and predict where the hero will be in four tiles.
+                target_ = predict_position(maze_, to_maze_coordinates(closest->getPosition()), closest->heading(), 4);
             }
 
-            spdlog::info("{} targeting ahead [{}, {}]", name(), target_.x, target_.y);
+            spdlog::info("{} targeting four steps ahead at [{}, {}]", name(), target_.x, target_.y);
         }
     }}));
 
@@ -395,7 +390,7 @@ void axis::update_self(
     {
         if(current_mode_ == mode::chase)
         {
-            // Find the closest hero and the follower.
+            // Find the closest hero and the follower...
             std::vector<hero const*> heroes;
 
             for(auto* const character : characters.children())
@@ -417,49 +412,17 @@ void axis::update_self(
                     return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
                 });
 
-                // Start targetting from the hero's position...
-                target_ = to_maze_coordinates(closest->getPosition());
+                // ...predict where the hero will be in two tiles...
+                target_ = predict_position(maze_, to_maze_coordinates(closest->getPosition()), closest->heading(), 2);
 
-                // ...then guess its position two tiles ahead...
-                auto h = closest->heading();
-                for(int i = 0; i != 2; ++i)
-                {
-                    // Get the nature of the tiles around the target.
-                    auto around = maze_->around(target_);
-
-                    // Remove the tile that would be opposite of the heading.
-                    around.erase(~h);
-
-                    // If there's path straight ahead, pick that...
-                    if(maze::to_structure(around.at(h)) == maze::structure::path)
-                    {
-                        target_ = target_ + to_vector2i(h);
-                    }
-                    // ...else pick the first other possible path.
-                    else
-                    {
-                        // Remove the choice that's ahead since ahead is not a path.
-                        around.erase(h);
-
-                        // If the first choice is not a path, remove it.
-                        if(maze::to_structure(around.begin()->second) != maze::structure::path)
-                        {
-                            around.erase(around.begin());
-                        }
-
-                        // We're left with the first choice being a path for sure.
-                        h = around.begin()->first;
-                        target_ = target_ + to_vector2i(h);
-                    }
-                }
-
-                // ...then double the vector from follower to target.
+                // ...then double the vector from follower to target (ahead)...
                 follower_to_ahead_ = to_playground_coordinates(target_) - follower_position_;
                 auto const unit = utility::unit(follower_to_ahead_) * (float)level::tile_size;
                 auto t = to_playground_coordinates(target_) + follower_to_ahead_;
 
-                // "Backtrack" `t` along `v`'s axis until it is within bounds and is a `path`.
+                // ...but "backtrack" `t` along `v`'s axis until it is within bounds, is not in the ghost house and is a `path`.
                 while(!sf::IntRect{0, 0, level::width, level::height}.contains(to_maze_coordinates(t)) ||
+                      maze_->ghost_house().contains(to_maze_coordinates(t)) ||
                       maze::to_structure((*maze_)[to_maze_coordinates(t)]) != maze::structure::path)
                 {
                     t -= unit;
