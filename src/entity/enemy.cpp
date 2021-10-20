@@ -27,13 +27,6 @@ namespace entity
 
 namespace me = magic_enum;
 
-sf::Vector2i random_level_corner()
-{
-    // Pick a random corner area as a target.
-    return {1 + utility::random(1) * ((int)level::width - 2 - 1),
-            2 + utility::random(1) * ((int)level::height - 3 - 2)};
-}
-
 sf::Vector2i random_home_corner(
     sf::IntRect const& home)
 {
@@ -58,12 +51,9 @@ enemy::enemy(
     int const max_speed,
     direction const heading_)
     : hostile<character>{sprite_, max_speed, heading_}
-    , current_mode_{mode::confined}
     , requested_mode_{mode::scatter}
     , maze_{nullptr}
     , healed{true}
-    , target_{0, 0}
-    , confinement{sf::seconds(10)}
 {}
 
 void enemy::hit()
@@ -116,7 +106,7 @@ void enemy::behave(
         case mode::frightened:
             break;
         case mode::scatter:
-            target_ = random_level_corner();
+            target_ = scatter_corner_;
             spdlog::info("{} targeting random corner [{}, {}].", name(), target_.x, target_.y);
             throttle(1.f);
             break;
@@ -127,8 +117,6 @@ void enemy::behave(
 
 void enemy::update_sprite()
 {
-
-
     character::update_sprite();
 }
 
@@ -268,6 +256,8 @@ follower::follower(
     int const max_speed)
     : enemy{sprite_, max_speed}
 {
+    current_mode_ = mode::scatter;
+    target_ = scatter_corner_ = {1, 1};
     confinement = sf::Time::Zero;
 }
 
@@ -312,6 +302,8 @@ ahead::ahead(
     int const max_speed)
     : enemy{sprite_, max_speed}
 {
+    current_mode_ = mode::confined;
+    scatter_corner_ = {level::width - 2, 1};
     confinement = sf::seconds(3);
 }
 
@@ -390,6 +382,8 @@ axis::axis(
     int const max_speed)
     : enemy{sprite_, max_speed}
 {
+    current_mode_ = mode::confined;
+    scatter_corner_ = {1, level::height - 2};
     confinement = sf::seconds(10);
 }
 

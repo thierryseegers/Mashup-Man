@@ -65,9 +65,10 @@ protected:
 
     maze* maze_;
 
-    sf::Vector2i target_;   // Target coordinates {[0:level::width], [0,level:height]}.
+    sf::Vector2i scatter_corner_;   // The corner this ghost heads towards when scattering.
+    sf::Vector2i target_;           // Target coordinates {[0:level::width], [0,level:height]}.
+    
     bool healed;            // Whether a hurt ghost has reached home.
-
     sf::Time confinement;   // Time left in confinement.
 };
 
