@@ -8,6 +8,7 @@ namespace layer
 enum class id
 {
     // These are in the order in which they are rendered.
+    background,
     maze,
     items,
     characters,
@@ -15,6 +16,10 @@ enum class id
     pipes,
     animations
 };
+
+class background
+    : public scene::node
+{};
 
 class maze
     : public scene::node

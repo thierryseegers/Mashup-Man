@@ -46,6 +46,7 @@ application::application()
         textures.copy(p.first, texture);
     }
 
+    textures.load(resources::texture::background, "assets/images/NES - Super Mario Bros - Background.png");
     textures.load(resources::texture::walls, "assets/images/walls.png");
 
     // Craft the pipe texture from its four tiles in items tileset.

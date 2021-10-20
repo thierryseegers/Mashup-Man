@@ -115,6 +115,8 @@ add_executable(${PROJECT_NAME}
     src/application.h
     src/astar_route.cpp
     src/astar_route.h
+    src/background.cpp
+    src/background.h
     src/bindings.cpp
     src/bindings.h
     src/command.h
