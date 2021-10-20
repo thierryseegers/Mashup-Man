@@ -263,6 +263,14 @@ void enemy::draw_self(
     return character::draw_self(target, states);
 }
 
+follower::follower(
+    sprite sprite_,
+    int const max_speed)
+    : enemy{sprite_, max_speed}
+{
+    confinement = sf::Time::Zero;
+}
+
 void follower::update_self(
     sf::Time const& dt,
     commands_t& commands)
@@ -299,6 +307,13 @@ void follower::update_self(
     enemy::update_self(dt, commands);
 }
 
+ahead::ahead(
+    sprite sprite_,
+    int const max_speed)
+    : enemy{sprite_, max_speed}
+{
+    confinement = sf::seconds(3);
+}
 
 void ahead::update_self(
     sf::Time const& dt,
@@ -368,6 +383,14 @@ void ahead::update_self(
     }}));
 
     enemy::update_self(dt, commands);
+}
+
+axis::axis(
+    sprite sprite_,
+    int const max_speed)
+    : enemy{sprite_, max_speed}
+{
+    confinement = sf::seconds(10);
 }
 
 void axis::update_self(

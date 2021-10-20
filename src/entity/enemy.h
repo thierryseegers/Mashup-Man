@@ -34,7 +34,7 @@ public:
 
     enemy(
         sprite sprite_,
-        int const max_speed = 0,
+        int const max_speed,
         direction const heading_ = direction::right);
 
     virtual ~enemy() = default;
@@ -75,7 +75,9 @@ class follower
     : public enemy
 {
 public:
-    using enemy::enemy;
+    follower(
+        sprite sprite_,
+        int const max_speed);
 
 private:
     virtual void update_self(
@@ -87,7 +89,9 @@ class ahead
     : public enemy
 {
 public:
-    using enemy::enemy;
+    ahead(
+        sprite sprite_,
+        int const max_speed);
 
 private:
     virtual void update_self(
@@ -99,7 +103,9 @@ class axis
     : public enemy
 {
 public:
-    using enemy::enemy;
+    axis(
+        sprite sprite_,
+        int const max_speed);
 
 private:
     virtual void update_self(

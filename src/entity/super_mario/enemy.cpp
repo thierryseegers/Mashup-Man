@@ -54,8 +54,7 @@ goomba::goomba()
             sprite::repeat::loop,
             configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
         },
-        *configuration::values()["enemies"]["goomba"]["speed"].value<int>(),
-        direction::left
+        *configuration::values()["enemies"]["goomba"]["speed"].value<int>()
         }
 {}
 
@@ -110,8 +109,7 @@ koopa::koopa()
             sprite::repeat::loop,
             configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f),
         },
-        *configuration::values()["enemies"]["koopa"]["speed"].value<int>(),
-        direction::left
+        *configuration::values()["enemies"]["koopa"]["speed"].value<int>()
         }
 {}
 
@@ -165,8 +163,7 @@ beetle::beetle()
             sprite::repeat::loop,
             configuration::values()["enemies"]["beetle"]["scale"].value_or<float>(1.f),
         },
-        *configuration::values()["enemies"]["beetle"]["speed"].value<int>(),
-        direction::left
+        *configuration::values()["enemies"]["beetle"]["speed"].value<int>()
         }
 {}
 
