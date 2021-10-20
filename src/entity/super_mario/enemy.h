@@ -40,4 +40,15 @@ public:
     virtual void update_sprite() override;
 };
 
+class hammer
+    : public axis
+{
+public:
+    hammer();
+
+    virtual std::string_view name() const override;
+
+    virtual void update_sprite() override;
+};
+
 }

@@ -186,4 +186,59 @@ void beetle::update_sprite()
     enemy::update_sprite();
 }
 
+
+std::vector<sf::IntRect> hammer_animated_sprite_rects(
+    mode const mode_)
+{
+    static animated_sprite_rects const rects = []{
+        animated_sprite_rects r;
+
+        r[me::enum_integer(mode::confined)] = std::vector<sf::IntRect>{{406 + 16, 20, -16, 23}, {423 + 16, 20, -16, 23}};
+        r[me::enum_integer(mode::chase)] = r[me::enum_integer(mode::confined)];
+        r[me::enum_integer(mode::frightened)] = std::vector<sf::IntRect>{{406 + 16, 158, -16, 23}, {423 + 16, 158, -16, 23}};
+        r[me::enum_integer(mode::scatter)] = r[me::enum_integer(mode::confined)];
+
+        return r;
+    }();
+
+    return rects[me::enum_integer(mode_)];
+}
+
+sf::IntRect hammer_dead_sprite_rect()
+{
+    return sf::IntRect{406 + 16, 20 + 23, -16, -23};
+}
+
+hammer::hammer()
+    : axis{
+        sprite{
+            resources::texture::enemies,
+            hammer_animated_sprite_rects(mode::scatter),
+            sf::seconds(0.25f),
+            sprite::repeat::loop,
+            configuration::values()["enemies"]["hammer"]["scale"].value_or<float>(1.f),
+        },
+        *configuration::values()["enemies"]["hammer"]["speed"].value<int>()
+        }
+{}
+
+std::string_view hammer::name() const
+{
+    return "hammer brother";
+}
+
+void hammer::update_sprite()
+{
+    if(current_mode_ == mode::dead)
+    {
+        sprite_.still(hammer_dead_sprite_rect());
+    }
+    else
+    {
+        sprite_.animate(hammer_animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
+    }
+
+    enemy::update_sprite();
+}
+
 }
