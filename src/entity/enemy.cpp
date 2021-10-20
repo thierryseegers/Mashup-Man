@@ -18,8 +18,6 @@
 #include <cmath>
 #include <functional>
 #include <map>
-#include <memory>
-#include <string_view>
 #include <vector>
 
 namespace entity
@@ -285,7 +283,7 @@ follower::follower(
     : enemy{sprite_, max_speed}
 {
     current_mode_ = mode::scatter;
-    target_ = scatter_corner_ = {1, 1};
+    target_ = scatter_corner_ = {level::width - 2, 1};
     confinement = sf::Time::Zero;
 }
 
@@ -331,7 +329,7 @@ ahead::ahead(
     : enemy{sprite_, max_speed}
 {
     current_mode_ = mode::confined;
-    scatter_corner_ = {level::width - 2, 1};
+    scatter_corner_ = {1, 1};
     confinement = sf::seconds(3);
 }
 
@@ -378,7 +376,7 @@ axis::axis(
     : enemy{sprite_, max_speed}
 {
     current_mode_ = mode::confined;
-    scatter_corner_ = {1, level::height - 2};
+    scatter_corner_ = {level::width - 2, level::height - 2};
     confinement = sf::seconds(10);
 }
 
