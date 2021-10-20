@@ -34,7 +34,7 @@ public:
 
     enemy(
         sprite sprite_,
-        int const max_speed = 0,
+        int const max_speed,
         direction const heading_ = direction::right);
 
     virtual ~enemy() = default;
@@ -65,9 +65,10 @@ protected:
 
     maze* maze_;
 
-    sf::Vector2i target_;   // Target coordinates {[0:level::width], [0,level:height]}.
+    sf::Vector2i scatter_corner_;   // The corner this ghost heads towards when scattering.
+    sf::Vector2i target_;           // Target coordinates {[0:level::width], [0,level:height]}.
+    
     bool healed;            // Whether a hurt ghost has reached home.
-
     sf::Time confinement;   // Time left in confinement.
 };
 
@@ -75,7 +76,9 @@ class follower
     : public enemy
 {
 public:
-    using enemy::enemy;
+    follower(
+        sprite sprite_,
+        int const max_speed);
 
 private:
     virtual void update_self(
@@ -87,7 +90,9 @@ class ahead
     : public enemy
 {
 public:
-    using enemy::enemy;
+    ahead(
+        sprite sprite_,
+        int const max_speed);
 
 private:
     virtual void update_self(
@@ -99,7 +104,9 @@ class axis
     : public enemy
 {
 public:
-    using enemy::enemy;
+    axis(
+        sprite sprite_,
+        int const max_speed);
 
 private:
     virtual void update_self(
