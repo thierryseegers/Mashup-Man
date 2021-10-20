@@ -41,7 +41,7 @@ public:
 };
 
 class hammer
-    : public axis
+    : public skittish
 {
 public:
     hammer();

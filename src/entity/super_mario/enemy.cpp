@@ -210,7 +210,7 @@ sf::IntRect hammer_dead_sprite_rect()
 }
 
 hammer::hammer()
-    : axis{
+    : skittish{
         sprite{
             resources::texture::enemies,
             hammer_animated_sprite_rects(mode::scatter),
