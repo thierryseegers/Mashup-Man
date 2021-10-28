@@ -24,16 +24,16 @@ public:
     dead_brother(
         sprite sprite_)
     : entity{sprite_}
-    , velocity{0.f, -5.f}
+    , velocity{0.f, 32 * -5.f}
     {}
 
     virtual void update_self(
         sf::Time const& dt,
         commands_t&) override
     {
-        velocity.y += 9.8f * dt.asSeconds();
+        velocity.y += 32 * 9.8f * dt.asSeconds();
 
-        sf::Transformable::move(velocity);
+        sf::Transformable::move(velocity * dt.asSeconds());
     }
 
 private:
