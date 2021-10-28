@@ -209,25 +209,25 @@ sf::IntRect hammer_dead_sprite_rect()
     return sf::IntRect{406 + 16, 20 + 23, -16, -23};
 }
 
-hammer::hammer()
+hammer_brother::hammer_brother()
     : skittish{
         sprite{
             resources::texture::enemies,
             hammer_animated_sprite_rects(mode::scatter),
             sf::seconds(0.25f),
             sprite::repeat::loop,
-            configuration::values()["enemies"]["hammer"]["scale"].value_or<float>(1.f),
+            configuration::values()["enemies"]["hammer_brother"]["scale"].value_or<float>(1.f),
         },
-        *configuration::values()["enemies"]["hammer"]["speed"].value<int>()
-        }
+        *configuration::values()["enemies"]["hammer_brother"]["speed"].value<int>()
+    }
 {}
 
-std::string_view hammer::name() const
+std::string_view hammer_brother::name() const
 {
     return "hammer brother";
 }
 
-void hammer::update_sprite()
+void hammer_brother::update_sprite()
 {
     if(current_mode_ == mode::dead)
     {

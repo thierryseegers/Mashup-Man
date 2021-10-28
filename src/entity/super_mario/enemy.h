@@ -40,11 +40,11 @@ public:
     virtual void update_sprite() override;
 };
 
-class hammer
+class hammer_brother
     : public skittish
 {
 public:
-    hammer();
+    hammer_brother();
 
     virtual std::string_view name() const override;
 

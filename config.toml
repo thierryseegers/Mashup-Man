@@ -21,7 +21,7 @@ speed = 85
 scale = 1.1
 speed = 85
 
-[enemies.hammer]
+[enemies.hammer_brother]
 scale = 1
 speed = 50
 
