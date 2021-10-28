@@ -2,6 +2,7 @@
 
 #include "configuration.h"
 #include "entity/enemy.h"
+#include "entity/super_mario/projectile.h"
 #include "resources.h"
 
 #include <magic_enum.hpp>
@@ -220,6 +221,7 @@ hammer_brother::hammer_brother()
         },
         *configuration::values()["enemies"]["hammer_brother"]["speed"].value<int>()
     }
+    , throw_timer{throw_time}
 {}
 
 std::string_view hammer_brother::name() const
@@ -239,6 +241,25 @@ void hammer_brother::update_sprite()
     }
 
     enemy::update_sprite();
+}
+
+void hammer_brother::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    if(current_mode_ == mode::chase && (throw_timer -= dt) <= sf::Time::Zero)
+    {
+        throw_timer += throw_time;
+
+        commands.push(make_command(std::function{[this](layer::projectiles& layer, sf::Time const&)
+        {
+            sf::Vector2f position = getPosition();
+
+            add_projectile<super_mario::hammer>(layer, position, heading_);
+        }}));
+    }
+
+    skittish::update_self(dt, commands);
 }
 
 }

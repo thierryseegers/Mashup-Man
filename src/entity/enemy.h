@@ -80,7 +80,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -94,7 +94,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -108,7 +108,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -130,7 +130,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
