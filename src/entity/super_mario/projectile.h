@@ -29,4 +29,27 @@ private:
     maze *maze_;
 };
 
+class hammer
+    : public hostile<projectile>
+{
+public:
+    hammer(
+        direction const heading_);
+
+    virtual ~hammer() = default;
+
+    virtual void hit() override;
+
+private:
+    void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
+
+    sf::Time const rotation_time = sf::milliseconds(250);
+    sf::Time rotation_timer;
+    float rotation_degrees;
+
+    sf::Vector2f velocity;
+};
+
 }

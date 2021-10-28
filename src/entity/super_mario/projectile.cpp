@@ -84,4 +84,54 @@ void fireball::update_self(
     }
 }
 
+hammer::hammer(
+    direction const heading_)
+    : hostile<projectile>{
+        sprite{
+            resources::texture::enemies,
+            {486, 12, 8, 16}
+        },
+        0,
+        heading_}
+    , rotation_timer{rotation_time / 4.f}
+    , rotation_degrees{0.}
+{
+    switch(heading_)
+    {
+        case direction::down:
+        default:
+            velocity = {0.f, 32 * 5.f};
+            break;
+        case direction::left:
+            velocity = {32 * -3.f, 32 * -5.f};
+            break;
+        case direction::right:
+            velocity = {32 * 3.f, 32 * -5.f};
+            break;
+        case direction::up:
+            velocity = {0.f, 32 * -5.f};
+            break;
+    }
+}
+
+void hammer::hit()
+{
+    remove = true;
+}
+
+void hammer::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    if((rotation_timer -= dt) <= sf::Time::Zero)
+    {
+        rotation_timer += rotation_time / 4.f;
+
+        sprite_.set_rotation(rotation_degrees = fmod(rotation_degrees + 90.f, 360.f));
+    }
+
+    velocity += sf::Vector2f{0.f, 32 * 9.8f} * dt.asSeconds();
+    move(velocity * dt.asSeconds());
+}
+
 }

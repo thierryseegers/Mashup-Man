@@ -80,7 +80,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -94,7 +94,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -108,7 +108,7 @@ public:
         sprite sprite_,
         int const max_speed);
 
-private:
+protected:
     virtual void update_self(
         sf::Time const& dt,
         commands_t& commands) override;
@@ -120,6 +120,26 @@ private:
     sf::Vector2f follower_position_;
     sf::Vector2f follower_to_ahead_;
     sf::Vector2f ahead_to_target_;
+};
+
+class skittish
+    : public enemy
+{
+public:
+    skittish(
+        sprite sprite_,
+        int const max_speed);
+
+protected:
+    virtual void update_self(
+        sf::Time const& dt,
+        commands_t& commands) override;
+
+    virtual void draw_self(
+        sf::RenderTarget& target,
+        sf::RenderStates states) const override;
+
+    sf::CircleShape closeness_limit_;
 };
 
 }

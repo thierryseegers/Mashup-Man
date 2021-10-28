@@ -462,4 +462,79 @@ void axis::draw_self(
     enemy::draw_self(target, states);
 }
 
+skittish::skittish(
+    sprite sprite_,
+    int const max_speed)
+    : enemy{sprite_, max_speed}
+{
+    current_mode_ = mode::confined;
+    scatter_corner_ = {1, level::height - 2};
+    confinement = sf::seconds(10);
+
+    closeness_limit_.setOutlineColor(sf::Color::White);
+    closeness_limit_.setFillColor({0, 0, 0, 0});
+    closeness_limit_.setOutlineThickness(3);
+    closeness_limit_.setRadius(8 * level::tile_size);
+    utility::center_origin(closeness_limit_);
+}
+
+void skittish::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    commands.push(make_command(std::function{[this](layer::characters& characters, sf::Time const&)
+    {
+        if(current_mode_ == mode::chase)
+        {
+            // Find the closest hero and the follower...
+            std::vector<hero const*> heroes;
+
+            for(auto* const character : characters.children())
+            {
+                if(auto const* c = dynamic_cast<hero const*>(character))
+                {
+                    heroes.push_back(c);
+                }
+            }
+
+            if(heroes.size())
+            {
+                auto const closest = *std::min_element(heroes.begin(), heroes.end(), [this](auto const& h1, auto const& h2)
+                {
+                    return utility::length(getPosition() - h1->getPosition()) < utility::length(getPosition() - h2->getPosition());
+                });
+
+                closeness_limit_.setPosition(closest->getPosition());
+
+                if(utility::length(closest->getPosition() - getPosition()) > closeness_limit_.getRadius())
+                {
+                    target_ = to_maze_coordinates(closest->getPosition());
+                }
+                else
+                {
+                    target_ = scatter_corner_;
+                }
+            }
+            
+            spdlog::info("{} skittishly targeting [{}, {}]", name(), target_.x, target_.y);
+        }
+    }}));
+
+    enemy::update_self(dt, commands);
+}
+
+void skittish::draw_self(
+    sf::RenderTarget& target,
+    sf::RenderStates states) const
+{
+    // Show the computations done to arrive at the target.
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::T) &&
+       current_mode_ == mode::chase)
+    {
+            target.draw(closeness_limit_, {parent->world_transform()});
+    }
+
+    enemy::draw_self(target, states);
+}
+
 }

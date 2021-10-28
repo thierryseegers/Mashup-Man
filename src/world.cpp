@@ -140,6 +140,9 @@ void world::build_scene()
                             case 'c':
                                 p = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::beetle>();
                                 break;
+                            case 'd':
+                                p = layers[me::enum_integer(layer::id::characters)]->attach<entity::super_mario::hammer_brother>();
+                                break;
                         }
                         if(!maze_->ghost_house().contains(c, r))
                         {

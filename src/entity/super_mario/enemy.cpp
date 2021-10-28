@@ -2,6 +2,7 @@
 
 #include "configuration.h"
 #include "entity/enemy.h"
+#include "entity/super_mario/projectile.h"
 #include "resources.h"
 
 #include <magic_enum.hpp>
@@ -184,6 +185,81 @@ void beetle::update_sprite()
     }
 
     enemy::update_sprite();
+}
+
+
+std::vector<sf::IntRect> hammer_animated_sprite_rects(
+    mode const mode_)
+{
+    static animated_sprite_rects const rects = []{
+        animated_sprite_rects r;
+
+        r[me::enum_integer(mode::confined)] = std::vector<sf::IntRect>{{406 + 16, 20, -16, 23}, {423 + 16, 20, -16, 23}};
+        r[me::enum_integer(mode::chase)] = r[me::enum_integer(mode::confined)];
+        r[me::enum_integer(mode::frightened)] = std::vector<sf::IntRect>{{406 + 16, 158, -16, 23}, {423 + 16, 158, -16, 23}};
+        r[me::enum_integer(mode::scatter)] = r[me::enum_integer(mode::confined)];
+
+        return r;
+    }();
+
+    return rects[me::enum_integer(mode_)];
+}
+
+sf::IntRect hammer_dead_sprite_rect()
+{
+    return sf::IntRect{406 + 16, 20 + 23, -16, -23};
+}
+
+hammer_brother::hammer_brother()
+    : skittish{
+        sprite{
+            resources::texture::enemies,
+            hammer_animated_sprite_rects(mode::scatter),
+            sf::seconds(0.25f),
+            sprite::repeat::loop,
+            configuration::values()["enemies"]["hammer_brother"]["scale"].value_or<float>(1.f),
+        },
+        *configuration::values()["enemies"]["hammer_brother"]["speed"].value<int>()
+    }
+    , throw_timer{throw_time}
+{}
+
+std::string_view hammer_brother::name() const
+{
+    return "hammer brother";
+}
+
+void hammer_brother::update_sprite()
+{
+    if(current_mode_ == mode::dead)
+    {
+        sprite_.still(hammer_dead_sprite_rect());
+    }
+    else
+    {
+        sprite_.animate(hammer_animated_sprite_rects(current_mode_), sf::seconds(0.25f), sprite::repeat::loop);
+    }
+
+    enemy::update_sprite();
+}
+
+void hammer_brother::update_self(
+    sf::Time const& dt,
+    commands_t& commands)
+{
+    if(current_mode_ == mode::chase && (throw_timer -= dt) <= sf::Time::Zero)
+    {
+        throw_timer += throw_time;
+
+        commands.push(make_command(std::function{[this](layer::projectiles& layer, sf::Time const&)
+        {
+            sf::Vector2f position = getPosition();
+
+            add_projectile<super_mario::hammer>(layer, position, heading_);
+        }}));
+    }
+
+    skittish::update_self(dt, commands);
 }
 
 }

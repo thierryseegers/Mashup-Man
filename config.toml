@@ -21,6 +21,10 @@ speed = 85
 scale = 1.1
 speed = 85
 
+[enemies.hammer_brother]
+scale = 1
+speed = 50
+
 [items]
 
 [items.coin]
