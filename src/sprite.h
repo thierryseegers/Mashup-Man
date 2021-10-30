@@ -24,15 +24,13 @@ public:
 
     sprite(
         resources::texture const& texture_sheet,
-        sf::IntRect const& texture_rect,
-        float const scale_factor = 1.f);
+        sf::IntRect const& texture_rect);
 
     sprite(
         resources::texture const& texture_sheet,
         std::vector<sf::IntRect> const& texture_rects,
         sf::Time const duration,
-        repeat const repeat_ = repeat::loop,
-        float const scale_factor = 1.f);
+        repeat const repeat_ = repeat::loop);
 
     ~sprite() = default;
 
@@ -62,8 +60,7 @@ public:
 
 protected:
     sprite(
-        resources::texture const& texture_sheet,
-        float const scale_factor = 1.f);
+        resources::texture const& texture_sheet);
 
     sf::Sprite sprite_;
 
@@ -71,7 +68,6 @@ protected:
     // pointer but rather be given an instance of `sprite` to work with.
     std::function<void (sf::Time const&, sprite&)> updater;
 
-    float scale_factor;
     bool flipped;
 
     // These two pieces of information are used to keep an animation `flowing` when 

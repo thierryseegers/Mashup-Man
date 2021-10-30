@@ -9,22 +9,17 @@
 #include <spdlog/spdlog.h>
 
 sprite::sprite(
-    resources::texture const& texture,
-    float const scale_factor)
+    resources::texture const& texture)
     : sprite_{resources::textures().get(texture)}
-    , scale_factor{scale_factor}
     , flipped{false}
     , current_frame{0}
     , elapsed{sf::Time::Zero}
-{
-    sprite_.setScale(scale_factor, scale_factor);
-}
+{}
 
 sprite::sprite(
     resources::texture const& texture,
-    sf::IntRect const& texture_rect,
-    float const scale_factor)
-    : sprite(texture, scale_factor)
+    sf::IntRect const& texture_rect)
+    : sprite(texture)
 {
     still(texture_rect);
 }
@@ -33,9 +28,8 @@ sprite::sprite(
     resources::texture const& texture,
     std::vector<sf::IntRect> const& texture_rects,
     sf::Time const duration,
-    repeat const repeat_,
-    float const scale_factor)
-    : sprite(texture, scale_factor)
+    repeat const repeat_)
+    : sprite(texture)
 {
     animate(texture_rects, duration, repeat_);
 }
@@ -87,7 +81,8 @@ void sprite::flip()
 {
     if(!flipped)
     {
-        sprite_.setScale(-scale_factor, scale_factor);
+        auto const scale = sprite_.getScale();
+        sprite_.setScale(-scale.x, scale.y);
         flipped = true;
     }
 }
@@ -96,7 +91,8 @@ void sprite::unflip()
 {
     if(flipped)
     {
-        sprite_.setScale(scale_factor, scale_factor);
+        auto const scale = sprite_.getScale();
+        sprite_.setScale(-scale.x, scale.y);
         flipped = false;
     }
 }

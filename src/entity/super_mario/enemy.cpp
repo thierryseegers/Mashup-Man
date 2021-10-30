@@ -52,12 +52,14 @@ goomba::goomba()
             resources::texture::enemies,
             goomba_animated_sprite_rects(mode::scatter),
             sf::seconds(0.25f),
-            sprite::repeat::loop,
-            configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f),
+            sprite::repeat::loop
         },
         *configuration::values()["enemies"]["goomba"]["speed"].value<int>()
         }
-{}
+{
+    auto const scale = configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 std::string_view goomba::name() const
 {
@@ -107,12 +109,14 @@ koopa::koopa()
             resources::texture::enemies,
             goomba_animated_sprite_rects(mode::scatter),
             sf::seconds(0.25f),
-            sprite::repeat::loop,
-            configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f),
+            sprite::repeat::loop
         },
         *configuration::values()["enemies"]["koopa"]["speed"].value<int>()
         }
-{}
+{
+    auto const scale = configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 std::string_view koopa::name() const
 {
@@ -161,12 +165,14 @@ beetle::beetle()
             resources::texture::enemies,
             beetle_animated_sprite_rects(mode::scatter),
             sf::seconds(0.25f),
-            sprite::repeat::loop,
-            configuration::values()["enemies"]["beetle"]["scale"].value_or<float>(1.f),
+            sprite::repeat::loop
         },
         *configuration::values()["enemies"]["beetle"]["speed"].value<int>()
         }
-{}
+{
+    auto const scale = configuration::values()["enemies"]["beetle"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 std::string_view beetle::name() const
 {
@@ -216,13 +222,15 @@ hammer_brother::hammer_brother()
             resources::texture::enemies,
             hammer_animated_sprite_rects(mode::scatter),
             sf::seconds(0.25f),
-            sprite::repeat::loop,
-            configuration::values()["enemies"]["hammer_brother"]["scale"].value_or<float>(1.f),
+            sprite::repeat::loop
         },
         *configuration::values()["enemies"]["hammer_brother"]["speed"].value<int>()
     }
     , throw_timer{throw_time}
-{}
+{
+    auto const scale = configuration::values()["enemies"]["hammer_brother"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 std::string_view hammer_brother::name() const
 {

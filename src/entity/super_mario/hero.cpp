@@ -47,8 +47,7 @@ brother::brother(
     : hero{
         sprite{
             resources::texture::brothers,
-            still_sprite_rect(size::small, attribute::plain),
-            configuration::values()["brothers"]["scale"].value_or<float>(1.f)},
+            still_sprite_rect(size::small, attribute::plain)},
         *configuration::values()["brothers"]["speed"].value<int>()}
     , still_sprite_rect(still_sprite_rect)
     , animated_sprite_rects{animated_sprite_rects}
@@ -60,7 +59,10 @@ brother::brother(
     , fire_countdown{sf::Time::Zero}
     , shooting{false}
     , shrinking{sf::Time::Zero}
-{}
+{
+    auto const scale = configuration::values()["brothers"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 void brother::hit()
 {
@@ -189,12 +191,11 @@ void brother::update_sprite()
 
 entity* brother::tombstone() const
 {
-    return new dead_brother(
-        sprite{
-            resources::texture::brothers,
-            dead_sprite_rect(attribute_),
-            configuration::values()["brothers"]["scale"].value_or<float>(1.f)}
-    );
+    auto *db = new dead_brother(sprite{resources::texture::brothers, dead_sprite_rect(attribute_)});
+    auto const scale = configuration::values()["brothers"]["scale"].value_or<float>(1.f);
+    db->setScale(scale, scale);
+
+    return db;
 }
 
 void brother::shoot_fireball(
