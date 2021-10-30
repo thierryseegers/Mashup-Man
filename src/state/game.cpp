@@ -28,9 +28,9 @@ bool game::update(
     {
         if(world_.players_alive())
         {
-            // states.request_push(id::next_level);
+            states.request_push(id::level_complete);
         }
-        else 
+        else
         {
             states.request_push(id::game_over);
         }

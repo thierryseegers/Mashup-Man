@@ -176,6 +176,8 @@ add_executable(${PROJECT_NAME}
     src/state/game.cpp
     src/state/game.h
     src/state/id.h
+    src/state/level_complete.cpp
+    src/state/level_complete.h
     src/state/pause.cpp
     src/state/pause.h
     src/state/stack.cpp

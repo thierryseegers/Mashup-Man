@@ -26,7 +26,9 @@ player::player()
     sound_buffers.load(resources::sound_effect::collect_powerup, "assets/sounds/Powerup.wav");
     sound_buffers.load(resources::sound_effect::die, "assets/sounds/Die.wav");
     sound_buffers.load(resources::sound_effect::fireball, "assets/sounds/Fire ball.wav");
+    sound_buffers.load(resources::sound_effect::fireworks, "assets/sounds/Fireworks.wav");
     sound_buffers.load(resources::sound_effect::game_over, "assets/sounds/Game Over.wav");
+    sound_buffers.load(resources::sound_effect::level_complete, "assets/sounds/Stage Clear.wav");
     sound_buffers.load(resources::sound_effect::kick, "assets/sounds/Kick.wav");
     sound_buffers.load(resources::sound_effect::pause, "assets/sounds/Pause.wav");
     sound_buffers.load(resources::sound_effect::warp, "assets/sounds/Warp.wav");
