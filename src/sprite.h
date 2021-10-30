@@ -60,8 +60,7 @@ public:
         sf::RenderStates states) const override;
 
     void update(
-        sf::Time const&,
-        commands_t&);
+        sf::Time const&);
 
 protected:
     sprite(
@@ -72,7 +71,7 @@ protected:
 
     // Because this obejct can be copied/moved, `updater` must not capture the `this` 
     // pointer but rather be given an instance of `sprite` to work with.
-    std::function<void (sf::Time const&, commands_t&, sprite&)> updater;
+    std::function<void (sf::Time const&, sprite&)> updater;
 
     float scale_factor;
     bool flipped;

@@ -46,7 +46,7 @@ void sprite::still(
     sprite_.setTextureRect(texture_rect);
     utility::center_origin(sprite_);
 
-    updater = [](sf::Time const&, commands_t&, sprite&){};
+    updater = [](sf::Time const&, sprite&){};
 }
 
 void sprite::animate(
@@ -61,7 +61,6 @@ void sprite::animate(
                n_frames = texture_rects.size(),
                time_per_frame = duration / static_cast<float>(texture_rects.size())](
                 sf::Time const& dt,
-                commands_t&,
                 sprite& sprite_) mutable
     {
         sprite_.elapsed += dt;
@@ -127,8 +126,7 @@ void sprite::draw(
 }
 
 void sprite::update(
-        sf::Time const& dt,
-        commands_t& commands)
+        sf::Time const& dt)
 {
-    updater(dt, commands, *this);
+    updater(dt, *this);
 }
