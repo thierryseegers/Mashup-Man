@@ -200,25 +200,7 @@ entity* brother::tombstone() const
 void brother::shoot_fireball(
     layer::projectiles& layer) const
 {
-    sf::Vector2f position = getPosition();
-
-    switch(heading_)
-    {
-        case direction::up:
-            position.y -= level::tile_size;
-            break;
-        case direction::down:
-            position.y += level::tile_size;
-            break;
-        case direction::left:
-            position.x -= level::tile_size;
-            break;
-        case direction::right:
-            position.x += level::tile_size;
-            break;
-        default:
-            break;
-    }
+    sf::Vector2f const position = getPosition() + to_vector2f(heading_) * static_cast<float>(level::tile_size);
 
     add_projectile<super_mario::fireball>(layer, position, heading_);
 }
