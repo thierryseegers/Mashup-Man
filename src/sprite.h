@@ -12,6 +12,7 @@
 
 class sprite
     : public sf::Drawable
+    , public sf::Transformable
 {
 public:
     enum class repeat
@@ -46,9 +47,6 @@ public:
     void flip();
 
     void unflip();
-
-    void set_rotation(
-        float const angle);
 
     void set_color(
         sf::Color const color);

@@ -127,7 +127,7 @@ void hammer::update_self(
     {
         rotation_timer += rotation_time / 4.f;
 
-        sprite_.set_rotation(rotation_degrees = fmod(rotation_degrees + 90.f, 360.f));
+        sprite_.setRotation(rotation_degrees = fmod(rotation_degrees + 90.f, 360.f));
     }
 
     velocity += sf::Vector2f{0.f, 32 * 9.8f} * dt.asSeconds();

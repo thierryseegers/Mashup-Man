@@ -101,12 +101,6 @@ void sprite::unflip()
     }
 }
 
-void sprite::set_rotation(
-    float const angle)
-{
-    sprite_.setRotation(angle);
-}
-
 void sprite::set_color(
     sf::Color const color)
 {
@@ -122,6 +116,7 @@ void sprite::draw(
     sf::RenderTarget& target,
     sf::RenderStates states) const 
 {
+    states.transform *= getTransform();
     target.draw(sprite_, states);
 }
 
