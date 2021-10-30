@@ -442,7 +442,7 @@ void axis::draw_self(
     sf::RenderStates states) const
 {
     // Show the computations done to arrive at the target.
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::T) &&
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) &&
        current_mode_ == mode::chase)
     {
             sf::RectangleShape a{{utility::length(follower_to_ahead_), 5}};
@@ -528,7 +528,7 @@ void skittish::draw_self(
     sf::RenderStates states) const
 {
     // Show the computations done to arrive at the target.
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::T) &&
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num4) &&
        current_mode_ == mode::chase)
     {
             target.draw(closeness_limit_, {parent->world_transform()});
