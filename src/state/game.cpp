@@ -12,9 +12,7 @@ game::game(
     stack& states)
     : state{states}
     , world_{states.context}
-{
-    // states.context.music.play(music::theme::mission);
-}
+{}
 
 void game::draw()
 {
@@ -34,8 +32,6 @@ bool game::update(
         }
         else 
         {
-            states.context.sound.play(resources::sound_effect::game_over);
-
             states.request_push(id::game_over);
         }
     }

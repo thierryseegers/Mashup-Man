@@ -9,11 +9,14 @@
 namespace state
 {
 
-class game_over : public state
+class game_over
+    : public state
 {
 public:
     game_over(
         stack& states);
+
+    ~game_over() = default;
 
     virtual void draw() override;
 
