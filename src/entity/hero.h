@@ -30,7 +30,7 @@ public:
     [[nodiscard]] direction steering() const;
 
     // The sprite to be used to represent this hero (e.g. on the lifeboard).
-    virtual sf::Sprite default_sprite() = 0;
+    virtual sprite default_still() = 0;
 
     // The hero has been hit, be it by a ghost or a projectile.
     virtual void hit() override;

@@ -2,6 +2,7 @@
 
 #include "entity/hero.h"
 #include "entity/super_mario/power_up.h"
+#include "sprite.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -111,7 +112,7 @@ class mario
 public:
     mario();
 
-    virtual sf::Sprite default_sprite() override;
+    virtual sprite default_still() override;
 };
 
 template<template<typename> class Hero_N>
@@ -121,7 +122,7 @@ class luigi
 public:
     luigi();
 
-    virtual sf::Sprite default_sprite() override;
+    virtual sprite default_still() override;
 };
 
 }

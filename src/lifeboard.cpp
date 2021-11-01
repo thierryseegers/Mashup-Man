@@ -2,15 +2,19 @@
 
 #include "level.h"
 
-lifeboard::info& lifeboard::operator[](
-    size_t const i)
+size_t lifeboard::grant(
+    int const lives,
+    sprite const& sprite)
 {
-    if(i >= infos.size())
-    {
-        infos.resize(i + 1);
-    }
+    infos.emplace_back(lives, sprite);
 
-    return infos[i];
+    return infos.size() - 1;
+}
+
+int lifeboard::take(
+        size_t const i)
+{
+    return --infos[i].lives;
 }
 
 void lifeboard::draw(

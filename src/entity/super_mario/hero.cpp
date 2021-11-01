@@ -272,9 +272,9 @@ mario<Hero_N>::mario()
 {}
 
 template<template<typename> class Hero_N>
-sf::Sprite mario<Hero_N>::default_sprite()
+sprite mario<Hero_N>::default_still()
 {
-    return sf::Sprite{resources::textures().get(resources::texture::brothers), mario_still_sprite_rect(brother::size::small, brother::attribute::plain)};
+    return {resources::texture::brothers, mario_still_sprite_rect(brother::size::small, brother::attribute::plain)};
 }
 
 sf::IntRect luigi_still_sprite_rect(
@@ -329,9 +329,9 @@ luigi<Hero_N>::luigi()
 {}
 
 template<template<typename> class Hero_N>
-sf::Sprite luigi<Hero_N>::default_sprite()
+sprite luigi<Hero_N>::default_still()
 {
-    return sf::Sprite{resources::textures().get(resources::texture::brothers), luigi_still_sprite_rect(brother::size::small, brother::attribute::plain)};
+    return {resources::texture::brothers, luigi_still_sprite_rect(brother::size::small, brother::attribute::plain)};
 }
 
 template class mario<hero_1>;
