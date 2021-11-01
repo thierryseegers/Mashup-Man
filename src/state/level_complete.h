@@ -2,21 +2,21 @@
 
 #include "state/stack.h"
 #include "state/state.h"
+#include "sprite.h"
 
-#include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+
+#include <memory>
 
 namespace state
 {
 
-class game_over
+class level_complete
     : public state
 {
 public:
-    game_over(
+    level_complete(
         stack& states);
-
-    ~game_over() = default;
 
     virtual void draw() override;
 
@@ -30,6 +30,9 @@ private:
     sf::Text text;
     sf::Time duration;
     sf::Time elapsed;
+
+    int fireworks;
+    std::unique_ptr<sprite> explosion;
 };
 
 }

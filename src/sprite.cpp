@@ -9,22 +9,17 @@
 #include <spdlog/spdlog.h>
 
 sprite::sprite(
-    resources::texture const& texture,
-    float const scale_factor)
+    resources::texture const& texture)
     : sprite_{resources::textures().get(texture)}
-    , scale_factor{scale_factor}
     , flipped{false}
     , current_frame{0}
     , elapsed{sf::Time::Zero}
-{
-    sprite_.setScale(scale_factor, scale_factor);
-}
+{}
 
 sprite::sprite(
     resources::texture const& texture,
-    sf::IntRect const& texture_rect,
-    float const scale_factor)
-    : sprite(texture, scale_factor)
+    sf::IntRect const& texture_rect)
+    : sprite(texture)
 {
     still(texture_rect);
 }
@@ -33,9 +28,8 @@ sprite::sprite(
     resources::texture const& texture,
     std::vector<sf::IntRect> const& texture_rects,
     sf::Time const duration,
-    repeat const repeat_,
-    float const scale_factor)
-    : sprite(texture, scale_factor)
+    repeat const repeat_)
+    : sprite(texture)
 {
     animate(texture_rects, duration, repeat_);
 }
@@ -46,7 +40,7 @@ void sprite::still(
     sprite_.setTextureRect(texture_rect);
     utility::center_origin(sprite_);
 
-    updater = [](sf::Time const&, commands_t&, sprite&){};
+    updater = [](sf::Time const&, sprite&){};
 }
 
 void sprite::animate(
@@ -61,7 +55,6 @@ void sprite::animate(
                n_frames = texture_rects.size(),
                time_per_frame = duration / static_cast<float>(texture_rects.size())](
                 sf::Time const& dt,
-                commands_t&,
                 sprite& sprite_) mutable
     {
         sprite_.elapsed += dt;
@@ -88,7 +81,8 @@ void sprite::flip()
 {
     if(!flipped)
     {
-        sprite_.setScale(-scale_factor, scale_factor);
+        auto const scale = sprite_.getScale();
+        sprite_.setScale(-scale.x, scale.y);
         flipped = true;
     }
 }
@@ -97,15 +91,10 @@ void sprite::unflip()
 {
     if(flipped)
     {
-        sprite_.setScale(scale_factor, scale_factor);
+        auto const scale = sprite_.getScale();
+        sprite_.setScale(-scale.x, scale.y);
         flipped = false;
     }
-}
-
-void sprite::set_rotation(
-    float const angle)
-{
-    sprite_.setRotation(angle);
 }
 
 void sprite::set_color(
@@ -123,12 +112,12 @@ void sprite::draw(
     sf::RenderTarget& target,
     sf::RenderStates states) const 
 {
+    states.transform *= getTransform();
     target.draw(sprite_, states);
 }
 
 void sprite::update(
-        sf::Time const& dt,
-        commands_t& commands)
+        sf::Time const& dt)
 {
-    updater(dt, commands, *this);
+    updater(dt, *this);
 }

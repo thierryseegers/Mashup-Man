@@ -12,8 +12,10 @@ pipe::pipe()
     : entity{
         sprite{
             resources::texture::pipe,
-            sf::IntRect{0, 0, 32, 32},
-            configuration::values()["features"]["pipe"]["scale"].value_or<float>(1.f)}}
-{}
+            sf::IntRect{0, 0, 32, 32}}}
+{
+    auto const scale = configuration::values()["features"]["pipe"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 }

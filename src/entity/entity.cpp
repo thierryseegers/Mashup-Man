@@ -78,11 +78,11 @@ void entity::nudge(
 
 void entity::update_self(
     sf::Time const& dt,
-    commands_t& commands)
+    commands_t&)
 {
     sf::Transformable::move(to_vector2f(heading_) * (max_speed * throttle_) * dt.asSeconds());
 
-    sprite_.update(dt, commands);
+    sprite_.update(dt);
 }
 
  void entity::draw_self(
@@ -98,19 +98,19 @@ void entity::update_sprite()
     {
         case direction::up:
             sprite_.unflip();
-            sprite_.set_rotation(270.f);
+            sprite_.setRotation(270.f);
             break;
         case direction::down:
             sprite_.unflip();
-            sprite_.set_rotation(90.f);
+            sprite_.setRotation(90.f);
             break;
         case direction::left:
             sprite_.flip();
-            sprite_.set_rotation(0.f);
+            sprite_.setRotation(0.f);
             break;
         case direction::right:
             sprite_.unflip();
-            sprite_.set_rotation(0.f);
+            sprite_.setRotation(0.f);
             break;
         default:
             break;

@@ -48,8 +48,10 @@ enum class sound_effect
     collect_powerup,
     die,
     fireball,
+    fireworks,
     game_over,
     kick,
+    level_complete,
     pause,
     short_die,
     warp

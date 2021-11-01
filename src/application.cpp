@@ -4,6 +4,7 @@
 #include "resources.h"
 #include "state/game_over.h"
 #include "state/game.h"
+#include "state/level_complete.h"
 // #include "state/id.h"
 // #include "state/menu.h"
 #include "state/pause.h"
@@ -78,10 +79,11 @@ application::application()
     statistics_text.setCharacterSize(24);
 
 	// states.register_state<state::menu>(state::id::menu);
-	states.register_state<state::game>(state::id::game);
-	states.register_state<state::pause>(state::id::pause);
-    // states.register_state<state::settings>(state::id::settings);
     states.register_state<state::game_over>(state::id::game_over);
+    states.register_state<state::game>(state::id::game);
+    states.register_state<state::level_complete>(state::id::level_complete);
+    states.register_state<state::pause>(state::id::pause);
+    // states.register_state<state::settings>(state::id::settings);
     states.register_state<state::title>(state::id::title);
 
     states.request_push(state::id::title);

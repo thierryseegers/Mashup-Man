@@ -18,8 +18,7 @@ public:
     animation(
         resources::texture const& texture,
         std::vector<sf::IntRect> const& texture_rects,
-        sf::Time const duration,
-        float const scale_factor = 1.f);
+        sf::Time const duration);
 
 protected:
     void update_self(

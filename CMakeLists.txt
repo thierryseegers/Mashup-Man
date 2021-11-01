@@ -94,8 +94,6 @@ find_package(SFML 2.5.1
     COMPONENTS audio graphics system window
     REQUIRED
 )
-add_library(sfml::sfml
-    ALIAS SFML::SFML)
 
 find_package(spdlog 1.9.2
     CONFIG
@@ -173,14 +171,13 @@ add_executable(${PROJECT_NAME}
     src/sound.h
     src/sprite.cpp
     src/sprite.h
-    src/tomlpp.h
-    src/utility.cpp
-    src/utility.h
-    src/state/game.cpp
-    src/state/game.h
     src/state/game_over.cpp
     src/state/game_over.h
+    src/state/game.cpp
+    src/state/game.h
     src/state/id.h
+    src/state/level_complete.cpp
+    src/state/level_complete.h
     src/state/pause.cpp
     src/state/pause.h
     src/state/stack.cpp
@@ -189,6 +186,9 @@ add_executable(${PROJECT_NAME}
     src/state/state.h
     src/state/title.cpp
     src/state/title.h
+    src/tomlpp.h
+    src/utility.cpp
+    src/utility.h
     src/world.cpp
     src/world.h
 )
@@ -196,10 +196,10 @@ add_executable(${PROJECT_NAME}
 if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     target_compile_options(${PROJECT_NAME}
         PRIVATE
-            -Wall
-            -Wextra
-            -Werror
             -pedantic
+            -Wall
+            -Werror
+            -Wextra
     )
 endif()
 
@@ -211,8 +211,10 @@ if(MSVC)
 
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE
-            NOMINMAX
             _USE_MATH_DEFINES
+            /W4
+            /WX
+            NOMINMAX
     )
 endif()
 
@@ -226,7 +228,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Boost::graph
         magic_enum::magic_enum
-        sfml::sfml
+        SFML::SFML
         spdlog::spdlog
         tomlplusplus::tomlplusplus
 )

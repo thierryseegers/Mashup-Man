@@ -14,15 +14,13 @@ namespace entity
 animation::animation(
     resources::texture const& texture,
     std::vector<sf::IntRect> const& texture_rects,
-    sf::Time const duration,
-    float const scale_factor)
+    sf::Time const duration)
     : entity{
         sprite{
             texture,
             texture_rects,
             duration,
-            sprite::repeat::none,
-            scale_factor}}
+            sprite::repeat::none}}
     , countdown{duration}
 {}
 

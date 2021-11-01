@@ -18,9 +18,11 @@ coin::coin()
             resources::texture::items,
             std::vector<sf::IntRect>{{0, 96, 16, 16}, {16, 96, 16, 16}, {32, 96, 16, 16}, {48, 96, 16, 16}},
             sf::seconds(1.f),
-            sprite::repeat::loop,
-            configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f)}}
-{}
+            sprite::repeat::loop}}
+{
+    auto const scale = configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 void coin::picked_up(brother_picker* picker)
 {
@@ -37,9 +39,11 @@ mushroom::mushroom()
     : super_mario_power_up{
         sprite{
             resources::texture::items,
-            sf::IntRect{0, 0, 16, 16},
-            configuration::values()["items"]["mushroom"]["scale"].value_or<float>(1.f)}}
-{}
+            sf::IntRect{0, 0, 16, 16}}}
+{
+    auto const scale = configuration::values()["items"]["mushroom"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 void mushroom::picked_up(brother_picker* picker)
 {
@@ -58,9 +62,11 @@ flower::flower()
             resources::texture::items,
             std::vector<sf::IntRect>{{0, 32, 16, 16}, {16, 32, 16, 16}, {32, 32, 16, 16}, {48, 32, 16, 16}},
             sf::seconds(1.f),
-            sprite::repeat::loop,
-            configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f)}}
-{}
+            sprite::repeat::loop}}
+{
+    auto const scale = configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 void flower::picked_up(brother_picker* picker)
 {

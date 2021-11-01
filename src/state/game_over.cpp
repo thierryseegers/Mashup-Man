@@ -23,6 +23,8 @@ game_over::game_over(
 
     auto const view_size = states.context.window.getView().getSize();
     text.setPosition(view_size.x / 2, view_size.y / 2);
+
+    states.context.sound.play(resources::sound_effect::game_over);
 }
 
 void game_over::draw()

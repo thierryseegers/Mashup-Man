@@ -47,8 +47,7 @@ brother::brother(
     : hero{
         sprite{
             resources::texture::brothers,
-            still_sprite_rect(size::small, attribute::plain),
-            configuration::values()["brothers"]["scale"].value_or<float>(1.f)},
+            still_sprite_rect(size::small, attribute::plain)},
         *configuration::values()["brothers"]["speed"].value<int>()}
     , still_sprite_rect(still_sprite_rect)
     , animated_sprite_rects{animated_sprite_rects}
@@ -60,7 +59,10 @@ brother::brother(
     , fire_countdown{sf::Time::Zero}
     , shooting{false}
     , shrinking{sf::Time::Zero}
-{}
+{
+    auto const scale = configuration::values()["brothers"]["scale"].value_or<float>(1.f);
+    setScale(scale, scale);
+}
 
 void brother::hit()
 {
@@ -189,36 +191,17 @@ void brother::update_sprite()
 
 entity* brother::tombstone() const
 {
-    return new dead_brother(
-        sprite{
-            resources::texture::brothers,
-            dead_sprite_rect(attribute_),
-            configuration::values()["brothers"]["scale"].value_or<float>(1.f)}
-    );
+    auto *db = new dead_brother(sprite{resources::texture::brothers, dead_sprite_rect(attribute_)});
+    auto const scale = configuration::values()["brothers"]["scale"].value_or<float>(1.f);
+    db->setScale(scale, scale);
+
+    return db;
 }
 
 void brother::shoot_fireball(
     layer::projectiles& layer) const
 {
-    sf::Vector2f position = getPosition();
-
-    switch(heading_)
-    {
-        case direction::up:
-            position.y -= level::tile_size;
-            break;
-        case direction::down:
-            position.y += level::tile_size;
-            break;
-        case direction::left:
-            position.x -= level::tile_size;
-            break;
-        case direction::right:
-            position.x += level::tile_size;
-            break;
-        default:
-            break;
-    }
+    sf::Vector2f const position = getPosition() + to_vector2f(heading_) * static_cast<float>(level::tile_size);
 
     add_projectile<super_mario::fireball>(layer, position, heading_);
 }

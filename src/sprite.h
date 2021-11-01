@@ -12,6 +12,7 @@
 
 class sprite
     : public sf::Drawable
+    , public sf::Transformable
 {
 public:
     enum class repeat
@@ -23,15 +24,13 @@ public:
 
     sprite(
         resources::texture const& texture_sheet,
-        sf::IntRect const& texture_rect,
-        float const scale_factor = 1.f);
+        sf::IntRect const& texture_rect);
 
     sprite(
         resources::texture const& texture_sheet,
         std::vector<sf::IntRect> const& texture_rects,
         sf::Time const duration,
-        repeat const repeat_ = repeat::loop,
-        float const scale_factor = 1.f);
+        repeat const repeat_ = repeat::loop);
 
     ~sprite() = default;
 
@@ -47,9 +46,6 @@ public:
 
     void unflip();
 
-    void set_rotation(
-        float const angle);
-
     void set_color(
         sf::Color const color);
 
@@ -60,21 +56,18 @@ public:
         sf::RenderStates states) const override;
 
     void update(
-        sf::Time const&,
-        commands_t&);
+        sf::Time const&);
 
 protected:
     sprite(
-        resources::texture const& texture_sheet,
-        float const scale_factor = 1.f);
+        resources::texture const& texture_sheet);
 
     sf::Sprite sprite_;
 
     // Because this obejct can be copied/moved, `updater` must not capture the `this` 
     // pointer but rather be given an instance of `sprite` to work with.
-    std::function<void (sf::Time const&, commands_t&, sprite&)> updater;
+    std::function<void (sf::Time const&, sprite&)> updater;
 
-    float scale_factor;
     bool flipped;
 
     // These two pieces of information are used to keep an animation `flowing` when 
