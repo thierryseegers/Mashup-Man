@@ -29,8 +29,11 @@ public:
     // The direction towards which the hero is steered by the player.
     [[nodiscard]] direction steering() const;
 
-    // The sprite to be used to represent this hero (e.g. on the lifeboard).
+    // The still image to be used to represent this hero (e.g. on the lifeboard).
     virtual sprite default_still() = 0;
+
+    // The default animation to be used to represent this hero (e.g. on the character select screen).
+    virtual sprite default_animated() = 0;
 
     // The hero has been hit, be it by a ghost or a projectile.
     virtual void hit() override;

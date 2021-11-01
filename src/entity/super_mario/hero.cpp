@@ -277,6 +277,12 @@ sprite mario<Hero_N>::default_still()
     return {resources::texture::brothers, mario_still_sprite_rect(brother::size::small, brother::attribute::plain)};
 }
 
+template<template<typename> class Hero_N>
+sprite mario<Hero_N>::default_animated()
+{
+    return {resources::texture::brothers, mario_animated_sprite_rects(brother::size::small, brother::attribute::plain), sf::seconds(0.25f), sprite::repeat::loop};
+}
+
 sf::IntRect luigi_still_sprite_rect(
     brother::size const size_,
     brother::attribute const attribute_)
@@ -332,6 +338,12 @@ template<template<typename> class Hero_N>
 sprite luigi<Hero_N>::default_still()
 {
     return {resources::texture::brothers, luigi_still_sprite_rect(brother::size::small, brother::attribute::plain)};
+}
+
+template<template<typename> class Hero_N>
+sprite luigi<Hero_N>::default_animated()
+{
+    return {resources::texture::brothers, luigi_animated_sprite_rects(brother::size::small, brother::attribute::plain), sf::seconds(0.25f), sprite::repeat::loop};
 }
 
 template class mario<hero_1>;

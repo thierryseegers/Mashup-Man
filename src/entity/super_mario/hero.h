@@ -113,6 +113,8 @@ public:
     mario();
 
     virtual sprite default_still() override;
+
+    virtual sprite default_animated() override;
 };
 
 template<template<typename> class Hero_N>
@@ -123,6 +125,8 @@ public:
     luigi();
 
     virtual sprite default_still() override;
+
+    virtual sprite default_animated() override;
 };
 
 }
