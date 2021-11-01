@@ -8,11 +8,11 @@ This contraint is what made me think of "Mashup-Man", a re-imagining of Pac-Man 
 
 Here's what combining Pac-Man and Super Mario looks like :
 
-<img width="752" alt="Mashup-Man screenshot" src="https://user-images.githubusercontent.com/1580647/133933250-8f637c78-62ff-46bf-8f27-c0bab87f4144.png">
+<img width="752" alt="Mashup-Man screenshot" src="https://user-images.githubusercontent.com/1580647/139647765-bb4a1765-b448-4e01-99cf-c2dd830f09e9.png">
 
 ## Demo
 
-Whatch a short demo of this game in [English](https://youtu.be/NF7veV5yCsI)... ou en [français](https://youtu.be/4ZGo7nx7lvU)!
+Whatch short demos of this game (in [English](https://www.youtube.com/watch?v=AR5kxZ9wvZ4&list=PLetmUjNPuBak93Jj5Oc0t_LUcm6b2oBQN)... ou en [français](https://www.youtube.com/watch?v=C4fydMQ_cTA&list=PLetmUjNPuBalHSGnNIXJZMNvlfaeWsVFL) !) as it's getting implemented over time.
 
 
 ## Can you really do that, legally?
@@ -34,6 +34,11 @@ That said, should you copy the assets yourself in the expected folder, you will 
 Further, I plan to use a different approach to reusing game assets in the future and that is to read them directly from ROMs.
 That way, *you* provide the assets just like other reverse-engineered games (e.g. [OpenTTD](https://www.openttd.org/)) rely on the assets from your own copy of the original game.
 
+## You don't have a LICENSE file!
+
+Correct.
+Consider this software as "[Source-available](https://en.wikipedia.org/wiki/Source-available_software)" for now.
+That is, in essence, the [default](https://opensource.stackexchange.com/a/1721) you get on GitHub when no license file is present.
 
 ## Current state of the implementation
 
@@ -44,8 +49,8 @@ In rough order:
 - [ ] Prettier menus
 - [ ] More levels
 - [ ] Configuration/Key bindings menu
-- [ ] Read game assets like sprites and sound effects from ROMs
-- [ ] A variety of enemies that use the original (or novel) chasing strategies
+- [x] A variety of enemies that use the original (or novel) chasing strategies
+  - Four enemies from the Super Mario "bestiary" are present, each following one of the four original chasing strategies.
 - [ ] Character select screen
 - [ ] Coop/Competitive mode
 - [ ] Runtime debug menu using [ImGui](https://github.com/ocornut/imgui)
