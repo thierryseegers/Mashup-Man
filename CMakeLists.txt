@@ -171,6 +171,8 @@ add_executable(${PROJECT_NAME}
     src/sound.h
     src/sprite.cpp
     src/sprite.h
+    src/state/character_select.cpp
+    src/state/character_select.h
     src/state/game_over.cpp
     src/state/game_over.h
     src/state/game.cpp

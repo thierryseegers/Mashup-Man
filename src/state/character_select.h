@@ -10,11 +10,11 @@
 namespace state
 {
 
-class title
+class character_select
     : public state
 {
 public:
-    title(
+    character_select(
         stack& states);
 
     virtual void draw() override;
@@ -26,18 +26,18 @@ public:
         sf::Event const& event) override;
 
 private:
-    static bool scroll; // Whether to scrool the title screen or not. Only the first one ever will.
+    // static bool scroll; // Whether to scrool the title screen or not. Only the first one ever will.
 
-    sf::View view;
-    float to_scroll;
+    // sf::View view;
+    // float to_scroll;
 
-    sf::Text title_;
-    sf::RoundedRectangleShape frame;
-    sf::RoundedRectangleShape outer_frame;
-    sf::Text choices;
-    sf::Text arrow;
+    // sf::Text title_;
+    // sf::RoundedRectangleShape frame;
+    // sf::RoundedRectangleShape outer_frame;
+    // sf::Text choices;
+    // sf::Text arrow;
 
-    int num_players;
+    // int num_players;
 };
 
 }
