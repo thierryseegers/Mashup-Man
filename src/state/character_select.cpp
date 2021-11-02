@@ -51,12 +51,12 @@ character_select::character_select(
         characters[i].small.setScale(100.f / 16, 100.f / 16);
     }
 
-    selection s{0, sf::RectangleShape{outline.getSize() - 2.f * sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()}}, characters[0].hero->default_animated(), false};
+    selection s{{characters, characters.begin()}, sf::RectangleShape{outline.getSize() - 2.f * sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()}}, characters[0].hero->default_animated(), false};
     s.outline.setFillColor(sf::Color::Transparent);
     s.outline.setOutlineColor(sf::Color::Green);
     s.outline.setOutlineThickness(outline.getOutlineThickness());
-    s.outline.setPosition(characters[0].outline.getPosition() + sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()});
-    
+    s.outline.setPosition(s.ci->outline.getPosition() + sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()});
+
     s.big.setPosition(states.context.window.getSize().x / 4.f, states.context.window.getSize().x / 4.f);
     s.big.setScale(states.context.window.getSize().y / 4.f / 16.f, states.context.window.getSize().y / 4.f / 16.f);
 
@@ -64,10 +64,10 @@ character_select::character_select(
 
     if(states.context.players.size() >= 2)
     {
-        s.n = 1;
+        ++s.ci;
 
         s.outline.setOutlineColor(sf::Color::Red);
-        s.outline.move({characters[0].outline.getSize().x + 2 * outline.getOutlineThickness(), 0.f});
+        s.outline.setPosition(s.ci->outline.getPosition() + sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()});
 
         s.big = characters[1].hero->default_animated();
         s.big.setPosition(selections[0].big.getPosition() + sf::Vector2f{states.context.window.getSize().x / 2.f, 0.f});
@@ -114,12 +114,64 @@ bool character_select::update(
 bool character_select::handle_event(
     sf::Event const& event)
 {
-    // if((event.type == sf::Event::KeyReleased &&
-    //     event.key.code == sf::Keyboard::Enter) ||
-    //    (event.type == sf::Event::JoystickButtonReleased && 
-    //     event.joystickButton.button == 6))
-    if(event.type == sf::Event::JoystickButtonReleased && 
-       event.joystickButton.button == 6)
+    // 'Joystick Left' or 'Joystick Right'
+    if(event.type == sf::Event::JoystickMoved &&
+       !selections[event.joystickMove.joystickId].selected)
+    {
+        auto& s = selections[event.joystickMove.joystickId];
+        if(auto const x_axis = sf::Joystick::getAxisPosition(event.joystickMove.joystickId, sf::Joystick::Axis::X); x_axis > 1)
+        {
+            s.ci += (selections.size() >= 2 && selections[1].ci == (s.ci + 1)) ? 2 : 1;
+        }
+        else if(x_axis < -1)
+        {
+            s.ci -= (selections.size() >= 2 && selections[1].ci == (s.ci - 1)) ? 2 : 1;
+        }
+        else
+        {
+            return true;
+        }
+
+        s.outline.setPosition(s.ci->outline.getPosition() + sf::Vector2f{s.ci->outline.getOutlineThickness(), s.ci->outline.getOutlineThickness()});
+        if(s.ci->hero)
+        {
+            auto const position = s.big.getPosition();
+            auto const scale = s.big.getScale();
+            s.big = s.ci->hero->default_animated();
+            s.big.setPosition(position);
+            s.big.setScale(scale);
+            s.big.set_color(sf::Color::White);
+        }
+        else
+        {
+            s.big.set_color(sf::Color::Black);
+        }
+
+        states.context.sound.play(resources::sound_effect::collect_coin);
+    }
+    // 'Select' button
+    else if(event.type == sf::Event::JoystickButtonReleased &&
+            event.joystickButton.button == 4 &&
+            selections[event.joystickButton.joystickId].ci->hero)
+    {
+        auto& s = selections[event.joystickButton.joystickId];
+        s.selected = !s.selected;
+        if(s.selected)
+        {
+            s.outline.setOutlineColor(sf::Color::White);
+
+            states.context.sound.play(resources::sound_effect::collect_powerup);
+        }
+        else
+        {
+
+        }
+    }
+    // 'Enter' key or 'Start' button.
+    if((event.type == sf::Event::KeyReleased &&
+        event.key.code == sf::Keyboard::Enter) ||
+       (event.type == sf::Event::JoystickButtonReleased && 
+        event.joystickButton.button == 6))
     {
         states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
 
@@ -134,15 +186,6 @@ bool character_select::handle_event(
         states.request_pop();
         states.request_push(id::game);
     }
-    // else if((event.type == sf::Event::KeyReleased &&
-    //          (event.key.code == sf::Keyboard::Up || event.key.code == sf::Keyboard::Down)) ||
-    //         (event.type == sf::Event::JoystickButtonReleased && 
-    //          event.joystickButton.button == 4))
-    // {
-    //     num_players = num_players % 2 + 1;
-
-    //     arrow.setPosition(arrow.getPosition().x, choices.getGlobalBounds().top - 25 + (num_players - 1) * 100);
-    // }
 
     return true;
 }

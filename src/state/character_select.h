@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include "state/stack.h"
 #include "state/state.h"
+#include "utility.h"
 
 #include <SFML/Graphics/RoundedRectangleShape.hpp>
 #include <SFML/Graphics.hpp>
@@ -41,7 +42,7 @@ private:
 
     struct selection
     {
-        int n;
+        utility::cyclic_iterator<decltype(characters)> ci;
         sf::RectangleShape outline;
         sprite big;
         bool selected;
