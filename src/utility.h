@@ -111,6 +111,12 @@ struct cyclic_iterator
         , i{i}
     {}
 
+    cyclic_iterator(
+        cyclic_iterator const& other)
+        : container{other.container}
+        , i{other.i}
+    {}
+
     Iterator base()
     {
         return i;
@@ -214,6 +220,28 @@ private:
     Container& container;
     Iterator i;
 };
+
+template<class Container,
+         class Iterator>
+cyclic_iterator<Container, Iterator> operator+(
+    cyclic_iterator<Container, Iterator> const& in,
+    typename cyclic_iterator<Container, Iterator>::difference_type const n)
+{
+    cyclic_iterator<Container, Iterator> out{in};
+    out += n;
+    return out;
+}
+
+template<class Container,
+         class Iterator>
+cyclic_iterator<Container, Iterator> operator-(
+    cyclic_iterator<Container, Iterator> const& in,
+    typename cyclic_iterator<Container, Iterator>::difference_type const n)
+{
+    cyclic_iterator<Container, Iterator> out{in};
+    out -= n;
+    return out;
+}
 
 template<typename T>
 struct reversed
