@@ -1,11 +1,16 @@
 #pragma once
 
+#include "entity/hero.h"
+#include "sprite.h"
 #include "state/stack.h"
 #include "state/state.h"
 
 #include <SFML/Graphics/RoundedRectangleShape.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+
+#include <memory>
+#include <vector>
 
 namespace state
 {
@@ -26,18 +31,22 @@ public:
         sf::Event const& event) override;
 
 private:
-    // static bool scroll; // Whether to scrool the title screen or not. Only the first one ever will.
+    struct character
+    {
+        std::unique_ptr<entity::hero> hero;
+        sf::RectangleShape outline;
+        sprite small;
+    };
+    std::vector<character> characters;
 
-    // sf::View view;
-    // float to_scroll;
-
-    // sf::Text title_;
-    // sf::RoundedRectangleShape frame;
-    // sf::RoundedRectangleShape outer_frame;
-    // sf::Text choices;
-    // sf::Text arrow;
-
-    // int num_players;
+    struct selection
+    {
+        int n;
+        sf::RectangleShape outline;
+        sprite big;
+        bool selected;
+    };
+    std::vector<selection> selections;
 };
 
 }

@@ -87,18 +87,22 @@ bool title::handle_event(
        (event.type == sf::Event::JoystickButtonReleased && 
         event.joystickButton.button == 6))
     {
-        states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
+        // states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
 
-        states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::mario<entity::hero_1>>{}));
-        if(num_players >= 2)
-        {
-            states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::luigi<entity::hero_2>>{}));
-        }
+        // states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::mario<entity::hero_1>>{}));
+        // if(num_players >= 2)
+        // {
+        //     states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::luigi<entity::hero_2>>{}));
+        // }
+        
+        // Convey the number of players.
+        states.context.players.resize(num_players);
+        std::fill(states.context.players.begin(), states.context.players.end(), nullptr);
 
         states.context.window.setView(sf::View{sf::FloatRect{0, 0, (float)states.context.window.getSize().x, (float)states.context.window.getSize().y}});
 
         states.request_pop();
-        states.request_push(id::game);
+        states.request_push(id::character_select);
     }
     else if((event.type == sf::Event::KeyReleased &&
              (event.key.code == sf::Keyboard::Up || event.key.code == sf::Keyboard::Down)) ||
