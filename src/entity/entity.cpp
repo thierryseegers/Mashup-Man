@@ -18,7 +18,7 @@ entity::entity(
 
 sf::FloatRect entity::collision_bounds() const
 {
-    return world_transform().transformRect(sprite_.global_bounds());
+    return (world_transform() * sprite_.getTransform()).transformRect(sprite_.global_bounds());
 }
 
 void entity::hit()

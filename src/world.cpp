@@ -291,7 +291,7 @@ void world::handle_collisions()
                 }
             }
         }
-        else if(auto [hero, projectile] = match<entity::hero, entity::hostile<entity::projectile>>(collision); hero && projectile)
+        else if(auto [hero, projectile] = match<entity::hero, entity::projectile>(collision); hero && projectile)
         {
             if(!projectile->remove)
             {
