@@ -129,16 +129,27 @@ bool character_select::handle_event(
 {
     // 'Joystick Left' or 'Joystick Right'
     if(event.type == sf::Event::JoystickMoved &&
+       event.joystickMove.joystickId < selections.size() &&
        !selections[event.joystickMove.joystickId].selected)
     {
         auto& s = selections[event.joystickMove.joystickId];
         if(auto const x_axis = sf::Joystick::getAxisPosition(event.joystickMove.joystickId, sf::Joystick::Axis::X); x_axis > 1)
         {
-            s.ci += (selections.size() >= 2 && selections[1].ci == (s.ci + 1)) ? 2 : 1;
+            // Find the next unoccupied selection.
+            do
+            {
+                ++s.ci;
+            }
+            while(std::count_if(selections.begin(), selections.end(), [&](auto const& ss){ return ss.ci == s.ci; }) > 1);
         }
         else if(x_axis < -1)
         {
-            s.ci -= (selections.size() >= 2 && selections[1].ci == (s.ci - 1)) ? 2 : 1;
+            // Find the preceding unoccupied selection.
+            do
+            {
+                --s.ci;
+            }
+            while(std::count_if(selections.begin(), selections.end(), [&](auto const& ss){ return ss.ci == s.ci; }) > 1);
         }
         else
         {
@@ -153,6 +164,10 @@ bool character_select::handle_event(
             s.big = s.ci->hero->default_animated();
             s.big.setPosition(position);
             s.big.setScale(scale);
+            if(event.joystickMove.joystickId > 0)
+            {
+                s.big.flip();
+            }
             s.big.set_color(sf::Color::White);
         }
         else
@@ -164,6 +179,7 @@ bool character_select::handle_event(
     }
     // 'Select' button
     else if(event.type == sf::Event::JoystickButtonReleased &&
+            event.joystickMove.joystickId < selections.size() &&
             event.joystickButton.button == 4 &&
             selections[event.joystickButton.joystickId].ci->hero)
     {
@@ -171,19 +187,14 @@ bool character_select::handle_event(
         s.selected = !s.selected;
         if(s.selected)
         {
-            s.outline.setOutlineColor(sf::Color::White);
-
             states.context.sound.play(resources::sound_effect::collect_powerup);
-        }
-        else
-        {
-
         }
     }
     // 'Enter' key or 'Start' button.
     if((event.type == sf::Event::KeyReleased &&
         event.key.code == sf::Keyboard::Enter) ||
-       (event.type == sf::Event::JoystickButtonReleased && 
+       (event.type == sf::Event::JoystickButtonReleased &&
+        event.joystickMove.joystickId == 0 &&
         event.joystickButton.button == 6))
     {
         if(std::all_of(selections.begin(), selections.end(), [](auto const& s){ return s.selected; }))
