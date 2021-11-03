@@ -36,7 +36,7 @@ private:
     {
         std::unique_ptr<entity::hero> hero;
         sf::RectangleShape outline;
-        sprite small;
+        sprite small_;
     };
     std::vector<character> characters;
 

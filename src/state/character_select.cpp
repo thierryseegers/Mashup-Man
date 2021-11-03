@@ -49,8 +49,8 @@ character_select::character_select(
     for(std::size_t i = 0; i != characters.size(); ++i)
     {
         characters[i].outline.setPosition({x_offset + (outline.getSize().x + 2 * outline.getOutlineThickness()) * i, y_offset});
-        characters[i].small.setPosition(characters[i].outline.getPosition() + sf::Vector2f{50.f, 50.f});
-        characters[i].small.setScale(100.f / 16, 100.f / 16);
+        characters[i].small_.setPosition(characters[i].outline.getPosition() + sf::Vector2f{50.f, 50.f});
+        characters[i].small_.setScale(100.f / 16, 100.f / 16);
     }
 
     // Set up 'selections'.
@@ -87,7 +87,7 @@ void character_select::draw()
     for(auto const& c : characters)
     {
         window.draw(c.outline);
-        window.draw(c.small);
+        window.draw(c.small_);
     }
 
     for(auto const& s : selections)
@@ -104,7 +104,7 @@ bool character_select::update(
 
     for(auto& c : characters)
     {
-        c.small.update(dt);
+        c.small_.update(dt);
     }
 
     for(auto& s : selections)
