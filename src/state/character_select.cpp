@@ -18,7 +18,9 @@ namespace state
 character_select::character_select(
     stack& states)
     : state{states}
+    , elapsed{sf::Time::Zero}
 {
+    // Set up 'characters'.
     auto outline = sf::RectangleShape{{100.f, 100.f}};
     outline.setFillColor(sf::Color::Transparent);
     outline.setOutlineColor({128, 128, 128});
@@ -51,9 +53,9 @@ character_select::character_select(
         characters[i].small.setScale(100.f / 16, 100.f / 16);
     }
 
-    selection s{{characters, characters.begin()}, sf::RectangleShape{outline.getSize() - 2.f * sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()}}, characters[0].hero->default_animated(), false};
+    // Set up 'selections'.
+    selection s{{characters, characters.begin()}, sf::RectangleShape{outline.getSize() - 2.f * sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()}}, sf::Color::Red, characters[0].hero->default_animated(), false};
     s.outline.setFillColor(sf::Color::Transparent);
-    s.outline.setOutlineColor(sf::Color::Green);
     s.outline.setOutlineThickness(outline.getOutlineThickness());
     s.outline.setPosition(s.ci->outline.getPosition() + sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()});
 
@@ -66,8 +68,8 @@ character_select::character_select(
     {
         ++s.ci;
 
-        s.outline.setOutlineColor(sf::Color::Red);
         s.outline.setPosition(s.ci->outline.getPosition() + sf::Vector2f{outline.getOutlineThickness(), outline.getOutlineThickness()});
+        s.color = sf::Color::Green;
 
         s.big = characters[1].hero->default_animated();
         s.big.setPosition(selections[0].big.getPosition() + sf::Vector2f{states.context.window.getSize().x / 2.f, 0.f});
@@ -98,6 +100,8 @@ void character_select::draw()
 bool character_select::update(
     sf::Time const& dt)
 {
+    elapsed += dt;
+
     for(auto& c : characters)
     {
         c.small.update(dt);
@@ -106,6 +110,15 @@ bool character_select::update(
     for(auto& s : selections)
     {
         s.big.update(dt);
+        if(s.selected)
+        {
+            s.outline.setOutlineColor(s.color);
+        }
+        else
+        {
+            // To have the color pulse between black and `s.color` over a period of half a second, we use a triangle wave function (c.f. https://en.wikipedia.org/wiki/Triangle_wave).
+            s.outline.setOutlineColor(s.color * sf::Color{255, 255, 255, static_cast<sf::Uint8>(255 * 2 * fabs(elapsed.asSeconds() / .5f - floorf(elapsed.asSeconds() / .5f + .5f)))});
+        }
     }
 
     return true;

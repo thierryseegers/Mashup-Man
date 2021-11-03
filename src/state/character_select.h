@@ -44,10 +44,13 @@ private:
     {
         utility::cyclic_iterator<decltype(characters)> ci;
         sf::RectangleShape outline;
+        sf::Color color;
         sprite big;
         bool selected;
     };
     std::vector<selection> selections;
+
+    sf::Time elapsed;
 };
 
 }
