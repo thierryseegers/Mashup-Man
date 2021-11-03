@@ -26,11 +26,11 @@ character_select::character_select(
     outline.setOutlineColor({128, 128, 128});
     outline.setOutlineThickness(5.f);
 
-    std::unique_ptr<entity::hero> ph = std::make_unique<entity::super_mario::mario<entity::hero_1>>();
+    std::unique_ptr<entity::hero> ph = std::make_unique<entity::super_mario::mario>();
     auto ds = ph->default_still();
     characters.push_back({std::move(ph), outline, ds});
 
-    ph = std::make_unique<entity::super_mario::luigi<entity::hero_1>>();
+    ph = std::make_unique<entity::super_mario::luigi>();
     ds = ph->default_still();
     characters.push_back({std::move(ph), outline, ds});
 
@@ -186,18 +186,26 @@ bool character_select::handle_event(
        (event.type == sf::Event::JoystickButtonReleased && 
         event.joystickButton.button == 6))
     {
-        states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
+        if(std::all_of(selections.begin(), selections.end(), [](auto const& s){ return s.selected; }))
+        {
+            states.context.players.clear();
 
-        states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::mario<entity::hero_1>>{}));
-    //     if(num_players >= 2)
-    //     {
-    //         states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::luigi<entity::hero_2>>{}));
-    //     }
+            for(unsigned int i = 0; i != selections.size(); ++i)
+            {
+                // I'm absolutely aware of what this looks like...!
+                if(dynamic_cast<entity::super_mario::mario*>(selections[i].ci->hero.get()))
+                {
+                    states.context.players.push_back(std::make_unique<player>(i, std::type_identity<entity::super_mario::mario>{}));
+                }
+                else if(dynamic_cast<entity::super_mario::luigi*>(selections[i].ci->hero.get()))
+                {
+                    states.context.players.push_back(std::make_unique<player>(i, std::type_identity<entity::super_mario::luigi>{}));
+                }
+            }
 
-    //     states.context.window.setView(sf::View{sf::FloatRect{0, 0, (float)states.context.window.getSize().x, (float)states.context.window.getSize().y}});
-
-        states.request_pop();
-        states.request_push(id::game);
+            states.request_pop();
+            states.request_push(id::game);
+        }
     }
 
     return true;

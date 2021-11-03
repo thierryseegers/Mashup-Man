@@ -105,9 +105,8 @@ private:
     sf::Time shrinking;
 };
 
-template<template<typename> class Hero_N>
 class mario
-    : public Hero_N<brother>
+    : public brother
 {
 public:
     mario();
@@ -117,9 +116,8 @@ public:
     virtual sprite default_animated() override;
 };
 
-template<template<typename> class Hero_N>
 class luigi
-    : public Hero_N<brother>
+    : public brother
 {
 public:
     luigi();

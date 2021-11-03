@@ -87,15 +87,7 @@ bool title::handle_event(
        (event.type == sf::Event::JoystickButtonReleased && 
         event.joystickButton.button == 6))
     {
-        // states.context.players.clear(); // title state remains on the state stack. Clear the players before adding new ones.
-
-        // states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::mario<entity::hero_1>>{}));
-        // if(num_players >= 2)
-        // {
-        //     states.context.players.push_back(std::make_unique<player>(std::type_identity<entity::super_mario::luigi<entity::hero_2>>{}));
-        // }
-        
-        // Convey the number of players.
+        // Convey the number of players with as many `nullptr`s.
         states.context.players.resize(num_players);
         std::fill(states.context.players.begin(), states.context.players.end(), nullptr);
 

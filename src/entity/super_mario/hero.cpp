@@ -263,22 +263,19 @@ sf::IntRect mario_dead_sprite_rect(
     return attribute_ == brother::attribute::plain ? sf::IntRect{22, 9, 16, 16} : sf::IntRect{1, 140, 16, 16};
 }
 
-template<template<typename> class Hero_N>
-mario<Hero_N>::mario()
-    : Hero_N<brother>{
+mario::mario()
+    : brother{
         mario_still_sprite_rect,
         mario_animated_sprite_rects,
         mario_dead_sprite_rect}
 {}
 
-template<template<typename> class Hero_N>
-sprite mario<Hero_N>::default_still()
+sprite mario::default_still()
 {
     return {resources::texture::brothers, mario_still_sprite_rect(brother::size::small, brother::attribute::plain)};
 }
 
-template<template<typename> class Hero_N>
-sprite mario<Hero_N>::default_animated()
+sprite mario::default_animated()
 {
     return {resources::texture::brothers, mario_animated_sprite_rects(brother::size::small, brother::attribute::plain), sf::seconds(0.25f), sprite::repeat::loop};
 }
@@ -326,29 +323,21 @@ sf::IntRect luigi_dead_sprite_rect(
     return attribute_ == brother::attribute::plain ? sf::IntRect{22, 74, 16, 16} : sf::IntRect{22, 9, 16, 16};
 }
 
-template<template<typename> class Hero_N>
-luigi<Hero_N>::luigi()
-    : Hero_N<brother>{
+luigi::luigi()
+    : brother{
         luigi_still_sprite_rect,
         luigi_animated_sprite_rects,
         luigi_dead_sprite_rect}
 {}
 
-template<template<typename> class Hero_N>
-sprite luigi<Hero_N>::default_still()
+sprite luigi::default_still()
 {
     return {resources::texture::brothers, luigi_still_sprite_rect(brother::size::small, brother::attribute::plain)};
 }
 
-template<template<typename> class Hero_N>
-sprite luigi<Hero_N>::default_animated()
+sprite luigi::default_animated()
 {
     return {resources::texture::brothers, luigi_animated_sprite_rects(brother::size::small, brother::attribute::plain), sf::seconds(0.25f), sprite::repeat::loop};
 }
-
-template class mario<hero_1>;
-template class mario<hero_2>;
-template class luigi<hero_1>;
-template class luigi<hero_2>;
 
 }
