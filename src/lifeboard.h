@@ -17,11 +17,11 @@ public:
             int const lives,
             sprite const& sprite_)
             : lives{lives}
-            , sprite{sprite_}
+            , sprite_{sprite_}
         {}
 
         int lives;
-        sprite sprite;
+        sprite sprite_;
     };
 
     size_t grant(
