@@ -14,6 +14,7 @@ class fireball
 {
 public:
     fireball(
+        unsigned int const player_id,
         direction const heading_);
 
     virtual ~fireball() = default;
@@ -34,6 +35,7 @@ class hammer
 {
 public:
     hammer(
+        unsigned int const player_id,
         direction const heading_);
 
     virtual ~hammer() = default;

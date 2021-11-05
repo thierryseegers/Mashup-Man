@@ -17,6 +17,7 @@ class hero
 {
 public:
     hero(
+        unsigned int const player_id_,
         sprite sprite_,
         int const max_speed = 0);
 
@@ -57,6 +58,7 @@ protected:
     // The entity that this hero "transforms" into when dead.
     virtual entity* tombstone() const = 0;
 
+    unsigned int player_id_;
     direction steering_;
 
     maze *maze_;

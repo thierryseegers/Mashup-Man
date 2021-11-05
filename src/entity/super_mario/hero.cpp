@@ -41,10 +41,12 @@ private:
 };
 
 brother::brother(
+    unsigned int const player_id,
     still_sprite_rect_f const still_sprite_rect,
     animated_sprite_rects_f const animated_sprite_rects,
     dead_sprite_rect_f const dead_sprite_rect)
     : hero{
+        player_id,
         sprite{
             resources::texture::brothers,
             still_sprite_rect(size::small, attribute::plain)},
@@ -155,7 +157,7 @@ void brother::update_self(
     {
         commands.push(make_command(std::function{[this](layer::projectiles& layer, sf::Time const&)
         {
-            shoot_fireball(layer);
+            shoot_fireball(player_id_, layer);
         }}));
 
         commands.push(make_command(+[](scene::sound_t& s, sf::Time const&)
@@ -199,11 +201,12 @@ entity* brother::tombstone() const
 }
 
 void brother::shoot_fireball(
+    unsigned int const player_id,
     layer::projectiles& layer) const
 {
     sf::Vector2f const position = getPosition() + to_vector2f(heading_) * static_cast<float>(level::tile_size);
 
-    add_projectile<super_mario::fireball>(layer, position, heading_);
+    add_projectile<super_mario::fireball>(player_id, layer, position, heading_);
 }
 
 using still_sprite_rects = 
@@ -263,8 +266,10 @@ sf::IntRect mario_dead_sprite_rect(
     return attribute_ == brother::attribute::plain ? sf::IntRect{22, 9, 16, 16} : sf::IntRect{1, 140, 16, 16};
 }
 
-mario::mario()
+mario::mario(
+    unsigned int const player_id)
     : brother{
+        player_id,
         mario_still_sprite_rect,
         mario_animated_sprite_rects,
         mario_dead_sprite_rect}
@@ -323,8 +328,10 @@ sf::IntRect luigi_dead_sprite_rect(
     return attribute_ == brother::attribute::plain ? sf::IntRect{22, 74, 16, 16} : sf::IntRect{22, 9, 16, 16};
 }
 
-luigi::luigi()
+luigi::luigi(
+    unsigned int const player_id)
     : brother{
+        player_id,
         luigi_still_sprite_rect,
         luigi_animated_sprite_rects,
         luigi_dead_sprite_rect}

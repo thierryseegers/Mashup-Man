@@ -29,11 +29,12 @@ public:
 protected:
     template<typename Projectile>
     Projectile* add_projectile(
+        unsigned int const player_id,
         layer::projectiles& layer,
         sf::Vector2f const& position,
         direction const heading) const
     {
-        auto p = layer.attach<Projectile>(heading);
+        auto p = layer.attach<Projectile>(player_id, heading);
 
         p->setPosition(position);
         p->throttle(1.f);

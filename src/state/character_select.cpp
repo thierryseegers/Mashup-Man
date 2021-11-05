@@ -26,11 +26,11 @@ character_select::character_select(
     outline.setOutlineColor({128, 128, 128});
     outline.setOutlineThickness(5.f);
 
-    std::unique_ptr<entity::hero> ph = std::make_unique<entity::super_mario::mario>();
+    std::unique_ptr<entity::hero> ph = std::make_unique<entity::super_mario::mario>(99);
     auto ds = ph->default_still();
     characters.push_back({std::move(ph), outline, ds});
 
-    ph = std::make_unique<entity::super_mario::luigi>();
+    ph = std::make_unique<entity::super_mario::luigi>(99);
     ds = ph->default_still();
     characters.push_back({std::move(ph), outline, ds});
 

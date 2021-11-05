@@ -24,7 +24,7 @@ public:
         std::type_identity<Hero>)
         : id{id}
         , score_{0}
-        , hero_maker_{[]{ return std::make_unique<Hero>(); }}
+        , hero_maker_{[=]{ return std::make_unique<Hero>(id); }}
     {
         action_bindings[action::cruise] = make_command(+[](Hero& hero, sf::Time const&)
             {

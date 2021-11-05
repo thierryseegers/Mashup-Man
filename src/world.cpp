@@ -326,6 +326,8 @@ void world::handle_collisions()
                 projectile->hit();
 
                 context.sound.play(resources::sound_effect::kick);
+
+                scoreboard_.set_score(projectile->player_id(), context.players[projectile->player_id()]->score() += 100);
             }
         }
         else if(auto [hero, power_up] = match<entity::hero, entity::power_up>(collision); hero && power_up)
@@ -342,7 +344,7 @@ void world::handle_collisions()
                 {
                     --n_pills;
 
-                    size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
+                    size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;}));
 
                     scoreboard_.set_score(h, context.players[h]->score() += 10);
                 }

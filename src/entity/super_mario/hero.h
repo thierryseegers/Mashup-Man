@@ -53,6 +53,7 @@ public:
 
 public:
     brother(
+        unsigned int const player_id,
         still_sprite_rect_f const still_sprite_rect,
         animated_sprite_rects_f const animated_sprite_rects,
         dead_sprite_rect_f const dead_sprite_rect);
@@ -85,6 +86,7 @@ private:
         super_mario::flower const* const);
 
     void shoot_fireball(
+        unsigned int const player_id,
         layer::projectiles& layer) const;
 
     still_sprite_rect_f still_sprite_rect;
@@ -109,7 +111,8 @@ class mario
     : public brother
 {
 public:
-    mario();
+    mario(
+        unsigned int const player_id);
 
     virtual sprite default_still() override;
 
@@ -120,7 +123,8 @@ class luigi
     : public brother
 {
 public:
-    luigi();
+    luigi(
+        unsigned int const player_id);
 
     virtual sprite default_still() override;
 

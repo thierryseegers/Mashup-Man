@@ -25,8 +25,10 @@ public:
 };
 
 fireball::fireball(
+    unsigned int const player_id,
     direction const heading_)
     : friendly<projectile>{
+        player_id,
         sprite{
             resources::texture::items,
             {{96, 144, 8, 8}, {104, 144, 8, 8}, {96, 152, 8, 8}, {104, 152, 8, 8}},
@@ -85,8 +87,10 @@ void fireball::update_self(
 }
 
 hammer::hammer(
+    unsigned int const player_id,
     direction const heading_)
     : hostile<projectile>{
+        player_id,
         sprite{
             resources::texture::enemies,
             {486, 12, 8, 16}
