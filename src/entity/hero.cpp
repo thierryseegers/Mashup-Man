@@ -24,13 +24,13 @@ namespace entity
 namespace me = magic_enum;
 
 hero::hero(
-    unsigned int const player_id_,
+    unsigned int const player_id,
     sprite sprite_,
     int const max_speed)
     : friendly<character>{
+        player_id,
         sprite_,
         max_speed}
-    , player_id_{player_id_}
     , steering_{direction::none}
     , maze_{nullptr}
     , dead_{false}

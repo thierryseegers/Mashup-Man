@@ -157,7 +157,7 @@ void brother::update_self(
     {
         commands.push(make_command(std::function{[this](layer::projectiles& layer, sf::Time const&)
         {
-            shoot_fireball(player_id_, layer);
+            shoot_fireball(layer);
         }}));
 
         commands.push(make_command(+[](scene::sound_t& s, sf::Time const&)
@@ -201,12 +201,11 @@ entity* brother::tombstone() const
 }
 
 void brother::shoot_fireball(
-    unsigned int const player_id,
     layer::projectiles& layer) const
 {
     sf::Vector2f const position = getPosition() + to_vector2f(heading_) * static_cast<float>(level::tile_size);
 
-    add_projectile<super_mario::fireball>(player_id, layer, position, heading_);
+    add_projectile<super_mario::fireball>(layer, position, player_id(), heading_);
 }
 
 using still_sprite_rects = 

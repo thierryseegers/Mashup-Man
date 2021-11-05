@@ -35,7 +35,6 @@ class hammer
 {
 public:
     hammer(
-        unsigned int const player_id,
         direction const heading_);
 
     virtual ~hammer() = default;

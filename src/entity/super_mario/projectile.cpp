@@ -87,10 +87,8 @@ void fireball::update_self(
 }
 
 hammer::hammer(
-    unsigned int const player_id,
     direction const heading_)
     : hostile<projectile>{
-        player_id,
         sprite{
             resources::texture::enemies,
             {486, 12, 8, 16}

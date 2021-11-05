@@ -10,6 +10,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <memory>
+#include <utility>
 
 namespace entity
 {
@@ -19,7 +20,21 @@ class friendly
     : public T
 {
 public:
-    using T::T;
+    template<typename... Args>
+    friendly(
+        unsigned int const player_id,
+        Args&&... args)
+        : player_id_{player_id}
+        , T{std::forward<Args>(args)...}
+    {}
+
+    unsigned int player_id() const
+    {
+        return player_id_;
+    }
+
+private:
+    unsigned int const player_id_;
 };
 
 template<typename T>

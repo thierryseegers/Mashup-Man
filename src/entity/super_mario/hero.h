@@ -86,7 +86,6 @@ private:
         super_mario::flower const* const);
 
     void shoot_fireball(
-        unsigned int const player_id,
         layer::projectiles& layer) const;
 
     still_sprite_rect_f still_sprite_rect;

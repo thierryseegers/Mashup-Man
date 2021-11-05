@@ -27,14 +27,13 @@ public:
     [[nodiscard]] virtual bool immune() const = 0;
 
 protected:
-    template<typename Projectile>
+    template<typename Projectile, typename... Args>
     Projectile* add_projectile(
-        unsigned int const player_id,
         layer::projectiles& layer,
         sf::Vector2f const& position,
-        direction const heading) const
+        Args&&... args) const
     {
-        auto p = layer.attach<Projectile>(player_id, heading);
+        auto p = layer.attach<Projectile>(std::forward<Args>(args)...);
 
         p->setPosition(position);
         p->throttle(1.f);

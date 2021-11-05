@@ -263,7 +263,7 @@ void hammer_brother::update_self(
         {
             sf::Vector2f position = getPosition();
 
-            add_projectile<super_mario::hammer>(99, layer, position, heading_);
+            add_projectile<super_mario::hammer>(layer, position, heading_);
         }}));
     }
 
