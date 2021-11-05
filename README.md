@@ -51,6 +51,6 @@ In rough order:
 - [ ] Configuration/Key bindings menu
 - [x] A variety of enemies that use the original (or novel) chasing strategies
   - Four enemies from the Super Mario "bestiary" are present, each following one of the four original chasing strategies.
-- [ ] Character select screen
+- [x] Character select screen
 - [ ] Coop/Competitive mode
 - [ ] Runtime debug menu using [ImGui](https://github.com/ocornut/imgui)
