@@ -5,6 +5,7 @@ namespace state
 
 enum class id
 {
+    character_select,
     game_over,
     game,
     level_complete,

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sprite.h"
+
 #include <SFML/Graphics.hpp>
 
 #include <vector>
@@ -11,13 +13,22 @@ class lifeboard
 public:
     struct info
     {
-        sf::Sprite sprite;
+        info(
+            int const lives,
+            sprite const& sprite_)
+            : lives{lives}
+            , sprite_{sprite_}
+        {}
+
         int lives;
+        sprite sprite_;
     };
 
-    virtual ~lifeboard() = default;
+    size_t grant(
+        int const lives,
+        sprite const& sprite);
 
-    info& operator[](
+    int take(
         size_t const i);
 
     virtual void draw(

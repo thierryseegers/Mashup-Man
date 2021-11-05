@@ -10,7 +10,8 @@
 namespace state
 {
 
-class title : public state
+class title
+    : public state
 {
 public:
     title(

@@ -2,15 +2,19 @@
 
 #include "level.h"
 
-lifeboard::info& lifeboard::operator[](
-    size_t const i)
+size_t lifeboard::grant(
+    int const lives,
+    sprite const& sprite)
 {
-    if(i >= infos.size())
-    {
-        infos.resize(i + 1);
-    }
+    infos.emplace_back(lives, sprite);
 
-    return infos[i];
+    return infos.size() - 1;
+}
+
+int lifeboard::take(
+        size_t const i)
+{
+    return --infos[i].lives;
 }
 
 void lifeboard::draw(
@@ -21,16 +25,16 @@ void lifeboard::draw(
 
     for(int i = 0; i != infos[0].lives; ++i)
     {
-        infos[0].sprite.setPosition(i * (level::tile_size + level::half_tile_size), 0);
-        target.draw(infos[0].sprite, states);
+        infos[0].sprite_.setPosition(i * (level::tile_size + level::half_tile_size), 0);
+        target.draw(infos[0].sprite_, states);
     }
 
     if(infos.size() >= 2)
     {
         for(int i = 0; i != infos[1].lives; ++i)
         {
-            infos[1].sprite.setPosition(level::width * level::tile_size -  i * (level::tile_size + level::half_tile_size), 0);
-            target.draw(infos[1].sprite, states);
+            infos[1].sprite_.setPosition(level::width * level::tile_size -  i * (level::tile_size + level::half_tile_size), 0);
+            target.draw(infos[1].sprite_, states);
         }
     }
 }

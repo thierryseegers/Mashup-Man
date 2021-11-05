@@ -193,13 +193,13 @@ void world::build_scene()
     // Pass information to the lifeboard.
     for(int i = 0; i != heroes.size(); ++i)
     {
-        lifeboard_[i].lives = heroes[i].lives;
-        lifeboard_[i].sprite = heroes[i].hero_->default_sprite();
-
+        sprite still = heroes[i].hero_->default_still();
         if(i % 2)
         {
-            lifeboard_[i].sprite.setScale(-1, 1);
+            still.flip();
         }
+
+        lifeboard_.grant(heroes[i].lives, still);
     }
 
     // // Create the particle systems.
@@ -283,14 +283,15 @@ void world::handle_collisions()
                     size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
                     heroes[h].hero_ = nullptr;
-                    if((lifeboard_[h].lives = --heroes[h].lives))
+                    lifeboard_.take(h);
+                    if(--heroes[h].lives)
                     {
                         heroes[h].spawn_timer = sf::seconds(3);
                     }
                 }
             }
         }
-        else if(auto [hero, projectile] = match<entity::hero, entity::hostile<entity::projectile>>(collision); hero && projectile)
+        else if(auto [hero, projectile] = match<entity::hero, entity::projectile>(collision); hero && projectile)
         {
             if(!projectile->remove)
             {
@@ -307,7 +308,8 @@ void world::handle_collisions()
                         size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
                         heroes[h].hero_ = nullptr;
-                        if((lifeboard_[h].lives = --heroes[h].lives))
+                        lifeboard_.take(h);
+                        if(--heroes[h].lives)
                         {
                             heroes[h].spawn_timer = sf::seconds(3);
                         }
@@ -415,6 +417,10 @@ void world::update(
             auto h = hero.maker();
             hero.hero_ = h.get();
             hero.hero_->setPosition(hero.spawn_point);
+            if(hero.spawn_point.x > (level::width * level::tile_size / 2))
+            {
+                hero.hero_->head(direction::left);
+            }
 
             layers[me::enum_integer(layer::id::characters)]->attach(std::move(h));
         }

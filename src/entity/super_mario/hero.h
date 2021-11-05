@@ -2,6 +2,7 @@
 
 #include "entity/hero.h"
 #include "entity/super_mario/power_up.h"
+#include "sprite.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -104,24 +105,26 @@ private:
     sf::Time shrinking;
 };
 
-template<template<typename> class Hero_N>
 class mario
-    : public Hero_N<brother>
+    : public brother
 {
 public:
     mario();
 
-    virtual sf::Sprite default_sprite() override;
+    virtual sprite default_still() override;
+
+    virtual sprite default_animated() override;
 };
 
-template<template<typename> class Hero_N>
 class luigi
-    : public Hero_N<brother>
+    : public brother
 {
 public:
     luigi();
 
-    virtual sf::Sprite default_sprite() override;
+    virtual sprite default_still() override;
+
+    virtual sprite default_animated() override;
 };
 
 }

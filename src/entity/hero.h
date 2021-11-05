@@ -29,8 +29,11 @@ public:
     // The direction towards which the hero is steered by the player.
     [[nodiscard]] direction steering() const;
 
-    // The sprite to be used to represent this hero (e.g. on the lifeboard).
-    virtual sf::Sprite default_sprite() = 0;
+    // The still image to be used to represent this hero (e.g. on the lifeboard).
+    virtual sprite default_still() = 0;
+
+    // The default animation to be used to represent this hero (e.g. on the character select screen).
+    virtual sprite default_animated() = 0;
 
     // The hero has been hit, be it by a ghost or a projectile.
     virtual void hit() override;
@@ -59,42 +62,6 @@ protected:
     maze *maze_;
     bool dead_;
     sf::Time immunity;  // Immunity timer.
-};
-
-template<typename T>
-class hero_1
-    : public T
-{
-public:
-    static_assert(
-        std::is_base_of<hero, T>::value, 
-        "T must be a descendant of hero"
-    );
-
-    using T::T;
-
-    static unsigned int id()
-    {
-        return 0;
-    }
-};
-
-template<typename T>
-class hero_2
-    : public T
-{
-public:
-    static_assert(
-        std::is_base_of<hero, T>::value, 
-        "T must be a descendant of hero"
-    );
-
-    using T::T;
-
-    static unsigned int id()
-    {
-        return 1;
-    }
 };
 
 }

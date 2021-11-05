@@ -171,6 +171,8 @@ add_executable(${PROJECT_NAME}
     src/sound.h
     src/sprite.cpp
     src/sprite.h
+    src/state/character_select.cpp
+    src/state/character_select.h
     src/state/game_over.cpp
     src/state/game_over.h
     src/state/game.cpp
@@ -184,6 +186,7 @@ add_executable(${PROJECT_NAME}
     src/state/stack.h
     src/state/state.cpp
     src/state/state.h
+    src/state/states.h
     src/state/title.cpp
     src/state/title.h
     src/tomlpp.h

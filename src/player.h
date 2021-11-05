@@ -20,8 +20,9 @@ public:
 
     template<typename Hero>
     player(
+        unsigned int const id,
         std::type_identity<Hero>)
-        : id{Hero::id()}
+        : id{id}
         , hero_maker_{[]{ return std::make_unique<Hero>(); }}
     {
         action_bindings[action::cruise] = make_command(+[](Hero& hero, sf::Time const&)
