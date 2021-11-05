@@ -47,10 +47,7 @@ private:
     void update_enemies_behavior(
         sf::Time const dt);
 
-    sf::RenderTarget& target;
-
-    // effect::bloom bloom_effect;
-    sound::player& sound;
+    state::stack::context_t& context;
 
     scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;

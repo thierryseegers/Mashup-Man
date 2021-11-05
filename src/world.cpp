@@ -29,8 +29,8 @@ namespace me = magic_enum;
 
 world::world(
     state::stack::context_t& context)
-    : target{context.window}
-    , sound{context.sound}
+    : context{context}
+    , scoreboard_{context.players[0]->score(), context.players.size() > 1 ? context.players[1]->score() : 0}
     , heroes{context.players.size(), hero{nullptr, 3}}
     , n_pills{0}
     , immovables{{}}
@@ -38,7 +38,7 @@ world::world(
     , enemy_mode_timer{sf::seconds(7.f)}
     , done_timer{sf::seconds(3)}
 {
-    handle_size_changed({(unsigned int)target.getSize().x, (unsigned int)target.getSize().y});
+    handle_size_changed({(unsigned int)context.window.getSize().x, (unsigned int)context.window.getSize().y});
 
     for(size_t i = 0; i != context.players.size(); ++i)
     {
@@ -88,7 +88,7 @@ void world::handle_size_changed(
 void world::build_scene()
 {
     // Create a sound player.
-    playground.attach<scene::sound_t>(sound);
+    playground.attach<scene::sound_t>(context.sound);
 
     // Create layers.
     layers[me::enum_integer(layer::id::background)] = playground.attach<layer::background>();
@@ -278,7 +278,7 @@ void world::handle_collisions()
 
                 if(hero->dead())
                 {
-                    sound.play(resources::sound_effect::short_die);
+                    context.sound.play(resources::sound_effect::short_die);
 
                     size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
@@ -303,7 +303,7 @@ void world::handle_collisions()
 
                     if(hero->dead())
                     {
-                        sound.play(resources::sound_effect::short_die);
+                        context.sound.play(resources::sound_effect::short_die);
 
                         size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
@@ -325,7 +325,7 @@ void world::handle_collisions()
                 enemy->hit();
                 projectile->hit();
 
-                sound.play(resources::sound_effect::kick);
+                context.sound.play(resources::sound_effect::kick);
             }
         }
         else if(auto [hero, power_up] = match<entity::hero, entity::power_up>(collision); hero && power_up)
@@ -336,7 +336,7 @@ void world::handle_collisions()
 
                 hero->pick_up(power_up);
 
-                sound.play(power_up->sound_effect());
+                context.sound.play(power_up->sound_effect());
 
                 if(auto const* coin = dynamic_cast<entity::super_mario::coin*>(power_up))
                 {
@@ -344,13 +344,13 @@ void world::handle_collisions()
 
                     size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
-                    scoreboard_.increase_score(h, 10);
+                    scoreboard_.set_score(h, context.players[h]->score() += 10);
                 }
             }
         }
         else if(auto [hero, pipe] = match<entity::hero, entity::pipe>(collision); hero && pipe)
         {
-            sound.play(resources::sound_effect::warp);
+            context.sound.play(resources::sound_effect::warp);
             if(pipe->getPosition().x == level::half_tile_size)
             {
                 hero->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, hero->getPosition().y);
@@ -437,8 +437,8 @@ void world::update(
     for(auto& node : *layers[me::enum_integer(layer::id::animations)])
     {
         auto const position = node.getInverseTransform().transformPoint(node.getPosition());
-        if(position.x > target.getSize().x ||
-           position.y > target.getSize().y)
+        if(position.x > context.window.getSize().x ||
+           position.y > context.window.getSize().y)
         {
             node.remove = true;
         }
@@ -448,7 +448,7 @@ void world::update(
     playground.sweep_removed();
 
     // Remove played sounds.
-    sound.remove_stopped();
+    context.sound.remove_stopped();
 
     // Deal with collisions.
     handle_collisions();
@@ -463,7 +463,7 @@ void world::update(
     {
         if(done_timer == sf::seconds(3))
         {
-            sound.play(resources::sound_effect::die);
+            context.sound.play(resources::sound_effect::die);
         }
         done_timer -= dt;
     }
@@ -481,8 +481,8 @@ void world::draw()
     // }
     // else
     // {
-        target.draw(scoreboard_);
-        target.draw(playground);
-        target.draw(lifeboard_);
+        context.window.draw(scoreboard_);
+        context.window.draw(playground);
+        context.window.draw(lifeboard_);
     // }
 }

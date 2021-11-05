@@ -23,6 +23,7 @@ public:
         unsigned int const id,
         std::type_identity<Hero>)
         : id{id}
+        , score_{0}
         , hero_maker_{[]{ return std::make_unique<Hero>(); }}
     {
         action_bindings[action::cruise] = make_command(+[](Hero& hero, sf::Time const&)
@@ -52,6 +53,10 @@ public:
             });
     }
 
+    unsigned int score() const;
+
+    unsigned int& score();
+
     hero_maker_f hero_maker() const;
 
     void handle_event(
@@ -67,5 +72,6 @@ private:
     std::map<action, command_t> action_bindings;
 
     unsigned int id;
+    unsigned int score_;
     hero_maker_f hero_maker_;
 };

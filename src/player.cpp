@@ -69,6 +69,17 @@ void player::handle_event(
     }
 }
 
+unsigned int player::score() const
+{
+    return score_;
+}
+
+unsigned int& player::score()
+{
+    return score_;
+}
+
+
 void player::handle_realtime_input(
     commands_t& commands)
 {
