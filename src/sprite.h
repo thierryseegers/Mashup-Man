@@ -27,6 +27,10 @@ public:
         sf::IntRect const& texture_rect);
 
     sprite(
+        sf::Texture const& texture_sheet,
+        sf::IntRect const& texture_rect);
+
+    sprite(
         resources::texture const& texture_sheet,
         std::vector<sf::IntRect> const& texture_rects,
         sf::Time const duration,
@@ -60,7 +64,7 @@ public:
 
 protected:
     sprite(
-        resources::texture const& texture_sheet);
+        sf::Texture const& texture_sheet);
 
     sf::Sprite sprite_;
 

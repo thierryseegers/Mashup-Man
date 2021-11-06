@@ -9,8 +9,8 @@
 #include <spdlog/spdlog.h>
 
 sprite::sprite(
-    resources::texture const& texture)
-    : sprite_{resources::textures().get(texture)}
+    sf::Texture const& texture)
+    : sprite_{texture}
     , flipped{false}
     , current_frame{0}
     , elapsed{sf::Time::Zero}
@@ -19,7 +19,15 @@ sprite::sprite(
 sprite::sprite(
     resources::texture const& texture,
     sf::IntRect const& texture_rect)
-    : sprite(texture)
+    : sprite{resources::textures().get(texture)}
+{
+    still(texture_rect);
+}
+
+sprite::sprite(
+    sf::Texture const& texture_sheet,
+    sf::IntRect const& texture_rect)
+    : sprite_{texture_sheet}
 {
     still(texture_rect);
 }
@@ -29,7 +37,7 @@ sprite::sprite(
     std::vector<sf::IntRect> const& texture_rects,
     sf::Time const duration,
     repeat const repeat_)
-    : sprite(texture)
+    : sprite{resources::textures().get(texture)}
 {
     animate(texture_rects, duration, repeat_);
 }
