@@ -137,6 +137,8 @@ add_executable(${PROJECT_NAME}
     src/entity/picker.h
     src/entity/pipe.cpp
     src/entity/pipe.h
+    src/entity/points.cpp
+    src/entity/points.h
     src/entity/power_up.cpp
     src/entity/power_up.h
     src/entity/projectile.cpp

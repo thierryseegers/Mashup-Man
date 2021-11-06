@@ -85,7 +85,7 @@ void entity::update_self(
     sprite_.update(dt);
 }
 
- void entity::draw_self(
+void entity::draw_self(
     sf::RenderTarget& target,
     sf::RenderStates states) const
 {
