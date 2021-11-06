@@ -21,6 +21,9 @@ public:
         sprite sprite_,
         int const max_speed = 0);
 
+    // The ID of the player playing with this hero.
+    unsigned int player_id() const;
+
     // Whether the hero is dead. (Death doesn't always follow from a hit().)
     [[nodiscard]] bool dead() const;
     

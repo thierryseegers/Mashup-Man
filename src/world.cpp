@@ -280,13 +280,13 @@ void world::handle_collisions()
                 {
                     context.sound.play(resources::sound_effect::short_die);
 
-                    size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
+                    auto const player_id = hero->player_id();
 
-                    heroes[h].hero_ = nullptr;
-                    lifeboard_.take(h);
-                    if(--heroes[h].lives)
+                    heroes[player_id].hero_ = nullptr;
+                    lifeboard_.take(player_id);
+                    if(--heroes[player_id].lives)
                     {
-                        heroes[h].spawn_timer = sf::seconds(3);
+                        heroes[player_id].spawn_timer = sf::seconds(3);
                     }
                 }
             }
@@ -305,13 +305,13 @@ void world::handle_collisions()
                     {
                         context.sound.play(resources::sound_effect::short_die);
 
-                        size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
+                        auto const player_id = hero->player_id();
 
-                        heroes[h].hero_ = nullptr;
-                        lifeboard_.take(h);
-                        if(--heroes[h].lives)
+                        heroes[player_id].hero_ = nullptr;
+                        lifeboard_.take(player_id);
+                        if(--heroes[player_id].lives)
                         {
-                            heroes[h].spawn_timer = sf::seconds(3);
+                            heroes[player_id].spawn_timer = sf::seconds(3);
                         }
                     }
                 }
@@ -344,9 +344,7 @@ void world::handle_collisions()
                 {
                     --n_pills;
 
-                    size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;}));
-
-                    scoreboard_.set_score(h, context.players[h]->score() += 10);
+                    scoreboard_.set_score(hero->player_id(), context.players[hero->player_id()]->score() += 10);
                 }
             }
         }

@@ -37,6 +37,11 @@ hero::hero(
     , immunity{sf::seconds(3)}
 {}
 
+unsigned int hero::player_id() const
+{
+    return friendly<character>::player_id();
+}
+
 direction hero::steering() const
 {
     return steering_;
