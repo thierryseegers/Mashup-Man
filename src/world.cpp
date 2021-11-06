@@ -327,7 +327,12 @@ void world::handle_collisions()
 
                 context.sound.play(resources::sound_effect::kick);
 
-                scoreboard_.set_score(projectile->player_id(), context.players[projectile->player_id()]->score() += 100);
+                unsigned int const points = 100;
+
+                scoreboard_.set_score(projectile->player_id(), context.players[projectile->player_id()]->score() += points);
+
+                auto *p = layers[me::enum_integer(layer::id::animations)]->attach<entity::points>(points);
+                p->setPosition(enemy->getPosition() + sf::Vector2f{0.f, -enemy->collision_bounds().height});
             }
         }
         else if(auto [hero, power_up] = match<entity::hero, entity::power_up>(collision); hero && power_up)
