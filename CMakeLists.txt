@@ -41,10 +41,11 @@ conan_cmake_configure(
         sfml:network=False
     REQUIRES
         ${CONAN_BOOST_PACKAGE}
+        entt/3.10.1
         magic_enum/0.7.2
         tomlplusplus/2.3.0
         sfml/2.5.1
-        spdlog/1.10.0
+        spdlog/1.9.2
         zlib/1.2.12
 )
 
@@ -85,6 +86,11 @@ find_package(Boost ${BOOST_PACKAGE_VERSION}
 if(APPLE)
     cmake_policy(POP)
 endif()
+
+find_package(entt 3.10.1
+    CONFIG
+    REQUIRED
+)
 
 find_package(magic_enum 0.7.2
     CONFIG
@@ -232,6 +238,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Boost::graph
+        EnTT::EnTT
         magic_enum::magic_enum
         SFML::SFML
         spdlog::spdlog
