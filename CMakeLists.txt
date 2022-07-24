@@ -24,8 +24,9 @@ include(
 
 # Conan won't install Boost.Math on macOS because it claims apple-clang is not c++11-capable.
 # For that platform, Boost.Graph should be installed via other means (i.e. brew).
+set(BOOST_PACKAGE_VERSION 1.79.0)
 if(NOT APPLE)
-    set(CONAN_BOOST_PACKAGE boost/1.77.0)
+    set(CONAN_BOOST_PACKAGE boost/${BOOST_PACKAGE_VERSION})
     set(CONAN_BOOST_PACKAGE_OPTIONS boost:without_graph=False)
 endif()
 
@@ -43,7 +44,8 @@ conan_cmake_configure(
         magic_enum/0.7.2
         tomlplusplus/2.3.0
         sfml/2.5.1
-        spdlog/1.9.2
+        spdlog/1.10.0
+        zlib/1.2.12
 )
 
 foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
@@ -75,7 +77,7 @@ if(APPLE)
     cmake_policy(PUSH)
     cmake_policy(SET CMP0057 NEW)
 endif()
-find_package(Boost
+find_package(Boost ${BOOST_PACKAGE_VERSION}
     CONFIG
     COMPONENTS graph
     REQUIRED
