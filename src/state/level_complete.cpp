@@ -15,8 +15,8 @@ namespace state
 level_complete::level_complete(
     stack& states)
     : state{states}
-    , text{"Level complete!", resources::fonts().get(resources::font::main), 100}
-    , duration{resources::sound_buffers().get(resources::sound_effect::level_complete).getDuration()}
+    , text{"Level complete!", resources::get(resources::font::main), 100}
+    , duration{resources::get(resources::sound_effect::level_complete)->getDuration()}
     , elapsed{sf::Time::Zero}
     , fireworks{1 + 2 * utility::random(1) + 2 * utility::random(1)}   // 1, 3 or 5 firework(s)
 {
@@ -56,11 +56,11 @@ bool level_complete::update(
         if(fireworks--)
         {
             elapsed = sf::Time::Zero;
-            duration = resources::sound_buffers().get(resources::sound_effect::fireworks).getDuration();
+            duration = resources::get(resources::sound_effect::fireworks)->getDuration();
 
             states.context.sound.play(resources::sound_effect::fireworks);
 
-            explosion = std::make_unique<sprite>(resources::texture::items, std::vector<sf::IntRect>{{112, 144, 16, 16}, {112, 160, 16, 16}, {112, 176, 16, 16}}, resources::sound_buffers().get(resources::sound_effect::fireworks).getDuration(), sprite::repeat::none);
+            explosion = std::make_unique<sprite>(resources::texture::items, std::vector<sf::IntRect>{{112, 144, 16, 16}, {112, 160, 16, 16}, {112, 176, 16, 16}}, resources::get(resources::sound_effect::fireworks)->getDuration(), sprite::repeat::none);
             auto const& p = text.getPosition();
             explosion->setPosition({p.x + utility::random(500) * (-1 + 2 * utility::random(1)), p.y + utility::random(500) * (-1 + 2 * utility::random(1))});
             explosion->setScale({12.f, 12.f});

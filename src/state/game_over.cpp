@@ -15,8 +15,8 @@ namespace state
 game_over::game_over(
     stack& states)
     : state{states}
-    , text{"Game over!", resources::fonts().get(resources::font::main), 100}
-    , duration{resources::sound_buffers().get(resources::sound_effect::game_over).getDuration() + sf::seconds(3)}
+    , text{"Game over!", resources::get(resources::font::main), 100}
+    , duration{resources::get(resources::sound_effect::game_over)->getDuration() + sf::seconds(3)}
     , elapsed{sf::Time::Zero}
 {
     utility::center_origin(text);

@@ -5,12 +5,12 @@
 #include "utility.h"
 
 scoreboard::scoreboard()
-    : label_1{"1UP", resources::fonts().get(resources::font::retro)}
-    , label_2{"2UP", resources::fonts().get(resources::font::retro)}
-    , label_hi{"HI-SCORE", resources::fonts().get(resources::font::retro)}
-    , score_1{"00", resources::fonts().get(resources::font::retro)}
-    , score_2{"00", resources::fonts().get(resources::font::retro)}
-    , score_hi{"10000", resources::fonts().get(resources::font::retro)}
+    : label_1{"1UP", resources::get(resources::font::retro)}
+    , label_2{"2UP", resources::get(resources::font::retro)}
+    , label_hi{"HI-SCORE", resources::get(resources::font::retro)}
+    , score_1{"00", resources::get(resources::font::retro)}
+    , score_2{"00", resources::get(resources::font::retro)}
+    , score_hi{"10000", resources::get(resources::font::retro)}
 {
     utility::invoke_on([](sf::Text& t){ t.setFillColor({28, 116, 238}); }, label_1, label_hi, label_2);
 

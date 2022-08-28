@@ -19,11 +19,11 @@ title::title(
     stack& states)
     : state{states}
     , view{states.context.window.getView()}
-    , title_{"Mashup-Man", resources::fonts().get(resources::font::main), 150}
+    , title_{"Mashup-Man", resources::get(resources::font::main), 150}
     , frame{{title_.getLocalBounds().width + 100, title_.getLocalBounds().height + 40}, 20, 8}
     , outer_frame{{frame.getSize().x + 40, frame.getSize().y + 40}, 28, 12}
-    , choices{"1 PLAYER\n2 PLAYERS", resources::fonts().get(resources::font::retro), 75}
-    , arrow{">", resources::fonts().get(resources::font::retro), 75}
+    , choices{"1 PLAYER\n2 PLAYERS", resources::get(resources::font::retro), 75}
+    , arrow{">", resources::get(resources::font::retro), 75}
     , num_players{1}
 {
     utility::center_origin(title_, frame, outer_frame, choices);

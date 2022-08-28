@@ -7,7 +7,7 @@
 #include <SFML/Graphics.hpp>
 
 background::background()
-    : sprite_{resources::textures().get(resources::texture::background)}
+    : sprite_{resources::get(resources::texture::background)}
 {
     sprite_.setColor({255, 255, 255, 255 / 6});
 }

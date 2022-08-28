@@ -9,7 +9,7 @@
 
 maze::maze(
     std::filesystem::path const& level)
-    : texture_strip{resources::textures().get(resources::texture::walls)}
+    : texture_strip{resources::get(resources::texture::walls)}
 {
     vertices.setPrimitiveType(sf::Quads);
 

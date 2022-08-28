@@ -13,8 +13,8 @@ namespace state
 pause::pause(
     stack& states)
     : state{states}
-    , word{"Game Paused", resources::fonts().get(resources::font::main), 100}
-    , instructions{"(Press Backspace or L + R to quit)", resources::fonts().get(resources::font::retro)}
+    , word{"Game Paused", resources::get(resources::font::main), 100}
+    , instructions{"(Press Backspace or L + R to quit)", resources::get(resources::font::retro)}
 {
     utility::center_origin(word, instructions);
 

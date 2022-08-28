@@ -10,7 +10,7 @@
 
 sprite::sprite(
     resources::texture const& texture)
-    : sprite_{resources::textures().get(texture)}
+    : sprite_{resources::get(texture)}
     , flipped{false}
     , current_frame{0}
     , elapsed{sf::Time::Zero}
