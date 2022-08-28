@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(Mashup-Man VERSION 1.0.0)
 
 if(GENERATOR_IS_MULTI_CONFIG)
-    set(CMAKE_BUILD_TYPES "Debug;MinSizeRel;Release;RelWithDebInfo")
+    set(CMAKE_CONFIGURATION_TYPES "Debug;MinSizeRel;Release;RelWithDebInfo")
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
@@ -41,11 +41,11 @@ conan_cmake_configure(
         sfml:network=False
     REQUIRES
         ${CONAN_BOOST_PACKAGE}
-        entt/3.10.1
-        magic_enum/0.7.2
-        tomlplusplus/2.3.0
+        entt/3.10.3
+        magic_enum/0.8.0
+        tomlplusplus/3.1.0
         sfml/2.5.1
-        spdlog/1.9.2
+        spdlog/1.10.0
         zlib/1.2.12
 )
 
@@ -87,12 +87,12 @@ if(APPLE)
     cmake_policy(POP)
 endif()
 
-find_package(entt 3.10.1
+find_package(entt 3.10.3
     CONFIG
     REQUIRED
 )
 
-find_package(magic_enum 0.7.2
+find_package(magic_enum 0.8.0
     CONFIG
     REQUIRED
 )
@@ -108,7 +108,7 @@ find_package(spdlog 1.9.2
     REQUIRED
 )
 
-find_package(tomlplusplus 2.3.0
+find_package(tomlplusplus 3.1.0
     CONFIG
     REQUIRED
 )
