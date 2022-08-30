@@ -54,10 +54,10 @@ goomba::goomba()
             sf::seconds(0.25f),
             sprite::repeat::loop
         },
-        *configuration::values()["enemies"]["goomba"]["speed"].value<int>()
-        }
+        configuration::value<int>()["enemies"]["goomba"]["speed"]
+      }
 {
-    auto const scale = configuration::values()["enemies"]["goomba"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["enemies"]["goomba"]["scale"];
     setScale(scale, scale);
 }
 
@@ -111,10 +111,10 @@ koopa::koopa()
             sf::seconds(0.25f),
             sprite::repeat::loop
         },
-        *configuration::values()["enemies"]["koopa"]["speed"].value<int>()
-        }
+        configuration::value<int>()["enemies"]["koopa"]["speed"]
+      }
 {
-    auto const scale = configuration::values()["enemies"]["koopa"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["enemies"]["koopa"]["scale"];
     setScale(scale, scale);
 }
 
@@ -167,10 +167,10 @@ beetle::beetle()
             sf::seconds(0.25f),
             sprite::repeat::loop
         },
-        *configuration::values()["enemies"]["beetle"]["speed"].value<int>()
-        }
+        configuration::value<int>()["enemies"]["beetle"]["speed"]
+      }
 {
-    auto const scale = configuration::values()["enemies"]["beetle"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["enemies"]["beetle"]["scale"];
     setScale(scale, scale);
 }
 
@@ -224,11 +224,11 @@ hammer_brother::hammer_brother()
             sf::seconds(0.25f),
             sprite::repeat::loop
         },
-        *configuration::values()["enemies"]["hammer_brother"]["speed"].value<int>()
-    }
+        configuration::value<int>()["enemies"]["hammer_brother"]["speed"]
+      }
     , throw_timer{throw_time}
 {
-    auto const scale = configuration::values()["enemies"]["hammer_brother"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["enemies"]["hammer_brother"]["scale"];
     setScale(scale, scale);
 }
 

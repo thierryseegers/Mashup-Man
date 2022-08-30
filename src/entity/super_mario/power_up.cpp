@@ -20,7 +20,7 @@ coin::coin()
             sf::seconds(1.f),
             sprite::repeat::loop}}
 {
-    auto const scale = configuration::values()["items"]["coin"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["items"]["coin"]["scale"];
     setScale(scale, scale);
 }
 
@@ -41,7 +41,7 @@ mushroom::mushroom()
             resources::texture::items,
             sf::IntRect{0, 0, 16, 16}}}
 {
-    auto const scale = configuration::values()["items"]["mushroom"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["items"]["mushroom"]["scale"];
     setScale(scale, scale);
 }
 
@@ -64,7 +64,7 @@ flower::flower()
             sf::seconds(1.f),
             sprite::repeat::loop}}
 {
-    auto const scale = configuration::values()["items"]["flower"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["items"]["flower"]["scale"];
     setScale(scale, scale);
 }
 

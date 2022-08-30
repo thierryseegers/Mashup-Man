@@ -9,8 +9,7 @@ int main(int, char**)
     try
     {
         configuration::initialize("./config.toml");
-
-        std::cout << configuration::values();
+        std::cout << configuration::info << std::endl;
 
         application{}.run();
     }

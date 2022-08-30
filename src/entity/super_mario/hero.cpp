@@ -48,19 +48,19 @@ brother::brother(
         sprite{
             resources::texture::brothers,
             still_sprite_rect(size::small, attribute::plain)},
-        *configuration::values()["brothers"]["speed"].value<int>()}
+        configuration::value<int>()["brothers"]["speed"]}
     , still_sprite_rect(still_sprite_rect)
     , animated_sprite_rects{animated_sprite_rects}
     , dead_sprite_rect{dead_sprite_rect}
     , size_{size::small}
     , attribute_{attribute::plain}
     , motion_{motion::still}
-    , shoot_cooldown{sf::seconds(*configuration::values()["brothers"]["fireball"]["cooldown"].value<float>())}
+    , shoot_cooldown{sf::seconds(configuration::value<float>()["brothers"]["fireball"]["cooldown"])}
     , fire_countdown{sf::Time::Zero}
     , shooting{false}
     , shrinking{sf::Time::Zero}
 {
-    auto const scale = configuration::values()["brothers"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["brothers"]["scale"];
     setScale(scale, scale);
 }
 
@@ -192,7 +192,7 @@ void brother::update_sprite()
 entity* brother::tombstone() const
 {
     auto *db = new dead_brother(sprite{resources::texture::brothers, dead_sprite_rect(attribute_)});
-    auto const scale = configuration::values()["brothers"]["scale"].value_or<float>(1.f);
+    auto const scale = configuration::value_or<float>(1.f)["brothers"]["scale"];
     db->setScale(scale, scale);
 
     return db;
