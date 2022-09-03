@@ -3,7 +3,6 @@
 // #include "music.h"
 #include "player.h"
 #include "resources.h"
-#include "sound.h"
 #include "state/id.h"
 
 #include <SFML/Graphics.hpp>
@@ -27,7 +26,6 @@ public:
     {
         // music::player& music;
         std::vector<std::unique_ptr<player>> players;
-        sound::player& sound;
         sf::RenderWindow& window;
     } context;
 

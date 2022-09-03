@@ -2,7 +2,7 @@
 
 #include "command.h"
 #include "resources.h"
-#include "sound.h"
+#include "services/services.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
@@ -132,30 +132,22 @@ float distance(
 template<size_t Count>
 using layers = std::array<scene::node*, Count>;
 
-class sound_t
+class sound_player
     : public node
 {
 public:
-    explicit sound_t(
-        sound::player& sound)
-        : sound{sound}
-    {}
-
     void play(
         resources::sound_effect const se)
     {
-        sound.play(se);
+        services::sound_player::value().play(se);
     }
 
     void play(
         resources::sound_effect const se,
         sf::Vector2f const position)
     {
-        sound.play(se, position);
+        services::sound_player::value().play(se, position);
     }
-
-private:
-    sound::player& sound;
 };
 
 }

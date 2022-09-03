@@ -74,7 +74,7 @@ void fireball::update_self(
 
             hit();
 
-            commands.push(make_command(+[](scene::sound_t& sound, sf::Time const&)
+            commands.push(make_command(+[](scene::sound_player& sound, sf::Time const&)
             {
                 sound.play(resources::sound_effect::bump);
             }));

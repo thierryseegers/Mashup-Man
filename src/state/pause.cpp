@@ -1,6 +1,7 @@
 #include "state/pause.h"
 
 #include "resources.h"
+#include "services/services.h"
 #include "state/stack.h"
 #include "utility.h"
 
@@ -23,13 +24,13 @@ pause::pause(
     instructions.setPosition(view_size.x / 2, word.getPosition().y + word.getCharacterSize());
 
     // states.context.music.pause(true);
-    states.context.sound.play(resources::sound_effect::pause);
+    services::sound_player::value().play(resources::sound_effect::pause);
 }
 
 pause::~pause()
 {
     // states.context.music.pause(false);
-    states.context.sound.play(resources::sound_effect::pause);
+    services::sound_player::value().play(resources::sound_effect::pause);
 }
 
 void pause::draw()

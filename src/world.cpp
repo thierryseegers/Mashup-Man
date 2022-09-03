@@ -10,6 +10,7 @@
 #include "maze.h"
 #include "resources.h"
 #include "scene.h"
+#include "services/services.h"
 #include "utility.h"
 
 #include <magic_enum.hpp>
@@ -30,7 +31,6 @@ namespace me = magic_enum;
 world::world(
     state::stack::context_t& context)
     : target{context.window}
-    , sound{context.sound}
     , heroes{context.players.size(), hero{nullptr, 3}}
     , n_pills{0}
     , immovables{{}}
@@ -88,7 +88,7 @@ void world::handle_size_changed(
 void world::build_scene()
 {
     // Create a sound player.
-    playground.attach<scene::sound_t>(sound);
+    playground.attach<scene::sound_player>();
 
     // Create layers.
     layers[me::enum_integer(layer::id::background)] = playground.attach<layer::background>();
@@ -278,7 +278,7 @@ void world::handle_collisions()
 
                 if(hero->dead())
                 {
-                    sound.play(resources::sound_effect::short_die);
+                    services::sound_player::value().play(resources::sound_effect::short_die);
 
                     size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
@@ -303,7 +303,7 @@ void world::handle_collisions()
 
                     if(hero->dead())
                     {
-                        sound.play(resources::sound_effect::short_die);
+                        services::sound_player::value().play(resources::sound_effect::short_die);
 
                         size_t const h = std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [hero_ = hero](auto const& h){ return hero_ == h.hero_;})); // clang bug workaround. c.f. https://stackoverflow.com/questions/67883701/structured-binding-violations
 
@@ -325,7 +325,7 @@ void world::handle_collisions()
                 enemy->hit();
                 projectile->hit();
 
-                sound.play(resources::sound_effect::kick);
+                services::sound_player::value().play(resources::sound_effect::kick);
             }
         }
         else if(auto [hero, power_up] = match<entity::hero, entity::power_up>(collision); hero && power_up)
@@ -336,7 +336,7 @@ void world::handle_collisions()
 
                 hero->pick_up(power_up);
 
-                sound.play(power_up->sound_effect());
+                services::sound_player::value().play(power_up->sound_effect());
 
                 if(auto const* coin = dynamic_cast<entity::super_mario::coin*>(power_up))
                 {
@@ -350,7 +350,8 @@ void world::handle_collisions()
         }
         else if(auto [hero, pipe] = match<entity::hero, entity::pipe>(collision); hero && pipe)
         {
-            sound.play(resources::sound_effect::warp);
+            services::sound_player::value().play(resources::sound_effect::warp);
+
             if(pipe->getPosition().x == level::half_tile_size)
             {
                 hero->setPosition((level::width - 1) * level::tile_size - level::half_tile_size, hero->getPosition().y);
@@ -448,7 +449,7 @@ void world::update(
     playground.sweep_removed();
 
     // Remove played sounds.
-    sound.remove_stopped();
+    services::sound_player::value().remove_stopped();
 
     // Deal with collisions.
     handle_collisions();
@@ -463,7 +464,7 @@ void world::update(
     {
         if(done_timer == sf::seconds(3))
         {
-            sound.play(resources::sound_effect::die);
+            services::sound_player::value().play(resources::sound_effect::die);
         }
         done_timer -= dt;
     }

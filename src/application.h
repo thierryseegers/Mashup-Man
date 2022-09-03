@@ -2,7 +2,6 @@
 
 // #include "music.h"
 #include "player.h"
-#include "sound.h"
 #include "state/state.h"
 
 #include <SFML/Graphics.hpp>
@@ -28,7 +27,6 @@ private:
 
     // music::player music;
     sf::RenderWindow window;
-    sound::player sound;
 
     state::stack states;
 

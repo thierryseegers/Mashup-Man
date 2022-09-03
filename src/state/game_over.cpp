@@ -4,6 +4,7 @@
 #include "state/state.h"
 #include "player.h"
 #include "resources.h"
+#include "services/services.h"
 #include "utility.h"
 
 #include <SFML/Graphics.hpp>
@@ -24,7 +25,7 @@ game_over::game_over(
     auto const view_size = states.context.window.getView().getSize();
     text.setPosition(view_size.x / 2, view_size.y / 2);
 
-    states.context.sound.play(resources::sound_effect::game_over);
+    services::sound_player::value().play(resources::sound_effect::game_over);
 }
 
 void game_over::draw()

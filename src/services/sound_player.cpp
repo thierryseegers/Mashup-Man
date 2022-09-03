@@ -1,4 +1,4 @@
-#include "sound.h"
+#include "services/sound_player.h"
 
 #include "resources.h"
 #include "utility.h"
@@ -49,7 +49,7 @@ void player::remove_stopped()
 }
 
 void player::listener_position(
-    sf::Vector2f const position)
+    sf::Vector2f const position) const
 {
     sf::Listener::setPosition(position.x, -position.y, listener_z);
 }

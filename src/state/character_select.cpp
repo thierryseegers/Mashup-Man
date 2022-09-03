@@ -2,6 +2,7 @@
 
 #include "entity/super_mario/hero.h"
 #include "resources.h"
+#include "services/services.h"
 #include "state/stack.h"
 #include "sprite.h"
 #include "utility.h"
@@ -175,7 +176,7 @@ bool character_select::handle_event(
             s.big.set_color(sf::Color::Black);
         }
 
-        states.context.sound.play(resources::sound_effect::collect_coin);
+        services::sound_player::value().play(resources::sound_effect::collect_coin);
     }
     // 'Select' button
     else if(event.type == sf::Event::JoystickButtonReleased &&
@@ -187,7 +188,7 @@ bool character_select::handle_event(
         s.selected = !s.selected;
         if(s.selected)
         {
-            states.context.sound.play(resources::sound_effect::collect_powerup);
+            services::sound_player::value().play(resources::sound_effect::collect_powerup);
         }
     }
     // 'Enter' key or 'Start' button.

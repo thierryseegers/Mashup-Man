@@ -27,7 +27,7 @@ public:
     void remove_stopped();
 
     void listener_position(
-        sf::Vector2f const position);
+        sf::Vector2f const position) const;
 
     sf::Vector2f listener_position() const;
 

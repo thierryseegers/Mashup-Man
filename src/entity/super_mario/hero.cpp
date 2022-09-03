@@ -131,7 +131,7 @@ void brother::update_self(
         // If we just got hurt, play the sound.
         if(shrinking == sf::seconds(3))
         {
-            commands.push(make_command(+[](scene::sound_t& sound, sf::Time const&)
+            commands.push(make_command(+[](scene::sound_player& sound, sf::Time const&)
             {
                 sound.play(resources::sound_effect::warp);
             }));
@@ -158,9 +158,9 @@ void brother::update_self(
             shoot_fireball(layer);
         }}));
 
-        commands.push(make_command(+[](scene::sound_t& s, sf::Time const&)
+        commands.push(make_command(+[](scene::sound_player& sound, sf::Time const&)
         {
-            s.play(resources::sound_effect::fireball);
+            sound.play(resources::sound_effect::fireball);
         }));
 
         fire_countdown += shoot_cooldown;

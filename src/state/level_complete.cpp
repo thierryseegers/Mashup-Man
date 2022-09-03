@@ -4,6 +4,7 @@
 #include "state/state.h"
 // #include "player.h"
 #include "resources.h"
+#include "services/services.h"
 #include "utility.h"
 
 #include <SFML/Graphics.hpp>
@@ -25,7 +26,7 @@ level_complete::level_complete(
     auto const view_size = states.context.window.getView().getSize();
     text.setPosition(view_size.x / 2, view_size.y / 2);
 
-    states.context.sound.play(resources::sound_effect::level_complete);
+    services::sound_player::value().play(resources::sound_effect::level_complete);
 }
 
 void level_complete::draw()
@@ -58,7 +59,7 @@ bool level_complete::update(
             elapsed = sf::Time::Zero;
             duration = resources::get(resources::sound_effect::fireworks)->getDuration();
 
-            states.context.sound.play(resources::sound_effect::fireworks);
+            services::sound_player::value().play(resources::sound_effect::fireworks);
 
             explosion = std::make_unique<sprite>(resources::texture::items, std::vector<sf::IntRect>{{112, 144, 16, 16}, {112, 160, 16, 16}, {112, 176, 16, 16}}, resources::get(resources::sound_effect::fireworks)->getDuration(), sprite::repeat::none);
             auto const& p = text.getPosition();

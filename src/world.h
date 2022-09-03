@@ -11,7 +11,6 @@
 #include "scene.h"
 #include "scoreboard.h"
 #include "state/stack.h"
-#include "sound.h"
 
 #include <magic_enum.hpp>
 #include <SFML/Graphics.hpp>
@@ -50,7 +49,6 @@ private:
     sf::RenderTarget& target;
 
     // effect::bloom bloom_effect;
-    sound::player& sound;
 
     scene::node playground;
     scene::layers<magic_enum::enum_count<layer::id>()> layers;

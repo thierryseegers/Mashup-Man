@@ -173,10 +173,12 @@ add_executable(${PROJECT_NAME}
     src/resources.h
     src/scene.cpp
     src/scene.h
+    src/services/services.cpp
+    src/services/services.h
+    src/services/sound_player.cpp
+    src/services/sound_player.h
     src/scoreboard.cpp
     src/scoreboard.h
-    src/sound.cpp
-    src/sound.h
     src/sprite.cpp
     src/sprite.h
     src/state/character_select.cpp

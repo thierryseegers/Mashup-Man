@@ -14,7 +14,7 @@
 
 application::application()
     : window{sf::VideoMode(/*1024*/sf::VideoMode::getDesktopMode().width, /*768*/sf::VideoMode::getDesktopMode().height), "Mashup-Man", sf::Style::Default}
-    , states{{/*music, */{}, sound, window}}
+    , states{{/*music, */{}, window}}
     , statistics_num_frames{0}
 {
     window.setKeyRepeatEnabled(false);
@@ -43,6 +43,7 @@ application::application()
     states.request_push(state::id::title);
 
     // music.volume(25.f);
+    services::initialize();
 }
 
 void application::run()
