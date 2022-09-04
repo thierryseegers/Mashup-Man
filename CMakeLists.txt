@@ -72,6 +72,27 @@ foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
 endforeach()
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
 
+if(APPLE)
+    execute_process(
+        COMMAND brew --prefix
+        OUTPUT_VARIABLE BREW_PREFIX_DIR 
+    )
+    string(STRIP ${BREW_PREFIX_DIR} BREW_PREFIX_DIR)
+    set(ICU_ROOT "${BREW_PREFIX_DIR}/opt/icu4c")
+
+    # Indirectly required by Boost.Graph (Boost.Graph requires Boost.Regex which, 
+    # in turn, *hard-codes* linkage to icudata, icui18n and icuuc).
+    find_package(ICU
+        COMPONENTS data i18n uc
+        REQUIRED
+    )
+
+    get_filename_component(ICU_LIBRARIES_DIR
+        ${ICU_DATA_LIBRARIES}
+        DIRECTORY
+    )
+endif()
+
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 if(APPLE)
@@ -254,10 +275,9 @@ if(APPLE)
             -ObjC
     )
 
-    # Indirectly required by Boost.Graph (Graph requires Regex which requires ICU).
     target_link_directories(${PROJECT_NAME}
         PRIVATE
-            /usr/local/opt/icu4c/lib
+            ${ICU_LIBRARIES_DIR}
     )
 endif()
 
