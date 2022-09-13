@@ -147,6 +147,9 @@ add_executable(${PROJECT_NAME}
     src/bindings.cpp
     src/bindings.h
     src/command.h
+    src/components/destroy_tag.h
+    src/components/sound.h
+    src/components/sound_effect.h
     src/configuration.cpp
     src/configuration.h
     src/direction.cpp
@@ -190,6 +193,8 @@ add_executable(${PROJECT_NAME}
     src/maze.h
     src/player.cpp
     src/player.h
+    src/registries.cpp
+    src/registries.h
     src/resources.cpp
     src/resources.h
     src/scene.cpp
@@ -220,6 +225,13 @@ add_executable(${PROJECT_NAME}
     src/state/states.h
     src/state/title.cpp
     src/state/title.h
+    src/systems/destroy_tagged.cpp
+    src/systems/destroy_tagged.h
+    src/systems/tag_destroy_stopped_sounds.cpp
+    src/systems/tag_destroy_stopped_sounds.h
+    src/systems/move.cpp
+    src/systems/play_sound_effects.cpp
+    src/systems/play_sound_effects.h
     src/tomlpp.h
     src/utility.cpp
     src/utility.h

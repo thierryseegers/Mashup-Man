@@ -87,9 +87,6 @@ void world::handle_size_changed(
 
 void world::build_scene()
 {
-    // Create a sound player.
-    playground.attach<scene::sound_player>();
-
     // Create layers.
     layers[me::enum_integer(layer::id::background)] = playground.attach<layer::background>();
     layers[me::enum_integer(layer::id::maze)] = playground.attach<layer::maze>();
@@ -447,9 +444,6 @@ void world::update(
 
     // Remove all destroyed entities.
     playground.sweep_removed();
-
-    // Remove played sounds.
-    services::sound_player::value().remove_stopped();
 
     // Deal with collisions.
     handle_collisions();

@@ -1,16 +1,25 @@
 #include "application.h"
 
+#include "registries.h"
+#include "systems/destroy_tagged.h"
+#include "systems/tag_destroy_stopped_sounds.h"
+#include "systems/play_sound_effects.h"
+
 #include "entity/hero.h"
 #include "resources.h"
 #include "state/states.h"
 #include "utility.h"
 
+#include <entt/core/hashed_string.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio/Listener.hpp>
 #include <SFML/System.hpp>
 
 #include <map>
 #include <type_traits>
 #include <string>
+
+using namespace entt::literals;
 
 application::application()
     : window{sf::VideoMode(/*1024*/sf::VideoMode::getDesktopMode().width, /*768*/sf::VideoMode::getDesktopMode().height), "Mashup-Man", sf::Style::Default}
@@ -44,6 +53,7 @@ application::application()
 
     // music.volume(25.f);
     services::initialize();
+    registries::audio.ctx().emplace_hint<sf::Vector3f>("listener_position"_hs, sf::Listener::getPosition());
 }
 
 void application::run()
@@ -70,6 +80,10 @@ void application::run()
 
         update_statistics(elapsed_time);
         render();
+
+        systems::play_sound_effects();
+        systems::tag_destroy_stopped_sounds();
+        systems::destroy_tagged();
     }
 }
 

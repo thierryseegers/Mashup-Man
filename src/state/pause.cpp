@@ -23,13 +23,13 @@ pause::pause(
     word.setPosition(view_size / 2.f);
     instructions.setPosition(view_size.x / 2, word.getPosition().y + word.getCharacterSize());
 
-    // states.context.music.pause(true);
+    services::sound_player::value().pause();
     services::sound_player::value().play(resources::sound_effect::pause);
 }
 
 pause::~pause()
 {
-    // states.context.music.pause(false);
+    services::sound_player::value().resume();
     services::sound_player::value().play(resources::sound_effect::pause);
 }
 

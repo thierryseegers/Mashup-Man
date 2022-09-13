@@ -6,6 +6,7 @@
 #include "layer.h"
 #include "maze.h"
 #include "resources.h"
+#include "services/services.h"
 #include "sprite.h"
 #include "utility.h"
 
@@ -74,10 +75,7 @@ void fireball::update_self(
 
             hit();
 
-            commands.push(make_command(+[](scene::sound_player& sound, sf::Time const&)
-            {
-                sound.play(resources::sound_effect::bump);
-            }));
+            services::sound_player::value().play(resources::sound_effect::bump);
         }
 
         entity::update_self(dt, commands);

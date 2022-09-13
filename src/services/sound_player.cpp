@@ -1,5 +1,8 @@
 #include "services/sound_player.h"
 
+#include "components/sound.h"
+#include "components/sound_effect.h"
+#include "registries.h"
 #include "resources.h"
 #include "utility.h"
 
@@ -9,54 +12,40 @@
 
 #include <cmath>
 
-namespace sound
+namespace services::sound
 {
-
-float constexpr listener_z = 300.f;
-float constexpr attenuation = 8.f;
-float constexpr min_distance_2d = 200.f;
-float const min_distance_3d = std::sqrt(min_distance_2d * min_distance_2d + listener_z * listener_z);
-
-player::player()
-{}
 
 void player::play(
-    resources::sound_effect const e)
+    resources::sound_effect const sound_effect)
 {
-    play(e, listener_position());
+    auto const& listener_position = registries::audio.ctx().at<const sf::Vector3f>("listener_position"_hs);
+    play(sound_effect, sf::Vector2f{listener_position.x, listener_position.y});
+    entt::entity const e = registries::audio.create();
+    registries::audio.emplace<components::sound_effect>(e, sound_effect);
 }
 
 void player::play(
-    resources::sound_effect const e,
-    sf::Vector2f const position)
+    resources::sound_effect const sound_effect,
+    sf::Vector2f const& position)
 {
-    sounds.push_back((sf::Sound{resources::get(e)}));
-    auto& sound = sounds.back();
-
-    sound.setPosition(position.x, -position.y, 0.f);
-    sound.setAttenuation(attenuation);
-    sound.setMinDistance(min_distance_3d);
-
-    sound.play();
+    entt::entity const e = registries::audio.create();
+    registries::audio.emplace<components::positioned_sound_effect>(e, sound_effect, sf::Vector3f{position.x, position.y, 0.f});
 }
 
-void player::remove_stopped()
+void player::pause()
 {
-    sounds.remove_if([](sf::Sound const& s)
+    registries::audio.view<components::sound>().each([](auto& sound)
     {
-        return s.getStatus() == sf::Sound::Stopped;
+        sound.sound->pause();
     });
 }
 
-void player::listener_position(
-    sf::Vector2f const position) const
+void player::resume()
 {
-    sf::Listener::setPosition(position.x, -position.y, listener_z);
-}
-
-sf::Vector2f player::listener_position() const
-{
-    return {sf::Listener::getPosition().x, sf::Listener::getPosition().y};
+    registries::audio.view<components::sound>().each([](auto& sound)
+    {
+        sound.sound->play();
+    });
 }
 
 }

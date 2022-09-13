@@ -132,22 +132,4 @@ float distance(
 template<size_t Count>
 using layers = std::array<scene::node*, Count>;
 
-class sound_player
-    : public node
-{
-public:
-    void play(
-        resources::sound_effect const se)
-    {
-        services::sound_player::value().play(se);
-    }
-
-    void play(
-        resources::sound_effect const se,
-        sf::Vector2f const position)
-    {
-        services::sound_player::value().play(se, position);
-    }
-};
-
 }

@@ -6,6 +6,7 @@
 #include "entity/super_mario/power_up.h"
 #include "entity/super_mario/projectile.h"
 #include "level.h"
+#include "services/services.h"
 #include "sprite.h"
 
 #include <magic_enum.hpp>
@@ -131,10 +132,7 @@ void brother::update_self(
         // If we just got hurt, play the sound.
         if(shrinking == sf::seconds(3))
         {
-            commands.push(make_command(+[](scene::sound_player& sound, sf::Time const&)
-            {
-                sound.play(resources::sound_effect::warp);
-            }));
+            services::sound_player::value().play(resources::sound_effect::warp);
         }
 
         shrinking = std::max(sf::Time::Zero, shrinking - dt);
@@ -158,10 +156,7 @@ void brother::update_self(
             shoot_fireball(layer);
         }}));
 
-        commands.push(make_command(+[](scene::sound_player& sound, sf::Time const&)
-        {
-            sound.play(resources::sound_effect::fireball);
-        }));
+        services::sound_player::value().play(resources::sound_effect::fireball);
 
         fire_countdown += shoot_cooldown;
         shooting = false;
