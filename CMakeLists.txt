@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(Mashup-Man VERSION 1.0.0)
 
+cmake_policy(SET CMP0054 NEW)
+cmake_policy(SET CMP0063 NEW)
+cmake_policy(SET CMP0074 NEW)
+
 if(GENERATOR_IS_MULTI_CONFIG)
     set(CMAKE_CONFIGURATION_TYPES "Debug;MinSizeRel;Release;RelWithDebInfo")
 endif()
@@ -13,12 +17,10 @@ include(CPack)
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake"
-                  "${CMAKE_BINARY_DIR}/conan.cmake"
+                 "${CMAKE_BINARY_DIR}/conan.cmake"
         TLS_VERIFY ON)
 endif()
-include(
-    ${CMAKE_BINARY_DIR}/conan.cmake
-)
+include(${CMAKE_BINARY_DIR}/conan.cmake)
 
 # Request Conan to generate *-config.cmake modules for the dependencies.
 
@@ -287,16 +289,16 @@ if(APPLE)
             -ObjC
     )
 
+    # Required by Boost.Regex which is required by Boost.Graph.
     target_link_directories(${PROJECT_NAME}
         PRIVATE
             ${ICU_LIBRARIES_DIR}
     )
 endif()
 
-set_property(
-    TARGET ${PROJECT_NAME}
-    PROPERTY CXX_STANDARD 20
-)
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+    CXX_STANDARD 20
+    CXX_VISIBILITY_PRESET hidden)
 
 get_target_property(PROJECT_SOURCES ${PROJECT_NAME} SOURCES)
 
