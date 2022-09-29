@@ -24,12 +24,12 @@ include(${CMAKE_BINARY_DIR}/conan.cmake)
 
 # Request Conan to generate *-config.cmake modules for the dependencies.
 
-# Conan won't install Boost.Math on macOS because it claims apple-clang is not c++11-capable.
+# Conan won't install Boost.Math on macOS because it claims apple-clang is not fully c++11-capable.
 # For that platform, Boost.Graph should be installed via other means (i.e. brew).
 set(BOOST_PACKAGE_VERSION 1.79.0)
 if(NOT APPLE)
     set(CONAN_BOOST_PACKAGE boost/${BOOST_PACKAGE_VERSION})
-    set(CONAN_BOOST_PACKAGE_OPTIONS boost:without_graph=False)
+    set(CONAN_BOOST_PACKAGE_OPTIONS boost:without_graph=False boost:without_atomic=True boost:without_chrono=True boost:without_container=True boost:without_context=True boost:without_contract=True boost:without_coroutine=True boost:without_date_time=True boost:without_exception=True boost:without_fiber=True boost:without_filesystem=True boost:without_iostreams=True boost:without_json=True boost:without_locale=True boost:without_log=True boost:without_mpi=True boost:without_nowide=True boost:without_program_options=True boost:without_python=True boost:without_stacktrace=True boost:without_test=True boost:without_thread=True boost:without_timer=True boost:without_type_erasure=True boost:without_wave=True)
 endif()
 
 set(CONAN_INSTALL_FOLDER ${CMAKE_BINARY_DIR}/conan)
@@ -53,7 +53,7 @@ conan_cmake_configure(
 
 foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
     conan_cmake_autodetect(
-        settings
+        CONAN_AUTODETECTED_SETTINGS
         BUILD_TYPE
             ${TYPE}
     )
@@ -65,11 +65,11 @@ foreach(TYPE ${CMAKE_CONFIGURATION_TYPES};${CMAKE_BUILD_TYPE})
             missing
         INSTALL_FOLDER
             ${CONAN_INSTALL_FOLDER}
-        # OUTPUT_QUIET
+        OUTPUT_QUIET
         PATH_OR_REFERENCE
             ${CMAKE_BINARY_DIR}
         SETTINGS
-            ${settings}
+            ${CONAN_AUTODETECTED_SETTINGS}
     )
 endforeach()
 set(CMAKE_PREFIX_PATH ${CONAN_INSTALL_FOLDER})
@@ -110,7 +110,7 @@ if(APPLE)
     cmake_policy(POP)
 endif()
 
-find_package(entt 3.10.3
+find_package(EnTT 3.10.3
     CONFIG
     REQUIRED
 )
@@ -231,7 +231,6 @@ add_executable(${PROJECT_NAME}
     src/systems/destroy_tagged.h
     src/systems/tag_destroy_stopped_sounds.cpp
     src/systems/tag_destroy_stopped_sounds.h
-    src/systems/move.cpp
     src/systems/play_sound_effects.cpp
     src/systems/play_sound_effects.h
     src/tomlpp.h

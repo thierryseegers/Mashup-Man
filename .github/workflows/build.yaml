@@ -13,20 +13,23 @@ jobs:
       - name: Install Boost
         if: ${{ contains(matrix.os, 'macos') }}
         run: brew install boost
-      - name: Update apt sources
-        if: ${{ contains(matrix.os, 'ubuntu') }}
-        run: sudo apt-get update
-      - name: Install required system packages
-        if: ${{ contains(matrix.os, 'ubuntu') }}
-        run: sudo apt-get install -y libudev-dev libgl-dev
       - name: Install CMake
-        uses: jwlawson/actions-setup-cmake@v1.9
+        uses: jwlawson/actions-setup-cmake@v1.12.1
       - name: Install Conan
         uses: turtlebrowser/get-conan@main
+      - name: Set Conan package_manager mode to 'install' and use sudo
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: |
+          touch ~/.conan/global.conf
+          echo "tools.system.package_manager:mode = 'install'" >> ~/.conan/global.conf
+          echo "tools.system.package_manager:sudo = True" >> ~/.conan/global.conf
       - name: Check out repository
         uses: actions/checkout@v2
       - name: Configure
         run: cmake . -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+        env: 
+          CONAN_SYSREQUIRES_MODE: enabled
+          CONAN_SYSREQUIRES_SUDO: 1
       - uses: SimenB/github-actions-cpu-cores@v1
         id: cpu-count
       - name: Build
