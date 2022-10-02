@@ -2,20 +2,19 @@
 
 #include "resources.h"
 
-#include <SFML/System/Vector3.hpp>
+#include <SFML/Audio/Sound.hpp>
+
+#include <memory>
 
 namespace components
 {
 
 struct sound_effect
 {
-    resources::sound_effect sound_effect;
-};
-
-struct positioned_sound_effect :
-    public sound_effect
-{
-    sf::Vector3f listener_position;
+    entt::resource<sf::SoundBuffer> buffer;
+    // When components get compacted, `operator=` is invoked and `operator=(sf::Sound)`
+    // stops playback hence the use of `shared_ptr<sf::Sound>`.
+    std::shared_ptr<sf::Sound> sound;
 };
 
 }

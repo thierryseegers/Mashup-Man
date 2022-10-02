@@ -150,7 +150,6 @@ add_executable(${PROJECT_NAME}
     src/bindings.h
     src/command.h
     src/components/destroy_tag.h
-    src/components/sound.h
     src/components/sound_effect.h
     src/configuration.cpp
     src/configuration.h
@@ -231,8 +230,6 @@ add_executable(${PROJECT_NAME}
     src/systems/destroy_tagged.h
     src/systems/tag_destroy_stopped_sounds.cpp
     src/systems/tag_destroy_stopped_sounds.h
-    src/systems/play_sound_effects.cpp
-    src/systems/play_sound_effects.h
     src/tomlpp.h
     src/utility.cpp
     src/utility.h

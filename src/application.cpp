@@ -3,7 +3,6 @@
 #include "registries.h"
 #include "systems/destroy_tagged.h"
 #include "systems/tag_destroy_stopped_sounds.h"
-#include "systems/play_sound_effects.h"
 
 #include "entity/hero.h"
 #include "resources.h"
@@ -81,7 +80,6 @@ void application::run()
         update_statistics(elapsed_time);
         render();
 
-        systems::play_sound_effects();
         systems::tag_destroy_stopped_sounds();
         systems::destroy_tagged();
     }
