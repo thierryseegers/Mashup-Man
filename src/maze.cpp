@@ -4,6 +4,7 @@
 #include "resources.h"
 #include "utility.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <map>
 
@@ -152,8 +153,8 @@ std::map<direction, char> maze::around(
     sf::Vector2i const& coordinates) const
 {
     return {{direction::down,   operator[]({coordinates.x, coordinates.y + 1})},
-            {direction::left,   operator[]({coordinates.x - 1, coordinates.y})},
-            {direction::right,  operator[]({coordinates.x + 1, coordinates.y})},
+            {direction::left,   operator[]({std::max(0, coordinates.x - 1), coordinates.y})},   // Hero can be on edges when using the pipe.
+            {direction::right,  operator[]({std::min(coordinates.x + 1, (int)level::width - 1), coordinates.y})},
             {direction::up,     operator[]({coordinates.x, coordinates.y - 1})}};
 }
 
