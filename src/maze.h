@@ -1,6 +1,5 @@
 #pragma once
 
-#include "astar_route.h"
 #include "direction.h"
 #include "level.h"
 #include "scene.h"
@@ -71,6 +70,4 @@ private:
     sf::Texture texture_strip;
 
     sf::IntRect ghost_house_;
-
-    std::shared_ptr<astar::maze> astar_maze;
 };

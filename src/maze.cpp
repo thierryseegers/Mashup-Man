@@ -2,6 +2,7 @@
 
 #include "level.h"
 #include "resources.h"
+#include "services/services.h"
 #include "utility.h"
 
 #include <algorithm>
@@ -140,7 +141,7 @@ maze::maze(
         }
     }
 
-    astar_maze = astar::make_maze(level_description);
+    services::path_finder::value().map(level_description);
 }
 
 char maze::operator[](
@@ -167,7 +168,7 @@ direction maze::route(
     sf::Vector2i const& start,
     sf::Vector2i const& goal) const
 {
-    return astar::route(astar_maze.get(), start, goal);
+    return services::path_finder::value().route(start, goal);
 }
 
 void maze::draw_self(

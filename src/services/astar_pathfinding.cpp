@@ -1,15 +1,15 @@
-#include "astar_route.h"
+#include "services/astar_pathfinding.h"
 
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/grid_graph.hpp>
-#include <spdlog/spdlog.h>
 
 #include <cmath>
 #include <memory>
 
-namespace astar
+namespace services::pathfinding
 {
 
 using grid = boost::grid_graph<2, int>;
@@ -20,23 +20,19 @@ struct vertex_hash
     using result_type = std::size_t;
 
     std::size_t operator()(
-        grid::vertex_descriptor const& u) const;
+        grid::vertex_descriptor const& u) const noexcept
+    {
+        std::size_t seed = 0;
+        boost::hash_combine(seed, u[0]);
+        boost::hash_combine(seed, u[1]);
+
+        return seed;
+    }
 };
 
+using distance = double;
 using vertex_set = boost::unordered_set<grid::vertex_descriptor, vertex_hash>;
 using filtered_grid = boost::vertex_subset_complement_filter<grid, vertex_set>::type;
-
-using distance = double;
-
-std::size_t vertex_hash::operator()(
-    grid::vertex_descriptor const& u) const
-{
-    std::size_t seed = 0;
-    boost::hash_combine(seed, u[0]);
-    boost::hash_combine(seed, u[1]);
-
-    return seed;
-}
 
 struct euclidean_distance
     : public boost::astar_heuristic<filtered_grid, distance>
@@ -44,12 +40,12 @@ struct euclidean_distance
     grid::vertex_descriptor goal;
 
     euclidean_distance(
-        grid::vertex_descriptor const& goal)
+        grid::vertex_descriptor const& goal) noexcept
         : goal{goal}
     {}
 
     distance operator()(
-        grid::vertex_descriptor const& v)
+        grid::vertex_descriptor const& v) noexcept
     {
         return sqrt(pow(double(goal[0] - v[0]), 2) + pow(double(goal[1] - v[1]), 2));
     }
@@ -64,7 +60,7 @@ struct astar_goal_visitor
     grid::vertex_descriptor goal;
 
     astar_goal_visitor(
-        grid::vertex_descriptor const& goal)
+        grid::vertex_descriptor const& goal) noexcept
         : goal{goal}
     {}
 
@@ -79,13 +75,13 @@ struct astar_goal_visitor
     }
 };
 
-class maze
+class astar::impl
 {
 public:
-    maze(
-        level::description const& level_description)
-        : grid_{{{(int)level_description[0].size(), (int)level_description.size()}}}
-        , paths{boost::make_vertex_subset_complement_filter(grid_, barriers)}
+    explicit impl(
+        level::description const& level_description) noexcept : 
+            grid_{grid::vertex_descriptor{(int)level_description[0].size(), (int)level_description.size()}},
+            paths{boost::make_vertex_subset_complement_filter(grid_, barriers)}
     {
         for(size_t r = 0; r != level_description.size(); ++r)
         {
@@ -107,10 +103,9 @@ public:
         }
     }
 
-    // Give the direction to go in given target coordinates.
     direction route(
         grid::vertex_descriptor const& start,
-        grid::vertex_descriptor const& goal) const
+        grid::vertex_descriptor const& goal) const noexcept
     {
         boost::static_property_map<distance> weight(1);
 
@@ -168,23 +163,25 @@ private:
 };
 
 grid::vertex_descriptor to_vertex_descriptor(
-    sf::Vector2i const& coordinates)
+    sf::Vector2i const& coordinates) noexcept
 {
     return {{static_cast<grid::vertices_size_type>(coordinates.x), static_cast<grid::vertices_size_type>(coordinates.y)}};
 }
 
-std::shared_ptr<maze> make_maze(
-    level::description const& level_description)
-{
-    return std::make_shared<maze>(level_description);
+astar::astar() noexcept = default;
+
+astar::~astar() noexcept = default;
+
+void astar::map(
+    level::description const& level_description) noexcept {
+    pimpl = std::make_unique<impl>(level_description);
 }
 
-direction route(
-    maze const* const maze_,
+direction astar::route(
     sf::Vector2i const& start,
-    sf::Vector2i const& goal)
+    sf::Vector2i const& goal) const noexcept
 {
-    return maze_->route(to_vertex_descriptor(start), to_vertex_descriptor(goal));
+    return pimpl->route(to_vertex_descriptor(start), to_vertex_descriptor(goal));
 }
 
 }

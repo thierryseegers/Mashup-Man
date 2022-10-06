@@ -142,8 +142,6 @@ add_executable(${PROJECT_NAME}
     src/action.h
     src/application.cpp
     src/application.h
-    src/astar_route.cpp
-    src/astar_route.h
     src/background.cpp
     src/background.h
     src/bindings.cpp
@@ -200,6 +198,8 @@ add_executable(${PROJECT_NAME}
     src/resources.h
     src/scene.cpp
     src/scene.h
+    src/services/astar_pathfinding.cpp
+    src/services/astar_pathfinding.h
     src/services/services.cpp
     src/services/services.h
     src/services/sound_player.cpp
