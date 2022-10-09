@@ -10,6 +10,8 @@
 #include "sprite.h"
 #include "utility.h"
 
+#include <algorithm>
+
 namespace entity::super_mario
 {
 
@@ -67,7 +69,7 @@ void fireball::update_self(
     else
     {
         // Check if it's hitting a wall or not.
-        int const r = getPosition().y / level::tile_size, c = getPosition().x / level::tile_size;
+        int const r = getPosition().y / level::tile_size, c = std::clamp(0, (int)getPosition().x / level::tile_size, (int)level::width - 1);
         if(utility::any_of((*maze_)[{c, r}], '0', '1', '2', '3', 'p'))
         {
             // Bring it closer to the wall.

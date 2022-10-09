@@ -35,7 +35,7 @@ sf::Vector2i random_home_corner(
 sf::Vector2i to_maze_coordinates(
     sf::Vector2f const& position)
 {
-    return {(int)position.x / level::tile_size, (int)position.y / level::tile_size};
+    return {std::clamp((int)position.x / level::tile_size, 0, (int)level::width - 1), std::clamp((int)position.y / level::tile_size, 0, (int)level::height - 1)};
 }
 
 sf::Vector2f to_playground_coordinates(
@@ -58,8 +58,10 @@ sf::Vector2i predict_position(
         // Remove the tile that would be opposite of the heading.
         around.erase(~heading);
 
+        auto const structure_ahead = maze::to_structure(around.at(heading));
         // If there's no path straight ahead, pick a possible new heading
-        if(maze::to_structure(around.at(heading)) != maze::structure::path)
+        if(structure_ahead != maze::structure::path &&
+           structure_ahead != maze::structure::pipe)
         {
             // Remove the choice that's ahead since ahead is not a path.
             around.erase(heading);
@@ -75,7 +77,27 @@ sf::Vector2i predict_position(
         }
 
         // Update the position by one step.
-        position = position + to_vector2i(heading);
+        if(maze::to_structure((*maze_)[position]) == maze::structure::pipe)
+        {
+            if((position + to_vector2i(heading)).x > (int)level::width - 1)
+            {
+                position.x = 0;
+            }
+            else if((position + to_vector2i(heading)).x < 0)
+            {
+                position.x = level::width - 1;
+            }
+            else
+            {
+                position = position + to_vector2i(heading);
+            }
+        }
+        else 
+        {
+            position = position + to_vector2i(heading);
+        }
+
+        // Adjust position in case hero was in a pipe.
     }
 
     return position;

@@ -155,7 +155,7 @@ std::map<direction, char> maze::around(
 {
     return {{direction::down,   operator[]({coordinates.x, coordinates.y + 1})},
             {direction::left,   operator[]({std::max(0, coordinates.x - 1), coordinates.y})},   // Hero can be on edges when using the pipe.
-            {direction::right,  operator[]({std::min(coordinates.x + 1, (int)level::width - 1), coordinates.y})},
+            {direction::right,  operator[]({std::min(coordinates.x + 1, (int)level::width - 1), coordinates.y})},   // Hero can be on edges when using the pipe.
             {direction::up,     operator[]({coordinates.x, coordinates.y - 1})}};
 }
 

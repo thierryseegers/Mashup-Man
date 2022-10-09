@@ -1,5 +1,9 @@
 #include "entity/entity.h"
 
+#include "direction.h"
+#include "level.h"
+#include "sprite.h"
+
 #include <magic_enum.hpp>
 namespace entity
 {
@@ -72,15 +76,16 @@ void entity::nudge(
 {
     auto const position = getPosition();
 
-    setPosition(position.x + (d == direction::right ? distance : d == direction::left ? -distance : 0.f),
-                position.y + (d == direction::down ? distance : d == direction::up ? -distance : 0.f));
+    setPosition(std::clamp(position.x + (d == direction::right ? distance : d == direction::left ? -distance : 0.f), 0.f, (float)level::width * level::tile_size - 1),
+                std::clamp(position.y + (d == direction::down ? distance : d == direction::up ? -distance : 0.f), 0.f, (float)level::height * level::tile_size - 1));
 }
 
 void entity::update_self(
     sf::Time const& dt,
     commands_t&)
 {
-    sf::Transformable::move(to_vector2f(heading_) * (max_speed * throttle_) * dt.asSeconds());
+    nudge(heading_, (max_speed * throttle_) * dt.asSeconds());
+    // sf::Transformable::move(to_vector2f(heading_) * (max_speed * throttle_) * dt.asSeconds());
 
     sprite_.update(dt);
 }
